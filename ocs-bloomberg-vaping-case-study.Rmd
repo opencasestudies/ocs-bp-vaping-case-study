@@ -16,21 +16,20 @@ knit_time_start <- Sys.time()
 ```
 
 ```{r, echo=FALSE}
-knitr::opts_chunk$set(fig.width=10, fig.height=8, dpi=150) 
+knitr::opts_chunk$set(fig.width=10, fig.height=8, dpi=300) 
 ```
+
+![](final_plot.png)
 
 # Overview
 
 Questions:
 
-- How has tobacco/nicotine use by American youth changed since 2015?
-
-- How have vaping rates influenced tobacco/nicotine use?
-
-- How do vaping rates compare between males and females?
-
-- What vaping brands and flavors appear to be used the most frequently?
-    - Q40: During the past 30 days, what brand of e-cigarettes did you usually use? 
+1. How has tobacco/nicotine use by American youth changed since 2015?
+2. How do vaping rates compare between males and females?
+3. What vaping brands and flavors appear to be used the most frequently?
+    + During the past 30 days, what brand of e-cigarettes did you usually use?
+4. Have vaping rates possibly influenced tobacco/nicotine use?
 
 References:
 
@@ -40,28 +39,32 @@ References:
 
 - [Statista Visualization](https://www.statista.com/statistics/881837/vaping-and-electronic-cigarette-use-us-by-gender/)
 
-Must do:
+# Motivation
 
-- Make folder
+## Background
 
-- Get data (2015-Present)
+## Analysis goal
 
-- Get codebooks (2015-Present)
+## Learning objectives
 
-# Libraries
+Pooled Cross-sectional Data vs Panel Data *Ask Michael about this if unclear*
+
+Survey weights
+
+Data visualization
+
+Working with codebooks
+
+## Libraries
 
 ```{r}
 library(tidyverse)
 library(readxl)
-library(survey)
+library(srvyr)
 library(cowplot)
 ```
 
 # Data import
-
-# Data wrangling
-
-## Codebooks
 
 ## Datasets
 
@@ -238,6 +241,8 @@ names(nyts_data) <- nyts_data_names
 names(nyts_data)
 ```
 
+# Data wrangling
+
 ```{r}
 nyts_data[["nyts2015"]] <- nyts_data[["nyts2015"]] %>%
     dplyr::select(psu,
@@ -311,48 +316,19 @@ nyts_data[["nyts2015"]] <- nyts_data[["nyts2015"]] %>%
          Not_HL=recode(Not_HL,
                        `1` = TRUE,
                        .default = FALSE,
-                      .missing = FALSE),
-         HL_Mex=recode(HL_Mex,
+                      .missing = FALSE)) %>%
+  mutate_at(vars(starts_with("HL", ignore.case = FALSE)),
+              list(~recode(.,
                        `1` = TRUE,
                        .default = FALSE,
-                      .missing = FALSE),
-         HL_PR=recode(HL_PR,
-                      `1` = TRUE,
+                      .missing = FALSE))) %>%
+  mutate_at(vars(starts_with("Race", ignore.case = FALSE)),
+              list(~recode(.,
+                       `1` = TRUE,
                        .default = FALSE,
-                      .missing = FALSE),
-         HL_Cub=recode(HL_Cub,
-                      `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE),
-         HL_Other=recode(HL_Other,
-                      `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE),
-         Race_AIAN=recode(Race_AIAN,
-                          `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE),
-         Race_Asian=recode(Race_Asian,
-                           `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE),
-         Race_BAA=recode(Race_BAA,
-                         `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE),
-         Race_NHOPI=recode(Race_NHOPI,
-                           `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE),
-         Race_White=recode(Race_White,
-                           `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE)
-         ) %>%
-  mutate_at(vars(starts_with("E",
-                               ignore.case = FALSE),
-                   starts_with("C",
-                               ignore.case = FALSE)),
+                      .missing = FALSE))) %>%
+  mutate_at(vars(starts_with("E", ignore.case = FALSE),
+                   starts_with("C", ignore.case = FALSE)),
               list(~recode(.,
                            `1` = TRUE,
                            `2` = FALSE,
@@ -443,44 +419,17 @@ nyts_data[["nyts2016"]] <- nyts_data[["nyts2016"]] %>%
          Not_HL=recode(Not_HL,
                        `1` = TRUE,
                        .default = FALSE,
-                      .missing = FALSE),
-         HL_Mex=recode(HL_Mex,
+                      .missing = FALSE)) %>%
+  mutate_at(vars(starts_with("HL", ignore.case = FALSE)),
+              list(~recode(.,
                        `1` = TRUE,
                        .default = FALSE,
-                      .missing = FALSE),
-         HL_PR=recode(HL_PR,
-                      `1` = TRUE,
+                      .missing = FALSE))) %>%
+  mutate_at(vars(starts_with("Race", ignore.case = FALSE)),
+              list(~recode(.,
+                       `1` = TRUE,
                        .default = FALSE,
-                      .missing = FALSE),
-         HL_Cub=recode(HL_Cub,
-                      `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE),
-         HL_Other=recode(HL_Other,
-                      `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE),
-         Race_AIAN=recode(Race_AIAN,
-                          `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE),
-         Race_Asian=recode(Race_Asian,
-                           `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE),
-         Race_BAA=recode(Race_BAA,
-                         `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE),
-         Race_NHOPI=recode(Race_NHOPI,
-                           `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE),
-         Race_White=recode(Race_White,
-                           `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE)
-         ) %>%
+                      .missing = FALSE))) %>%
     mutate_at(vars(starts_with("E", ignore.case = FALSE),
                    starts_with("C", ignore.case = FALSE)),
               list(~recode(.,
@@ -576,44 +525,17 @@ nyts_data[["nyts2017"]] <- nyts_data[["nyts2017"]] %>%
          Not_HL=recode(Not_HL,
                        `1` = TRUE,
                        .default = FALSE,
-                      .missing = FALSE),
-         HL_Mex=recode(HL_Mex,
+                      .missing = FALSE)) %>%
+  mutate_at(vars(starts_with("HL", ignore.case = FALSE)),
+              list(~recode(.,
                        `1` = TRUE,
                        .default = FALSE,
-                      .missing = FALSE),
-         HL_PR=recode(HL_PR,
-                      `1` = TRUE,
+                      .missing = FALSE))) %>%
+  mutate_at(vars(starts_with("Race", ignore.case = FALSE)),
+              list(~recode(.,
+                       `1` = TRUE,
                        .default = FALSE,
-                      .missing = FALSE),
-         HL_Cub=recode(HL_Cub,
-                      `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE),
-         HL_Other=recode(HL_Other,
-                      `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE),
-         Race_AIAN=recode(Race_AIAN,
-                          `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE),
-         Race_Asian=recode(Race_Asian,
-                           `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE),
-         Race_BAA=recode(Race_BAA,
-                         `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE),
-         Race_NHOPI=recode(Race_NHOPI,
-                           `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE),
-         Race_White=recode(Race_White,
-                           `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE)
-         ) %>%
+                      .missing = FALSE))) %>%
     mutate_at(vars(starts_with("E", ignore.case = FALSE),
                    starts_with("C", ignore.case = FALSE)),
               list(~recode(.,
@@ -708,44 +630,17 @@ nyts_data[["nyts2018"]] <- nyts_data[["nyts2018"]] %>%
          Not_HL=recode(Not_HL,
                        `1` = TRUE,
                        .default = FALSE,
-                      .missing = FALSE),
-         HL_Mex=recode(HL_Mex,
+                      .missing = FALSE)) %>%
+  mutate_at(vars(starts_with("HL", ignore.case = FALSE)),
+              list(~recode(.,
                        `1` = TRUE,
                        .default = FALSE,
-                      .missing = FALSE),
-         HL_PR=recode(HL_PR,
-                      `1` = TRUE,
+                      .missing = FALSE))) %>%
+  mutate_at(vars(starts_with("Race", ignore.case = FALSE)),
+              list(~recode(.,
+                       `1` = TRUE,
                        .default = FALSE,
-                      .missing = FALSE),
-         HL_Cub=recode(HL_Cub,
-                      `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE),
-         HL_Other=recode(HL_Other,
-                      `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE),
-         Race_AIAN=recode(Race_AIAN,
-                          `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE),
-         Race_Asian=recode(Race_Asian,
-                           `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE),
-         Race_BAA=recode(Race_BAA,
-                         `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE),
-         Race_NHOPI=recode(Race_NHOPI,
-                           `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE),
-         Race_White=recode(Race_White,
-                           `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE)
-         ) %>%
+                      .missing = FALSE))) %>%
   mutate_at(vars(starts_with("E", ignore.case = FALSE),
                    starts_with("C", ignore.case = FALSE)),
             list(~recode(.,
@@ -841,43 +736,17 @@ nyts_data[["nyts2019"]] <- nyts_data[["nyts2019"]] %>%
          Not_HL=recode(Not_HL,
                        `1` = TRUE,
                        .default = FALSE,
-                      .missing = FALSE),
-         HL_Mex=recode(HL_Mex,
+                      .missing = FALSE)) %>%
+  mutate_at(vars(starts_with("HL", ignore.case = FALSE)),
+              list(~recode(.,
                        `1` = TRUE,
                        .default = FALSE,
-                      .missing = FALSE),
-         HL_PR=recode(HL_PR,
-                      `1` = TRUE,
+                      .missing = FALSE))) %>%
+  mutate_at(vars(starts_with("Race", ignore.case = FALSE)),
+              list(~recode(.,
+                       `1` = TRUE,
                        .default = FALSE,
-                      .missing = FALSE),
-         HL_Cub=recode(HL_Cub,
-                      `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE),
-         HL_Other=recode(HL_Other,
-                      `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE),
-         Race_AIAN=recode(Race_AIAN,
-                          `1` = TRUE,
-                      .default = NA),
-         Race_Asian=recode(Race_Asian,
-                           `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE),
-         Race_BAA=recode(Race_BAA,
-                         `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE),
-         Race_NHOPI=recode(Race_NHOPI,
-                           `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE),
-         Race_White=recode(Race_White,
-                           `1` = TRUE,
-                       .default = FALSE,
-                      .missing = FALSE)
-         ) %>%
+                      .missing = FALSE))) %>%
     mutate_at(vars(starts_with("E", ignore.case = FALSE),
                    starts_with("C", ignore.case = FALSE)),
               list(~recode(.,
@@ -920,12 +789,21 @@ sapply(nyts_data, function(x)
     )
 ```
 
-# Question 1 
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
 
-How has tobacco/nicotine use by American youth changed since 2015?
+Reminder: Current users are a subset of ever users. 
+
+</div>
+
+# Data visualization
+
+## Question 1 
 
 ```{r}
-nyts_data %>%
+plot1 <- nyts_data %>%
     mutate(tobacco_sum_ever = select(., starts_with("E", ignore.case = FALSE)) %>%
                apply(1, sum, na.rm=TRUE),
            tobacco_sum_current = select(., starts_with("C", ignore.case = FALSE)) %>%
@@ -941,30 +819,30 @@ nyts_data %>%
                 sum(!is.na(tobacco_current))) %>%
     rename("Ever"=tobacco_ever_year,
            "Current"=tobacco_current_year) %>%
-    gather(key=Users,
-           value=`Percentage of Students`,
+    gather(key=User,
+           value=`Percentage of students`,
            -year) %>%
-    ggplot(aes(x=year,y=`Percentage of Students`, linetype=Users)) +
-    geom_line(size=0.5) + 
-  geom_point(size=2) +
+    ggplot(aes(x=year,y=`Percentage of students`, linetype=User)) +
+    geom_line() + 
+  geom_point(show.legend = FALSE) +
   scale_linetype_manual(values = c(2,1)) +
-    scale_y_continuous(breaks = seq(0,50,by=5),
-                       labels = seq(0,50,by=5),
-                       limits = c(0,50)) +
+    scale_y_continuous(breaks = seq(0,70,by=10),
+                       labels = seq(0,70,by=10),
+                       limits = c(0,70)) +
     theme_minimal() +
     theme(legend.position = "bottom",
           axis.title.x = element_blank()) +
     labs(title = "How does nicotine use vary over the years?",
          subtitle = "Current and ever users of nicotine products",
          y = "% of students")
+
+plot1 
 ```
 
-# Question 3
-
-How do vaping rates compare between males and females?
+## Question 2
 
 ```{r}
-nyts_data %>%
+plot2 <- nyts_data %>%
     group_by(year,
              female) %>%
     summarise(EELCIGT_year=(sum(EELCIGT, na.rm = TRUE)*100)/
@@ -975,26 +853,29 @@ nyts_data %>%
     rename("E-cigarettes, Ever"=EELCIGT_year,
            "E-cigarettes, Current"=CELCIGT_year) %>%
     gather(key=Category,
-           value=`Percentage of Students`,
+           value=`Percentage of students`,
            -year,
            -female) %>%
-    mutate(Use = case_when(Category == "E-cigarettes, Ever" ~ "Ever",
+    mutate(User = case_when(Category == "E-cigarettes, Ever" ~ "Ever",
                                Category == "E-cigarettes, Current" ~ "Current")) %>%
     mutate(Sex = case_when(female == TRUE ~ "Females",
                                female == FALSE ~ "Males")) %>%
-    ggplot(aes(x=year,y=`Percentage of Students`, color=Sex, linetype=Use)) +
-    geom_line(size=0.5) + 
-  geom_point(size=2) +
+    ggplot(aes(x=year,y=`Percentage of students`, color=Sex, linetype=User)) +
+    geom_line() + 
+  geom_point(show.legend = FALSE) +
   scale_linetype_manual(values = c(2,1)) +
     theme_minimal() +
     theme(legend.position = "bottom",
           axis.text.x = element_text(angle = 90),
           axis.title.x = element_blank()) +
-    labs(title = "Student Use of E-cigarettes",
-         y = "Percent of Students")
+    labs(title = "How do vaping rates compare between males and females?",
+         subtitle = "Current and ever users by gender",
+         y = "% of students")
+
+plot2
 ```
 
-# Question 4
+## Question 3
 
 What vaping brands and flavors appear to be used the most frequently?
 
@@ -1006,7 +887,7 @@ knitr::include_graphics("HuangJ_DuanZ_KwokJ_et_al_TobaccoControl_Figure1.png")
 
 
 ```{r}
-nyts_data %>%
+plot3 <- nyts_data %>%
     filter(year==2019) %>%
     group_by(brand_ecig) %>%
     filter(!is.na(brand_ecig)) %>%
@@ -1018,18 +899,20 @@ nyts_data %>%
     geom_bar(stat="identity") +
     theme_minimal() +
     theme(legend.position = "none",
-          axis.text.x = element_text(),
+          axis.text.x = element_text(size=10),
           axis.title.x = element_blank()) +
     labs(title = "What vaping brands appear to be used the most frequently?",
-         subtitle = "Brand of E-cigarette Most Frequently Used in the Last 30 Days (2019)",
-         y = "Percent of E-cigarette Users Responding")
+         subtitle = "Brand of e-cigarette most frequently used in the last 30 days (2019)",
+         y = "% of e-cigarette users responding")
+
+plot3
 ```
 
 ```{r}
-nyts_data %>%
+plot4 <- nyts_data %>%
   filter(year!=2015) %>%
   group_by(year) %>%
-    summarise(Menthol=(sum(menthol, na.rm = TRUE)*100)/
+  summarise(Menthol=(sum(menthol, na.rm = TRUE)*100)/
                 sum(!is.na(menthol)),
               `Clove or Spice`=(sum(clove_spice, na.rm = TRUE)*100)/
                 sum(!is.na(clove_spice)),
@@ -1040,28 +923,30 @@ nyts_data %>%
               `Alcoholic Drink`=(sum(alcoholic_drink, na.rm = TRUE)*100)/
                 sum(!is.na(alcoholic_drink)),
               `Candy/Desserts/Sweets`=(sum(candy_dessert_sweets, na.rm = TRUE)*100)/sum(!is.na(candy_dessert_sweets))) %>%
-  gather(key=Flavor,value=`Percentage of Students`,-year) %>%
-  ggplot(aes(x=year, y=`Percentage of Students`, color=Flavor)) +
-  geom_line(size=0.5) +
-  geom_point(size=2) +
+  gather(key=Flavor,value=`Percentage of students`,-year) %>%
+  ggplot(aes(x=year, y=`Percentage of students`, color=Flavor)) +
+  geom_line() +
+  geom_point(show.legend = FALSE) +
   theme_minimal() +
   theme(legend.position = "bottom",
           axis.text.x = element_text(angle = 90),
           axis.title.x = element_blank()) + 
   labs(title = "What flavors appear to be used the most frequently in nicotine products?",
-       subtitle = "Flavors of Tobacco Products Used in the Past 30 Days")
+       subtitle = "Flavors of tobacco products used in the past 30 days")
+
+plot4 
 ```
 
 ```{r}
-nyts_data %>%
-  filter(year!=2015) %>% #Previously year!=2015
+plot5 <- nyts_data %>%
+  filter(year!=2015) %>%
   filter(menthol==TRUE|
            clove_spice==TRUE|
            fruit==TRUE|
            chocolate==TRUE|
            alcoholic_drink==TRUE|
            candy_dessert_sweets==TRUE|
-           other==TRUE) %>% # Coding error
+           other==TRUE) %>%
   mutate(ecig_sum_ever = select(., EELCIGT) %>%
                apply(1, sum, na.rm=TRUE),
            ecig_sum_current = select(., CELCIGT) %>%
@@ -1093,9 +978,9 @@ nyts_data %>%
                                                ecig_ever ==FALSE ~ TRUE,
                                     TRUE ~ FALSE)) %>%
   mutate(Group = case_when(ecig_only_ever==TRUE |
-                             ecig_only_current==TRUE ~ "Only E-Cigarettes",
+                             ecig_only_current==TRUE ~ "Only e-cigarettes",
                          non_ecig_only_ever==TRUE |
-                           non_ecig_only_current==TRUE ~ "Only Other Nicotine Products",
+                           non_ecig_only_current==TRUE ~ "Only other products",
                                     TRUE ~ "Both")) %>%
   filter(Group!="Both") %>%
   group_by(year, Group) %>%
@@ -1113,35 +998,37 @@ nyts_data %>%
             `Other`=(sum(other, na.rm = TRUE)*100)/
               sum(!is.na(other)),
             Respondents=n()) %>%
-  gather(key=Flavor,value=`Percentage of Students`,-year, -Group, -Respondents) %>%
-  filter(!is.na(`Percentage of Students`),
+  gather(key=Flavor,value=`Percentage of students`,-year, -Group, -Respondents) %>%
+  filter(!is.na(`Percentage of students`),
          Flavor!="Other") %>%
   group_by(Flavor) %>%
-  mutate(affirmative=(Respondents * `Percentage of Students`)/100) %>%
+  mutate(affirmative=(Respondents * `Percentage of students`)/100) %>%
   mutate(flavor_mean = sum(affirmative)/sum(Respondents)) %>%
   ungroup() %>%
   mutate(flavor_mean_rank = dense_rank(flavor_mean),
          Flavor = fct_reorder(Flavor, flavor_mean_rank)) %>%
-  ggplot(aes(x=year, y=`Percentage of Students`, color=Group)) +
+  ggplot(aes(x=year, y=`Percentage of students`, color=Group)) +
   facet_wrap(.~Flavor,ncol=3) +
-  geom_line(size=0.5) + 
-  geom_point(size=2) + 
+  geom_line() + 
+  geom_point(show.legend = FALSE) + 
   theme_minimal() +
   theme(legend.position = "bottom",
           axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90)) + 
-  labs(title = "Amongst users of only one type of product, what vaping flavors appear to be used the most frequently?",
-       subtitle = "Percent reporting only E-Cigarette use vs only other nicotine product use")
+  labs(title = "Among users of only one type of product, what vaping flavors appear to be used the most frequently?",
+       subtitle = "Percent reporting only e-cigarette use vs only other nicotine product use")
+
+plot5
 ```
 
-# Question 2
+## Question 4
 
-How have vaping rates influenced tobacco/nicotine use?
+Have vaping rates possibly influenced tobacco/nicotine use?
 
 Discuss how omission of groups with values entirely dependent on other groups can lead to better graphics. Discuss when to include these groups. For example: consider the advantages of *excluding* never users as we did in plots excluding never users; then, consider and the advantages of *including* a never user group in the difference plot. This would be a great way to discuss the process of generating *meaningful*, *practicable* plots—a discussion even experienced R users can benefit from. 
 
 ```{r}
-nyts_data %>%
+plot6 <- nyts_data %>%
     group_by(year) %>%
     summarise(ECIGT_year=(sum(ECIGT, na.rm = TRUE)*100)/
                 sum(!is.na(ECIGT)),
@@ -1156,9 +1043,9 @@ nyts_data %>%
            "Cigarettes, Current"=CCIGT_year,
            "E-cigarettes, Current"=CELCIGT_year) %>%
     gather(key=Category,
-           value=`Percentage of Students`,
+           value=`Percentage of students`,
            -year) %>%
-    mutate(Users = case_when(Category == "Cigarettes, Ever" ~ "Ever",
+    mutate(User = case_when(Category == "Cigarettes, Ever" ~ "Ever",
                                Category == "E-cigarettes, Ever" ~ "Ever",
                                Category == "Cigarettes, Current" ~ "Current",
                                Category == "E-cigarettes, Current" ~ "Current")) %>%
@@ -1166,9 +1053,9 @@ nyts_data %>%
                                Category == "E-cigarettes, Ever" ~ "E-cigarettes",
                                Category == "Cigarettes, Current" ~ "Cigarettes",
                                Category == "E-cigarettes, Current" ~ "E-cigarettes")) %>%
-    ggplot(aes(x=year,y=`Percentage of Students`, color=Product, linetype=Users)) +
-    geom_line(size=0.5) + 
-  geom_point(size=2) +
+    ggplot(aes(x=year,y=`Percentage of students`, color=Product, linetype=User)) +
+    geom_line() + 
+  geom_point(show.legend = FALSE) +
   scale_linetype_manual(values = c(2,1)) +
     theme_minimal() +
     theme(legend.position = "bottom",
@@ -1176,62 +1063,12 @@ nyts_data %>%
     labs(title = "How does e-cigarette use compare to cigarette use?",
          subtitle = "Current and ever users of e-cigarettes and cigarettes",
          y = "% of students")
+
+plot6
 ```
 
 ```{r}
-nyts_data %>%
-    mutate(ecig_sum_ever = select(., EELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           ecig_sum_current = select(., CELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           nicotine_sum_ever = select(., starts_with("E", ignore.case = FALSE)) %>%
-               apply(1, sum, na.rm=TRUE),
-           nicotine_sum_current = select(., starts_with("C", ignore.case = FALSE)) %>%
-               apply(1, sum, na.rm=TRUE)) %>%
-    mutate(ecig_ever = case_when(ecig_sum_ever > 0 ~ TRUE,
-                                    ecig_sum_ever ==0 ~ FALSE),
-           ecig_current = case_when(ecig_sum_current > 0 ~ TRUE,
-                                    ecig_sum_current ==0 ~ FALSE),
-           nicotine_ever = case_when(nicotine_sum_ever > 0 ~ TRUE,
-                                    nicotine_sum_ever ==0 ~ FALSE),
-           nicotine_current = case_when(nicotine_sum_current > 0 ~ TRUE,
-                                    nicotine_sum_current ==0 ~ FALSE)) %>%
-    group_by(year) %>%
-    summarise(ecig_ever_year=(sum(ecig_ever, na.rm = TRUE)*100)/sum(!is.na(ecig_ever)),
-              ecig_current_year=(sum(ecig_current, na.rm = TRUE)*100)/
-                sum(!is.na(ecig_current)),
-              nicotine_ever_year=(sum(nicotine_ever, na.rm = TRUE)*100)/
-                sum(!is.na(nicotine_ever)),
-              nicotine_current_year=(sum(nicotine_current, na.rm = TRUE)*100)/
-                sum(!is.na(nicotine_current))) %>%
-    gather(key=Category,
-           value=`Percentage of Students`,
-           -year) %>%
-    mutate(Users = case_when(Category =="ecig_ever_year" ~ "Ever",
-                           Category =="nicotine_ever_year" ~ "Ever",
-                           Category =="ecig_current_year" ~ "Current",
-                           Category =="nicotine_current_year" ~ "Current")) %>%
-    mutate(Product = case_when(Category =="ecig_ever_year" ~ "E-cigarettes",
-                           Category =="nicotine_ever_year" ~ "All Nicotine Products",
-                           Category =="ecig_current_year" ~ "E-cigarettes",
-                           Category =="nicotine_current_year" ~ "All Nicotine Products")) %>%
-  group_by(year, Users) %>%
-  summarise(perc_all_e_cig = (`Percentage of Students`[Product=="E-cigarettes"]*100)/`Percentage of Students`[Product=="All Nicotine Products"]) %>%
-    ggplot(aes(x=year,y=perc_all_e_cig, linetype=Users)) +
-  geom_line() +
-  geom_point() + 
-  scale_linetype_manual(values = c(2,1)) +
-  scale_y_continuous(limits = c(0,100)) + 
-    theme_minimal() +
-    theme(legend.position = "bottom",
-          axis.title.x = element_blank()) +
-    labs(title = "What percentage of nicotine product users are comprised of e-cigarette users?",
-         subtitle = "% e-cigarette users among nicotine users",
-         y = "% e-cigarette users")
-```
-
-```{r}
-nyts_data %>%
+plot7 <- nyts_data %>%
     mutate(ecig_sum_ever = select(., EELCIGT) %>%
                apply(1, sum, na.rm=TRUE),
            ecig_sum_current = select(., CELCIGT) %>%
@@ -1260,30 +1097,33 @@ nyts_data %>%
               non_ecig_current_year=(sum(non_ecig_current, na.rm = TRUE)*100)/
                 sum(!is.na(non_ecig_current))) %>%
     gather(key=Category,
-           value=`Percentage of Students`,
+           value=`Percentage of students`,
            -year) %>%
-    mutate(Users = case_when(Category =="ecig_ever_year" ~ "Ever",
+    mutate(User = case_when(Category =="ecig_ever_year" ~ "Ever",
                            Category =="non_ecig_ever_year" ~ "Ever",
                            Category =="ecig_current_year" ~ "Current",
                            Category =="non_ecig_current_year" ~ "Current")) %>%
     mutate(Product = case_when(Category =="ecig_ever_year" ~ "E-cigarettes",
-                           Category =="non_ecig_ever_year" ~ "Other Nicotine Products",
+                           Category =="non_ecig_ever_year" ~ "Other products",
                            Category =="ecig_current_year" ~ "E-cigarettes",
-                           Category =="non_ecig_current_year" ~ "Other Nicotine Products")) %>%
-    ggplot(aes(x=year,y=`Percentage of Students`, color=Product, linetype=Users)) +
-    geom_line(size=0.5) +
-  geom_point(size=2) +
+                           Category =="non_ecig_current_year" ~ "Other products")) %>%
+    ggplot(aes(x=year,y=`Percentage of students`, color=Product, linetype=User)) +
+    geom_line() +
+  geom_point(show.legend = FALSE) +
   scale_linetype_manual(values = c(2,1)) +
+  scale_y_continuous(breaks = seq(0, 60, by = 10), limits = c(0,60)) +
     theme_minimal() +
     theme(legend.position = "bottom",
           axis.title.x = element_blank()) +
-    labs(title = "How does e-cigarette use compare to use of other nicotine products over the years?",
+    labs(title = "How does e-cigarette use compare to use of other products over the years?",
          subtitle = "E-cigarette and non-e-cigarette use",
          y = "% of students")
+
+plot7
 ```
 
 ```{r}
-nyts_data %>%
+plot8 <- nyts_data %>%
     mutate(ecig_sum_ever = select(., EELCIGT) %>%
                apply(1, sum, na.rm=TRUE),
            ecig_sum_current = select(., CELCIGT) %>%
@@ -1314,224 +1154,58 @@ nyts_data %>%
     mutate(ecig_never_year = 100 - ecig_ever_year,
          non_ecig_never_year = 100 - non_ecig_ever_year) %>%
     gather(key=Category,
-           value=`Percentage of Students`,
+           value=`Percentage of students`,
            -year)  %>%
-    mutate(Users = case_when(Category =="ecig_ever_year" ~ "Ever",
+    mutate(User = case_when(Category =="ecig_ever_year" ~ "Ever",
                            Category =="non_ecig_ever_year" ~ "Ever",
                            Category =="ecig_current_year" ~ "Current",
-                           Category =="non_ecig_current_year" ~ "Current",
-                           Category =="ecig_never_year" ~ "Never",
-                           Category =="non_ecig_never_year" ~ "Never")) %>%
+                           Category =="non_ecig_current_year" ~ "Current")) %>%
     mutate(Product = case_when(Category =="ecig_ever_year" ~ "E-cigarettes",
-                           Category =="non_ecig_ever_year" ~ "Other Nicotine Products",
+                           Category =="non_ecig_ever_year" ~ "Other products",
                            Category =="ecig_current_year" ~ "E-cigarettes",
-                           Category =="non_ecig_current_year" ~ "Other Nicotine Products",
-                           Category =="ecig_never_year" ~ "E-cigarettes",
-                           Category =="non_ecig_never_year" ~ "Other Nicotine Products")) %>%
-    filter(Users=="Never") %>%
-    ggplot(aes(x=year,y=`Percentage of Students`, color=Product)) +
-    geom_line() + # geom_bar(stat="identity", position = "dodge", color="black") +
-  geom_point() +
-  scale_alpha_manual(values = c(1,1,1)) +
+                           Category =="non_ecig_current_year" ~ "Other products")) %>%
+    filter(User=="Ever") %>%
+    ggplot(aes(x=year,y=`Percentage of students`, color=Product)) +
+    geom_line(linetype=1) + # geom_bar(stat="identity", position = "dodge", color="black") +
+  geom_point(show.legend = FALSE) +
+  scale_y_continuous(breaks = seq(10, 60, by = 10), limits = c(10,60)) +
     theme_minimal() +
     theme(legend.position = "bottom",
           axis.title.x = element_blank()) +
-    labs(title = "How does e-cigarette never use compare to never use of other nicotine products over the years?",
+    labs(title = "How does e-cigarette ever use compare to ever use of other products over the years?",
          subtitle = "E-cigarette and non-e-cigarette use",
          y = "% of students")
+
+plot8
 ```
 
+### Unweighted Sample
 
 ```{r, fig.height=10}
-plotA <- nyts_data %>%
-    mutate(tobacco_sum_ever = select(., starts_with("E", ignore.case = FALSE)) %>%
-               apply(1, sum, na.rm=TRUE),
-           tobacco_sum_current = select(., starts_with("C", ignore.case = FALSE)) %>%
-               apply(1, sum, na.rm=TRUE)) %>%
-    mutate(tobacco_ever = case_when(tobacco_sum_ever > 0 ~ TRUE,
-                                    tobacco_sum_ever ==0 ~ FALSE),
-           tobacco_current = case_when(tobacco_sum_current > 0 ~ TRUE,
-                                    tobacco_sum_current ==0 ~ FALSE)) %>%
-    group_by(year) %>%
-    summarise(tobacco_ever_year=(sum(tobacco_ever, na.rm = TRUE)*100)/
-                sum(!is.na(tobacco_ever)),
-              tobacco_current_year=(sum(tobacco_current, na.rm = TRUE)*100)/
-                sum(!is.na(tobacco_current))) %>%
-    rename("Ever"=tobacco_ever_year,
-           "Current"=tobacco_current_year) %>%
-    gather(key=Users,
-           value=`Percentage of Students`,
-           -year) %>%
-    ggplot(aes(x=year,y=`Percentage of Students`, linetype=Users)) +
-    geom_line(size=0.5) + 
-  geom_point(size=2) +
-  scale_linetype_manual(values = c(2,1)) +
-    scale_y_continuous(breaks = seq(0,65,by=5),
-                       labels = seq(0,65,by=5),
-                       limits = c(0,65)) +
-    theme_minimal() +
-    theme(legend.position = "bottom",
-          axis.title.x = element_blank()) +
-    labs(title = "Nicotine Product Users More Prevalent\nAfter 2017",
+plotA_uw <- plot1 +
+  theme(axis.title.x = element_blank(),
+        legend.position = "none") +
+    labs(title = "Nicotine product users more prevalent after 2017",
+         subtitle = NULL,
          y = "% of students")
 
-plotB <- nyts_data %>%
-    mutate(ecig_sum_ever = select(., EELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           ecig_sum_current = select(., CELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           nicotine_sum_ever = select(., starts_with("E", ignore.case = FALSE)) %>%
-               apply(1, sum, na.rm=TRUE),
-           nicotine_sum_current = select(., starts_with("C", ignore.case = FALSE)) %>%
-               apply(1, sum, na.rm=TRUE)) %>%
-    mutate(ecig_ever = case_when(ecig_sum_ever > 0 ~ TRUE,
-                                    ecig_sum_ever ==0 ~ FALSE),
-           ecig_current = case_when(ecig_sum_current > 0 ~ TRUE,
-                                    ecig_sum_current ==0 ~ FALSE),
-           nicotine_ever = case_when(nicotine_sum_ever > 0 ~ TRUE,
-                                    nicotine_sum_ever ==0 ~ FALSE),
-           nicotine_current = case_when(nicotine_sum_current > 0 ~ TRUE,
-                                    nicotine_sum_current ==0 ~ FALSE)) %>%
-    group_by(year) %>%
-    summarise(ecig_ever_year=(sum(ecig_ever, na.rm = TRUE)*100)/sum(!is.na(ecig_ever)),
-              ecig_current_year=(sum(ecig_current, na.rm = TRUE)*100)/
-                sum(!is.na(ecig_current)),
-              nicotine_ever_year=(sum(nicotine_ever, na.rm = TRUE)*100)/
-                sum(!is.na(nicotine_ever)),
-              nicotine_current_year=(sum(nicotine_current, na.rm = TRUE)*100)/
-                sum(!is.na(nicotine_current))) %>%
-    gather(key=Category,
-           value=`Percentage of Students`,
-           -year) %>%
-    mutate(Users = case_when(Category =="ecig_ever_year" ~ "Ever",
-                           Category =="nicotine_ever_year" ~ "Ever",
-                           Category =="ecig_current_year" ~ "Current",
-                           Category =="nicotine_current_year" ~ "Current")) %>%
-    mutate(Product = case_when(Category =="ecig_ever_year" ~ "E-cigarettes",
-                           Category =="nicotine_ever_year" ~ "All Nicotine Products",
-                           Category =="ecig_current_year" ~ "E-cigarettes",
-                           Category =="nicotine_current_year" ~ "All Nicotine Products")) %>%
-  group_by(year, Users) %>%
-  summarise(perc_all_e_cig = (`Percentage of Students`[Product=="E-cigarettes"]*100)/`Percentage of Students`[Product=="All Nicotine Products"]) %>%
-    ggplot(aes(x=year,y=perc_all_e_cig, linetype=Users)) +
-  geom_line() +
-  geom_point() + 
-  scale_linetype_manual(values = c(2,1)) +
-  scale_y_continuous(limits = c(0,100)) + 
-    theme_minimal() +
-    theme(legend.position = "bottom",
-          axis.title.x = element_blank()) +
-    labs(title = "E-cigarette Users Forming an Increasing\nProportion of All Nicotine Users",
-         y = "% e-cigarette users")
-
-plotC <- nyts_data %>%
-    mutate(ecig_sum_ever = select(., EELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           ecig_sum_current = select(., CELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           non_ecig_sum_ever = select(., starts_with("E", ignore.case = FALSE)) %>%
-               select(.,-EELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           non_ecig_sum_current = select(., starts_with("C", ignore.case = FALSE)) %>%
-               select(.,-CELCIGT) %>%
-               apply(1, sum, na.rm=TRUE)) %>%
-    mutate(ecig_ever = case_when(ecig_sum_ever > 0 ~ TRUE,
-                                    ecig_sum_ever ==0 ~ FALSE),
-           ecig_current = case_when(ecig_sum_current > 0 ~ TRUE,
-                                    ecig_sum_current ==0 ~ FALSE),
-           non_ecig_ever = case_when(non_ecig_sum_ever > 0 ~ TRUE,
-                                    non_ecig_sum_ever ==0 ~ FALSE),
-           non_ecig_current = case_when(non_ecig_sum_current > 0 ~ TRUE,
-                                    non_ecig_sum_current ==0 ~ FALSE)) %>%
-    group_by(year) %>%
-    summarise(ecig_ever_year=(sum(ecig_ever, na.rm = TRUE)*100)/
-                sum(!is.na(ecig_ever)),
-              ecig_current_year=(sum(ecig_current, na.rm = TRUE)*100)/
-                sum(!is.na(ecig_current)),
-              non_ecig_ever_year=(sum(non_ecig_ever, na.rm = TRUE)*100)/
-                sum(!is.na(non_ecig_ever)),
-              non_ecig_current_year=(sum(non_ecig_current, na.rm = TRUE)*100)/
-                sum(!is.na(non_ecig_current))) %>%
-    gather(key=Category,
-           value=`Percentage of Students`,
-           -year) %>%
-    mutate(Users = case_when(Category =="ecig_ever_year" ~ "Ever",
-                           Category =="non_ecig_ever_year" ~ "Ever",
-                           Category =="ecig_current_year" ~ "Current",
-                           Category =="non_ecig_current_year" ~ "Current")) %>%
-    mutate(Product = case_when(Category =="ecig_ever_year" ~ "E-cigarettes",
-                           Category =="non_ecig_ever_year" ~ "Other Nicotine Products",
-                           Category =="ecig_current_year" ~ "E-cigarettes",
-                           Category =="non_ecig_current_year" ~ "Other Nicotine Products")) %>%
-    ggplot(aes(x=year,y=`Percentage of Students`, color=Product, linetype=Users)) +
-    geom_line(size=0.5) +
-  geom_point(size=2) +
-  scale_linetype_manual(values = c(2,1)) +
-    theme_minimal() +
-    theme(legend.position = "bottom",
-          legend.direction = "vertical",
-          axis.title.x = element_blank()) +
-    labs(title = "% Using E-cigarettes Increases &\n% Using Other Nicotine Products Decreases",
+plotB_uw <- plot7 + 
+  theme(axis.title.x = element_blank(),
+        legend.position = "none") +
+    labs(title = "% Using e-cigarettes increases &\n% using Other products decreases",
+         subtitle = NULL,
          y = "% of students")
 
-plotD <- nyts_data %>%
-    mutate(ecig_sum_ever = select(., EELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           ecig_sum_current = select(., CELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           non_ecig_sum_ever = select(., starts_with("E", ignore.case = FALSE)) %>%
-               select(.,-EELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           non_ecig_sum_current = select(., starts_with("C", ignore.case = FALSE)) %>%
-               select(.,-CELCIGT) %>%
-               apply(1, sum, na.rm=TRUE)) %>%
-    mutate(ecig_ever = case_when(ecig_sum_ever > 0 ~ TRUE,
-                                    ecig_sum_ever ==0 ~ FALSE),
-           ecig_current = case_when(ecig_sum_current > 0 ~ TRUE,
-                                    ecig_sum_current ==0 ~ FALSE),
-           non_ecig_ever = case_when(non_ecig_sum_ever > 0 ~ TRUE,
-                                    non_ecig_sum_ever ==0 ~ FALSE),
-           non_ecig_current = case_when(non_ecig_sum_current > 0 ~ TRUE,
-                                    non_ecig_sum_current ==0 ~ FALSE)) %>%
-    group_by(year) %>%
-    summarise(ecig_ever_year=(sum(ecig_ever, na.rm = TRUE)*100)/
-                sum(!is.na(ecig_ever)),
-              ecig_current_year=(sum(ecig_current, na.rm = TRUE)*100)/
-                sum(!is.na(ecig_current)),
-              non_ecig_ever_year=(sum(non_ecig_ever, na.rm = TRUE)*100)/
-                sum(!is.na(non_ecig_ever)),
-              non_ecig_current_year=(sum(non_ecig_current, na.rm = TRUE)*100)/
-                sum(!is.na(non_ecig_current))) %>%
-    mutate(ecig_never_year = 100 - ecig_ever_year,
-         non_ecig_never_year = 100 - non_ecig_ever_year) %>%
-    gather(key=Category,
-           value=`Percentage of Students`,
-           -year)  %>%
-    mutate(Users = case_when(Category =="ecig_ever_year" ~ "Ever",
-                           Category =="non_ecig_ever_year" ~ "Ever",
-                           Category =="ecig_current_year" ~ "Current",
-                           Category =="non_ecig_current_year" ~ "Current",
-                           Category =="ecig_never_year" ~ "Never",
-                           Category =="non_ecig_never_year" ~ "Never")) %>%
-    mutate(Product = case_when(Category =="ecig_ever_year" ~ "E-cigarettes",
-                           Category =="non_ecig_ever_year" ~ "Other Nicotine Products",
-                           Category =="ecig_current_year" ~ "E-cigarettes",
-                           Category =="non_ecig_current_year" ~ "Other Nicotine Products",
-                           Category =="ecig_never_year" ~ "E-cigarettes",
-                           Category =="non_ecig_never_year" ~ "Other Nicotine Products")) %>%
-    filter(Users=="Never") %>%
-    ggplot(aes(x=year,y=`Percentage of Students`, color=Product)) +
-    geom_line() + 
-  geom_point() +
-    theme_minimal() +
-    theme(legend.position = "bottom",
-          axis.title.x = element_blank()) +
-    labs(title = "% Never Trying E-cigarettes Decreases &\n% Never Trying Other Nicotine Products Increases",
+plotC_uw <- plot8 + 
+  theme(axis.title.x = element_blank(),
+        legend.position = "none") +
+    labs(title = "% Never trying e-cigarettes decreases &\n% never trying Other products increases",
+         subtitle = NULL,
          y = "% of students")
 
-title1 <- ggdraw() + 
+title_uw <- ggdraw() + 
   draw_label(
-    "How have vaping rates influenced tobacco/nicotine use?",
+    "Have vaping rates possibly influenced tobacco/nicotine use?",
     fontface = 'bold',
     size=14,
     x = 0,
@@ -1541,28 +1215,231 @@ title1 <- ggdraw() +
     plot.margin = margin(0, 0, 0, 0)
   )
 
-plots1a <- plot_grid(plotA,
-                     plotB,
+plotsA_uw <- plot_grid(plotA_uw,
                      rel_widths = c(1,1))
-plots1b <- plot_grid(plotC,
-                     plotD,
-                     rel_widths = c(1,1))
+plotsBC_uw <- plot_grid(plotB_uw,
+                        plotC_uw,
+                        rel_widths = c(1,1))
 
-plot_grid(title1,
-          plots1a,
-          plots1b,
-          ncol = 1,
-          rel_heights = c(0.1,
-                          1,
-                          1),
-          scale = 1.0
-)
+legend_uw <- get_legend(plotB_uw +
+                       theme(legend.position = "bottom",
+                             legend.direction = "horizontal"))
+
+figure_uw <- plot_grid(title_uw,
+                       plotsA_uw,
+                       plotsBC_uw,
+                       legend_uw,
+                       ncol = 1,
+                       rel_heights = c(0.1,
+                                       1,
+                                       1,
+                                       0.1),
+                       scale = 1.0)
+
+figure_uw
 ```
 
-What about the cohort of 8 graders in 2015 that are followed to adulthood?
+### Weighted Sample
 
-```{r, fig.height=10}
-plotE <- nyts_data %>%
+```{r}
+plotA_w <- nyts_data %>%
+    mutate(tobacco_sum_ever = select(., starts_with("E", ignore.case = FALSE)) %>%
+               apply(1, sum, na.rm=TRUE),
+           tobacco_sum_current = select(., starts_with("C", ignore.case = FALSE)) %>%
+               apply(1, sum, na.rm=TRUE)) %>%
+    mutate(tobacco_ever = case_when(tobacco_sum_ever > 0 ~ TRUE,
+                                    tobacco_sum_ever ==0 ~ FALSE),
+           tobacco_current = case_when(tobacco_sum_current > 0 ~ TRUE,
+                                    tobacco_sum_current ==0 ~ FALSE)) %>%
+  as_survey_design(strata = stratum, ids = psu, weight  = finwgt, nest=TRUE) %>%
+    group_by(year) %>%
+  summarise(tobacco_ever_year = survey_mean(tobacco_ever, vartype = "ci", na.rm=TRUE),
+            tobacco_current_year = survey_mean(tobacco_current, vartype = "ci", na.rm=TRUE))  %>%
+  mutate_at(vars(-year), "*", 100) %>%
+    gather(key=Type,
+           value=`Percentage of students`,
+           -year) %>%
+  mutate(Estimate = case_when(grepl("_low", Type) ~ "Lower",
+                          grepl("_upp", Type) ~ "Upper",
+                          TRUE ~ "Mean"),
+         User = case_when(grepl("ever", Type) ~ "Ever",
+                          grepl("current", Type) ~ "Current",
+                          TRUE ~ "Mean")) %>%
+  dplyr::select(-Type) %>%
+  spread(Estimate, `Percentage of students`) %>%
+  ggplot(aes(x=year,y=Mean)) +
+  geom_line(aes(linetype=User)) +
+  geom_linerange(aes(ymin = Lower, ymax = Upper), show.legend = FALSE) +
+  scale_linetype_manual(values = c(2,1)) +
+    scale_y_continuous(breaks = seq(0,70,by=10),
+                       labels = seq(0,70,by=10),
+                       limits = c(0,70)) +
+    theme_minimal() +
+    theme(legend.position = "none",
+          axis.title.x = element_blank()) +
+    labs(title = "Nicotine product users more prevalent after 2017",
+         y = "% of students")
+
+plotB_w <- nyts_data %>%
+    mutate(ecig_sum_ever = select(., EELCIGT) %>%
+               apply(1, sum, na.rm=TRUE),
+           ecig_sum_current = select(., CELCIGT) %>%
+               apply(1, sum, na.rm=TRUE),
+           non_ecig_sum_ever = select(., starts_with("E", ignore.case = FALSE)) %>%
+               select(.,-EELCIGT) %>%
+               apply(1, sum, na.rm=TRUE),
+           non_ecig_sum_current = select(., starts_with("C", ignore.case = FALSE)) %>%
+               select(.,-CELCIGT) %>%
+               apply(1, sum, na.rm=TRUE)) %>%
+    mutate(ecig_ever = case_when(ecig_sum_ever > 0 ~ TRUE,
+                                    ecig_sum_ever ==0 ~ FALSE),
+           ecig_current = case_when(ecig_sum_current > 0 ~ TRUE,
+                                    ecig_sum_current ==0 ~ FALSE),
+           non_ecig_ever = case_when(non_ecig_sum_ever > 0 ~ TRUE,
+                                    non_ecig_sum_ever ==0 ~ FALSE),
+           non_ecig_current = case_when(non_ecig_sum_current > 0 ~ TRUE,
+                                    non_ecig_sum_current ==0 ~ FALSE)) %>%
+  as_survey_design(strata = stratum, ids = psu, weight  = finwgt, nest=TRUE) %>%
+    group_by(year) %>%
+  summarise(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
+            ecig_current_year = survey_mean(ecig_current, vartype = "ci", na.rm=TRUE),
+            non_ecig_ever_year = survey_mean(non_ecig_ever, vartype = "ci", na.rm=TRUE),
+            non_ecig_current_year = survey_mean(non_ecig_current, vartype = "ci", na.rm=TRUE)) %>%
+  mutate_at(vars(-year), "*", 100) %>%
+  dplyr::select(year,
+                ecig_ever_year,
+                ecig_current_year,
+                non_ecig_ever_year,
+                non_ecig_current_year,
+                contains("low"),
+                contains("upp")) %>%
+    gather(key=Category,
+           value=`Percentage of students`,
+           -year) %>%
+    mutate(Estimate = case_when(grepl("_low", Category) ~ "Lower",
+                          grepl("_upp", Category) ~ "Upper",
+                          TRUE ~ "Mean"),
+         User = case_when(grepl("ever", Category) ~ "Ever",
+                          grepl("current", Category) ~ "Current"),
+         Product = case_when(grepl("non_ecig", Category) ~ "Other products",
+                          TRUE ~ "E-cigarettes")) %>%
+  dplyr::select(-Category) %>%
+  spread(Estimate, `Percentage of students`) %>%
+    ggplot(aes(x=year,y=Mean, color=Product)) +
+  geom_line(aes(linetype=User)) +
+  geom_linerange(aes(ymin = Lower, ymax = Upper), show.legend = FALSE) +
+  scale_linetype_manual(values = c(2,1)) +
+  scale_y_continuous(breaks = seq(0, 60, by = 10), limits = c(0,60)) +
+    theme_minimal() +
+    theme(legend.position = "none",
+          axis.title.x = element_blank()) +
+    labs(title = "% Using e-cigarettes increases &\n% using Other products decreases",
+         y = "% of students")
+
+plotC_w <- nyts_data %>%
+    mutate(ecig_sum_ever = select(., EELCIGT) %>%
+               apply(1, sum, na.rm=TRUE),
+           ecig_sum_current = select(., CELCIGT) %>%
+               apply(1, sum, na.rm=TRUE),
+           non_ecig_sum_ever = select(., starts_with("E", ignore.case = FALSE)) %>%
+               select(.,-EELCIGT) %>%
+               apply(1, sum, na.rm=TRUE),
+           non_ecig_sum_current = select(., starts_with("C", ignore.case = FALSE)) %>%
+               select(.,-CELCIGT) %>%
+               apply(1, sum, na.rm=TRUE)) %>%
+    mutate(ecig_ever = case_when(ecig_sum_ever > 0 ~ TRUE,
+                                    ecig_sum_ever ==0 ~ FALSE),
+           ecig_current = case_when(ecig_sum_current > 0 ~ TRUE,
+                                    ecig_sum_current ==0 ~ FALSE),
+           non_ecig_ever = case_when(non_ecig_sum_ever > 0 ~ TRUE,
+                                    non_ecig_sum_ever ==0 ~ FALSE),
+           non_ecig_current = case_when(non_ecig_sum_current > 0 ~ TRUE,
+                                    non_ecig_sum_current ==0 ~ FALSE)) %>%
+  as_survey_design(strata = stratum, ids = psu, weight  = finwgt, nest=TRUE) %>%
+    group_by(year) %>%
+    summarise(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
+            ecig_current_year = survey_mean(ecig_current, vartype = "ci", na.rm=TRUE),
+            non_ecig_ever_year = survey_mean(non_ecig_ever, vartype = "ci", na.rm=TRUE),
+            non_ecig_current_year = survey_mean(non_ecig_current, vartype = "ci", na.rm=TRUE)) %>%
+  mutate_at(vars(-year), "*", 100) %>%
+  dplyr::select(year,
+                ecig_ever_year,
+                ecig_current_year,
+                non_ecig_ever_year,
+                non_ecig_current_year,
+                contains("low"),
+                contains("upp")) %>%
+    gather(key=Category,
+           value=`Percentage of students`,
+           -year)  %>%
+  mutate(Estimate = case_when(grepl("_low", Category) ~ "Lower",
+                          grepl("_upp", Category) ~ "Upper",
+                          TRUE ~ "Mean"),
+         User = case_when(grepl("current", Category) ~ "Current",
+                          TRUE ~ "Ever",),
+         Product = case_when(grepl("non_ecig", Category) ~ "Other products",
+                          TRUE ~ "E-cigarettes")) %>%
+  dplyr::select(-Category) %>%
+  spread(Estimate, `Percentage of students`) %>%
+  filter(User=="Ever") %>%
+  dplyr::rename("Lower_temp" = Upper,
+                "Upper_temp" = Lower) %>%
+  dplyr::rename("Lower"=Lower_temp,
+                "Upper"=Upper_temp) %>%
+    ggplot(aes(x=year,y=Mean, color=Product)) +
+  geom_line(linetype=1) +
+  geom_linerange(aes(ymin = Lower, ymax = Upper), show.legend = FALSE) +
+  scale_y_continuous(breaks = seq(10, 60, by = 10), limits = c(10,60)) +
+    theme_minimal() +
+    theme(legend.position = "none",
+          axis.title.x = element_blank()) +
+    labs(title = "% never trying e-cigarettes decreases &\n% never trying Other products increases",
+         y = "% of students")
+
+title_w <- ggdraw() + 
+  draw_label(
+    expression("Have vaping rates possibly influenced tobacco/nicotine use?"),
+    fontface = 'bold',
+    size=14,
+    x = 0,
+    hjust = 0
+  ) +
+  theme(
+    plot.margin = margin(0, 0, 0, 0)
+  )
+
+plotsA_w <- plot_grid(plotA_w,
+                     rel_widths = c(1),
+                     align = "v",
+                     axis = "bt")
+plotsBC_w <- plot_grid(plotB_w,
+                     plotC_w,
+                     rel_widths = c(1,1),
+                     align = "v",
+                     axis = "bt")
+
+legend_w <- get_legend(plotB_w +
+                       theme(legend.position = "bottom",
+                             legend.direction = "horizontal"))
+
+figure_w <- plot_grid(title_w,
+                      plotsA_w,
+                      plotsBC_w,
+                      legend_w,
+                      ncol = 1,
+                      rel_heights = c(0.1,
+                                      1,
+                                      1,
+                                      0.1),
+                      scale = 1.0)
+
+figure_w
+```
+
+### Hypothethical Cohort
+
+```{r}
+plotA_w_8 <- nyts_data %>%
   filter((Grade == "8" & year == 2015) |
          (Grade == "9" & year == 2016) |
          (Grade == "10" & year == 2017) |
@@ -1577,85 +1454,36 @@ plotE <- nyts_data %>%
                                     tobacco_sum_ever ==0 ~ FALSE),
            tobacco_current = case_when(tobacco_sum_current > 0 ~ TRUE,
                                     tobacco_sum_current ==0 ~ FALSE)) %>%
+  as_survey_design(strata = stratum, ids = psu, weight  = finwgt) %>%
     group_by(year) %>%
-    summarise(tobacco_ever_year=(sum(tobacco_ever, na.rm = TRUE)*100)/
-                sum(!is.na(tobacco_ever)),
-              tobacco_current_year=(sum(tobacco_current, na.rm = TRUE)*100)/
-                sum(!is.na(tobacco_current))) %>%
-    rename("Ever"=tobacco_ever_year,
-           "Current"=tobacco_current_year) %>%
-    gather(key=Users,
-           value=`Percentage of Students`,
+  summarise(tobacco_ever_year = survey_mean(tobacco_ever, vartype = "ci", na.rm=TRUE),
+            tobacco_current_year = survey_mean(tobacco_current, vartype = "ci", na.rm=TRUE))  %>%
+  mutate_at(vars(-year), "*", 100) %>%
+    gather(key=Type,
+           value=`Percentage of students`,
            -year) %>%
-  ggplot(aes(x=year,y=`Percentage of Students`, linetype=Users)) +
-    geom_line(size=0.5) + 
-  geom_point(size=2) +
+  mutate(Estimate = case_when(grepl("_low", Type) ~ "Lower",
+                          grepl("_upp", Type) ~ "Upper",
+                          TRUE ~ "Mean"),
+         User = case_when(grepl("ever", Type) ~ "Ever",
+                          grepl("current", Type) ~ "Current",
+                          TRUE ~ "Mean")) %>%
+  dplyr::select(-Type) %>%
+  spread(Estimate, `Percentage of students`) %>%
+  ggplot(aes(x=year,y=Mean)) +
+  geom_line(aes(linetype=User)) +
+  geom_linerange(aes(ymin = Lower, ymax = Upper)) + 
   scale_linetype_manual(values = c(2,1)) +
-    scale_y_continuous(breaks = seq(0,65,by=5),
-                       labels = seq(0,65,by=5),
-                       limits = c(0,65)) +
+    scale_y_continuous(breaks = seq(0,70,by=10),
+                       labels = seq(0,70,by=10),
+                       limits = c(0,70)) +
     theme_minimal() +
-    theme(legend.position = "bottom",
+    theme(legend.position = "none",
           axis.title.x = element_blank()) +
-    labs(title = "Nicotine Product Users Becoming Increasingly Prevalent",
+    labs(title = "Nicotine product users becoming increasingly prevalent",
          y = "% of students")
 
-plotF <- nyts_data %>%
-  filter((Grade == "8" & year == 2015) |
-         (Grade == "9" & year == 2016) |
-         (Grade == "10" & year == 2017) |
-         (Grade == "11" & year == 2018) |
-          (Grade == "12" & year == 2019) 
-         ) %>%
-    mutate(ecig_sum_ever = select(., EELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           ecig_sum_current = select(., CELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           nicotine_sum_ever = select(., starts_with("E", ignore.case = FALSE)) %>%
-               apply(1, sum, na.rm=TRUE),
-           nicotine_sum_current = select(., starts_with("C", ignore.case = FALSE)) %>%
-               apply(1, sum, na.rm=TRUE)) %>%
-    mutate(ecig_ever = case_when(ecig_sum_ever > 0 ~ TRUE,
-                                    ecig_sum_ever ==0 ~ FALSE),
-           ecig_current = case_when(ecig_sum_current > 0 ~ TRUE,
-                                    ecig_sum_current ==0 ~ FALSE),
-           nicotine_ever = case_when(nicotine_sum_ever > 0 ~ TRUE,
-                                    nicotine_sum_ever ==0 ~ FALSE),
-           nicotine_current = case_when(nicotine_sum_current > 0 ~ TRUE,
-                                    nicotine_sum_current ==0 ~ FALSE)) %>%
-    group_by(year) %>%
-    summarise(ecig_ever_year=(sum(ecig_ever, na.rm = TRUE)*100)/sum(!is.na(ecig_ever)),
-              ecig_current_year=(sum(ecig_current, na.rm = TRUE)*100)/
-                sum(!is.na(ecig_current)),
-              nicotine_ever_year=(sum(nicotine_ever, na.rm = TRUE)*100)/
-                sum(!is.na(nicotine_ever)),
-              nicotine_current_year=(sum(nicotine_current, na.rm = TRUE)*100)/
-                sum(!is.na(nicotine_current))) %>%
-    gather(key=Category,
-           value=`Percentage of Students`,
-           -year) %>%
-    mutate(Users = case_when(Category =="ecig_ever_year" ~ "Ever",
-                           Category =="nicotine_ever_year" ~ "Ever",
-                           Category =="ecig_current_year" ~ "Current",
-                           Category =="nicotine_current_year" ~ "Current")) %>%
-    mutate(Product = case_when(Category =="ecig_ever_year" ~ "E-cigarettes",
-                           Category =="nicotine_ever_year" ~ "All Nicotine Products",
-                           Category =="ecig_current_year" ~ "E-cigarettes",
-                           Category =="nicotine_current_year" ~ "All Nicotine Products")) %>%
-  group_by(year, Users) %>%
-  summarise(perc_all_e_cig = (`Percentage of Students`[Product=="E-cigarettes"]*100)/`Percentage of Students`[Product=="All Nicotine Products"]) %>%
-    ggplot(aes(x=year,y=perc_all_e_cig, linetype=Users)) +
-  geom_line() +
-  geom_point() + 
-  scale_linetype_manual(values = c(2,1)) +
-  scale_y_continuous(limits = c(0,100)) + 
-    theme_minimal() +
-    theme(legend.position = "bottom",
-          axis.title.x = element_blank()) +
-    labs(title = "E-cigarette Users Forming an Increasing\nProportion of All Nicotine Users",
-         y = "% e-cigarette users")
-
-plotG <- nyts_data %>%
+plotB_w_8 <- nyts_data %>%
   filter((Grade == "8" & year == 2015) |
          (Grade == "9" & year == 2016) |
          (Grade == "10" & year == 2017) |
@@ -1680,38 +1508,44 @@ plotG <- nyts_data %>%
                                     non_ecig_sum_ever ==0 ~ FALSE),
            non_ecig_current = case_when(non_ecig_sum_current > 0 ~ TRUE,
                                     non_ecig_sum_current ==0 ~ FALSE)) %>%
+  as_survey_design(strata = stratum, ids = psu, weight  = finwgt) %>%
     group_by(year) %>%
-    summarise(ecig_ever_year=(sum(ecig_ever, na.rm = TRUE)*100)/
-                sum(!is.na(ecig_ever)),
-              ecig_current_year=(sum(ecig_current, na.rm = TRUE)*100)/
-                sum(!is.na(ecig_current)),
-              non_ecig_ever_year=(sum(non_ecig_ever, na.rm = TRUE)*100)/
-                sum(!is.na(non_ecig_ever)),
-              non_ecig_current_year=(sum(non_ecig_current, na.rm = TRUE)*100)/
-                sum(!is.na(non_ecig_current))) %>%
+  summarise(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
+            ecig_current_year = survey_mean(ecig_current, vartype = "ci", na.rm=TRUE),
+            non_ecig_ever_year = survey_mean(non_ecig_ever, vartype = "ci", na.rm=TRUE),
+            non_ecig_current_year = survey_mean(non_ecig_current, vartype = "ci", na.rm=TRUE)) %>%
+  mutate_at(vars(-year), "*", 100) %>%
+  dplyr::select(year,
+                ecig_ever_year,
+                ecig_current_year,
+                non_ecig_ever_year,
+                non_ecig_current_year,
+                contains("low"),
+                contains("upp")) %>%
     gather(key=Category,
-           value=`Percentage of Students`,
+           value=`Percentage of students`,
            -year) %>%
-    mutate(Users = case_when(Category =="ecig_ever_year" ~ "Ever",
-                           Category =="non_ecig_ever_year" ~ "Ever",
-                           Category =="ecig_current_year" ~ "Current",
-                           Category =="non_ecig_current_year" ~ "Current")) %>%
-    mutate(Product = case_when(Category =="ecig_ever_year" ~ "E-cigarettes",
-                           Category =="non_ecig_ever_year" ~ "Other Nicotine Products",
-                           Category =="ecig_current_year" ~ "E-cigarettes",
-                           Category =="non_ecig_current_year" ~ "Other Nicotine Products")) %>%
-    ggplot(aes(x=year,y=`Percentage of Students`, color=Product, linetype=Users)) +
-    geom_line(size=0.5) +
-  geom_point(size=2) +
+    mutate(Estimate = case_when(grepl("_low", Category) ~ "Lower",
+                          grepl("_upp", Category) ~ "Upper",
+                          TRUE ~ "Mean"),
+         User = case_when(grepl("ever", Category) ~ "Ever",
+                          grepl("current", Category) ~ "Current"),
+         Product = case_when(grepl("non_ecig", Category) ~ "Other products",
+                          TRUE ~ "E-cigarettes")) %>%
+  dplyr::select(-Category) %>%
+  spread(Estimate, `Percentage of students`) %>%
+    ggplot(aes(x=year,y=Mean, color=Product)) +
+  geom_line(aes(linetype=User)) +
+  geom_linerange(aes(ymin = Lower, ymax = Upper)) + 
   scale_linetype_manual(values = c(2,1)) +
+  scale_y_continuous(breaks = seq(0, 60, by = 10), limits = c(0,60)) +
     theme_minimal() +
-    theme(legend.position = "bottom",
-          legend.direction = "vertical",
+    theme(legend.position = "none",
           axis.title.x = element_blank()) +
-    labs(title = "% Using E-cigarettes &\n%Other Nicotine Products Increasing",
+    labs(title = "E-cigarette use surpasses use of other nicotine products",
          y = "% of students")
 
-plotH <- nyts_data %>%
+plotC_w_8 <- nyts_data %>%
   filter((Grade == "8" & year == 2015) |
          (Grade == "9" & year == 2016) |
          (Grade == "10" & year == 2017) |
@@ -1736,45 +1570,50 @@ plotH <- nyts_data %>%
                                     non_ecig_sum_ever ==0 ~ FALSE),
            non_ecig_current = case_when(non_ecig_sum_current > 0 ~ TRUE,
                                     non_ecig_sum_current ==0 ~ FALSE)) %>%
+  as_survey_design(strata = stratum, ids = psu, weight  = finwgt) %>%
     group_by(year) %>%
-    summarise(ecig_ever_year=(sum(ecig_ever, na.rm = TRUE)*100)/
-                sum(!is.na(ecig_ever)),
-              ecig_current_year=(sum(ecig_current, na.rm = TRUE)*100)/
-                sum(!is.na(ecig_current)),
-              non_ecig_ever_year=(sum(non_ecig_ever, na.rm = TRUE)*100)/
-                sum(!is.na(non_ecig_ever)),
-              non_ecig_current_year=(sum(non_ecig_current, na.rm = TRUE)*100)/
-                sum(!is.na(non_ecig_current))) %>%
-    mutate(ecig_never_year = 100 - ecig_ever_year,
-         non_ecig_never_year = 100 - non_ecig_ever_year) %>%
+    summarise(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
+            ecig_current_year = survey_mean(ecig_current, vartype = "ci", na.rm=TRUE),
+            non_ecig_ever_year = survey_mean(non_ecig_ever, vartype = "ci", na.rm=TRUE),
+            non_ecig_current_year = survey_mean(non_ecig_current, vartype = "ci", na.rm=TRUE)) %>%
+  mutate_at(vars(-year), "*", 100) %>%
+  dplyr::select(year,
+                ecig_ever_year,
+                ecig_current_year,
+                non_ecig_ever_year,
+                non_ecig_current_year,
+                contains("low"),
+                contains("upp")) %>%
     gather(key=Category,
-           value=`Percentage of Students`,
+           value=`Percentage of students`,
            -year)  %>%
-    mutate(Users = case_when(Category =="ecig_ever_year" ~ "Ever",
-                           Category =="non_ecig_ever_year" ~ "Ever",
-                           Category =="ecig_current_year" ~ "Current",
-                           Category =="non_ecig_current_year" ~ "Current",
-                           Category =="ecig_never_year" ~ "Never",
-                           Category =="non_ecig_never_year" ~ "Never")) %>%
-    mutate(Product = case_when(Category =="ecig_ever_year" ~ "E-cigarettes",
-                           Category =="non_ecig_ever_year" ~ "Other Nicotine Products",
-                           Category =="ecig_current_year" ~ "E-cigarettes",
-                           Category =="non_ecig_current_year" ~ "Other Nicotine Products",
-                           Category =="ecig_never_year" ~ "E-cigarettes",
-                           Category =="non_ecig_never_year" ~ "Other Nicotine Products")) %>%
-    filter(Users=="Never") %>%
-    ggplot(aes(x=year,y=`Percentage of Students`, color=Product)) +
-    geom_line() + 
-  geom_point() +
+  mutate(Estimate = case_when(grepl("_low", Category) ~ "Lower",
+                          grepl("_upp", Category) ~ "Upper",
+                          TRUE ~ "Mean"),
+         User = case_when(grepl("current", Category) ~ "Current",
+                          TRUE ~ "Ever",),
+         Product = case_when(grepl("non_ecig", Category) ~ "Other products",
+                          TRUE ~ "E-cigarettes")) %>%
+  dplyr::select(-Category) %>%
+  spread(Estimate, `Percentage of students`) %>%
+  filter(User=="Ever") %>%
+  dplyr::rename("Lower_temp" = Upper,
+                "Upper_temp" = Lower) %>%
+  dplyr::rename("Lower"=Lower_temp,
+                "Upper"=Upper_temp) %>%
+  ggplot(aes(x=year,y=Mean, color=Product)) +
+  geom_line(linetype=1) +
+  geom_linerange(aes(ymin = Lower, ymax = Upper)) + 
+  scale_y_continuous(breaks = seq(10, 60, by = 10), limits = c(10,60)) +
     theme_minimal() +
-    theme(legend.position = "bottom",
+    theme(legend.position = "none",
           axis.title.x = element_blank()) +
-    labs(title = "% Never Trying E-cigarettes and \nNever Trying Other Nicotine Products",
+    labs(title = "% never trying nicotine products decreases",
          y = "% of students")
 
-title2 <- ggdraw() + 
+title_w_8 <- ggdraw() + 
   draw_label(
-    expression("Among a hypothetical cohort of 2015"~8^th~"graders, how have vaping rates influenced tobacco/nicotine use?"),
+    expression("Among"~8^th~"graders in 2015, have vaping rates possibly influenced tobacco/nicotine use?"),
     fontface = 'bold',
     size=14,
     x = 0,
@@ -1784,35 +1623,179 @@ title2 <- ggdraw() +
     plot.margin = margin(0, 0, 0, 0)
   )
 
-plots2a <- plot_grid(plotE,
-                     plotF,
-                     rel_widths = c(1,1))
-plots2b <- plot_grid(plotG,
-                     plotH,
-                     rel_widths = c(1,1))
+plotsA_w_8 <- plot_grid(plotA_w_8,
+                        rel_widths = c(1),
+                        align = "v",
+                        axis = "bt")
 
-plot_grid(title2,
-          plots2a,
-          plots2b,
-          ncol = 1,
-          rel_heights = c(0.1,
-                          1,
-                          1),
-          scale = 1.0
+plotsBC_w_8 <- plot_grid(plotB_w_8,
+                         plotC_w_8,
+                         rel_widths = c(1,1),
+                         axis = "bt")
+
+legend_w_8 <- get_legend(plotB_w_8 +
+                       theme(legend.position = "bottom",
+                             legend.direction = "horizontal"))
+
+figure_w_8 <- plot_grid(title_w_8,
+                        plotsA_w_8,
+                        plotsBC_w_8,
+                        legend_w_8,
+                        ncol = 1,
+                        rel_heights = c(0.1,
+                                      1,
+                                      1,
+                                      0.1),
+                        scale = 1.0
 )
+
+figure_w_8
 ```
+
+### Final Figure
 
 ```{r}
-colnames(nyts_data)
+title_final <- ggdraw() +
+  draw_label(
+    expression("Have vaping rates possibly influenced tobacco/nicotine use?"),
+    fontface = 'bold',
+    size=16,
+    x = 0.5) +
+  theme(
+    plot.margin = margin(0, 0, 0, 0)
+  )
 
-design_x <- svydesign(ids=~psu, strat=~stratum, weights=~finwgt, data=nyts_data, nest=TRUE) 
+subtitle_uw_final <- ggdraw() + 
+  draw_label(
+    expression(~6^th~"-"~12^th~"graders, unweighted"),
+    size=12,
+    x = 0.5) +
+  theme(
+    plot.margin = margin(0, 0, 0, 0)
+  )
 
-married_mean_wtd <- svymean(~Race_White, design=design_x, na.rm=TRUE)
+subtitle_w_final <- ggdraw() + 
+  draw_label(
+    expression(~6^th~"-"~12^th~"graders, weighted"),
+    fontface = 'bold',
+    size=12,
+    x = 0.5) +
+  theme(
+    plot.margin = margin(0, 0, 0, 0)
+  )
 
-sum(nyts_data$Race_White, na.rm = TRUE)/(sum(nyts_data$Race_White, na.rm = TRUE) + sum(!nyts_data$Race_White, na.rm = TRUE))
+subtitle_w_8_final <- ggdraw() + 
+  draw_label(
+    expression(~8^th~"graders in 2015, weighted"),
+    fontface = 'bold',
+    size=12,
+    x = 0.5) +
+  theme(
+    plot.margin = margin(0, 0, 0, 0)
+  )
 
-married_mean_wtd
+subtitle_final <- plot_grid(subtitle_uw_final,
+                            subtitle_w_final,
+                            subtitle_w_8_final,
+                            ncol = 3)
+
+plotsA_title_final <- ggdraw() + 
+  draw_label(
+    expression("Prevalence of e-cigarette use by user type"),
+    size=14,
+    x = 0.5) +
+  theme(
+    plot.margin = margin(0, 0, 0, 0)
+  )
+
+plotsA_final <- plot_grid(plotA_uw + theme(plot.title = element_blank()),
+                          plotA_w + theme(plot.title = element_blank()),
+                          plotA_w_8 + theme(plot.title = element_blank()),
+                          ncol = 3,
+                          align = "v",
+                          axis = "bt")
+
+plotsB_title_final <- ggdraw() + 
+  draw_label(
+    expression("Prevalence of nicotine product use by product & user type"),
+    size=14,
+    x = 0.5) +
+  theme(
+    plot.margin = margin(0, 0, 0, 0)
+  )
+
+plotsB_final <- plot_grid(plotB_uw + theme(plot.title = element_blank()),
+                          plotB_w + theme(plot.title = element_blank()),
+                          plotB_w_8 + theme(plot.title = element_blank()),
+                          ncol = 3,
+                          align = "v",
+                          axis = "bt")
+
+plotsC_title_final <- ggdraw() + 
+  draw_label(
+    expression("Prevalence of never use by product type"),
+    size=14,
+    x = 0.5) +
+  theme(
+    plot.margin = margin(0, 0, 0, 0)
+  )
+
+plotsC_final <- plot_grid(plotC_uw + theme(plot.title = element_blank()),
+                          plotC_w + theme(plot.title = element_blank()),
+                          plotC_w_8 + theme(plot.title = element_blank()),
+                          ncol = 3,
+                          align = "v",
+                          axis = "bt")
+
+legend_final <- get_legend(plotB_w +
+                             theme(legend.position = "bottom",
+                             legend.direction = "horizontal"))
+
+final_plot <- plot_grid(title_final,
+          plotsA_title_final,
+          subtitle_final,
+          plotsA_final,
+          plotsB_title_final,
+          subtitle_final,
+          plotsB_final,
+          plotsC_title_final,
+          subtitle_final,
+          plotsC_final,
+          legend_final,
+          ncol = 1,
+          rel_heights = c(0.2,
+                          0.2,
+                          0.1,
+                          1,
+                          0.2,
+                          0.1,
+                          1,
+                          0.2,
+                          0.1,
+                          1,
+                          0.1))
+
+final_plot
 ```
+
+```{r, echo=FALSE, include=FALSE}
+ggsave("final_plot.png")
+```
+
+# Homework questions
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
++ Apply survey weights to one of the figures produced in this case study in which weighted estimates were not produced. Include error bars in the updated figure.
+    + Does the figure change after the application of survey weights?
+    + If so, describe how. 
++ Reproduce `final_plot` above for a different cohort of your choice.
+
+</div>
+
 # Notes
 
 Ever and current variables are limited to those shared by all years of data included in this case study.
@@ -1830,3 +1813,9 @@ knit_time_message <- paste("Knit time:",
 ```
 
 <p style="color:red">New code: `r knit_time_message`. Previous code: ~ 3 m. </p>
+
+# Problems
+
+I had difficulty producing a plot that succinctly presented a trend. It's very easy to produce plots that are very useful once one is familiar with the data. Some plots, however, cannot stand alone and need additional context to be clear for those without prior knowledge of the data. When I first shared a plot I had been working on with others, it became clear that in my effort to present a complicated idea briefly I had left out information that would make the trend easily interpretable. To solve this issue, I began to present visualizations of the data alongside my original plot. The final figure I created contained several additional plots, each presenting the same trend at a different level than my initial plot.
+
+My "centerpiece" plot is the middle plot in `final_plot`. The 8 plots around it help provide a very clear picture of what is going on in the US with regards to e-cigarette use and nicotine product use at large. On its own, it's difficult to understand the trends in the US and how important the weighting scheme is for inference. Once you add the left and right columns, it's clear what is going on. 
