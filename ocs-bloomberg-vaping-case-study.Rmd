@@ -1,15 +1,31 @@
 ---
-title: "Vaping Case Study"
+title: "Open Case Studies : Vaping Behaviors in American Youth"
 author: "Michael Ontiveros, Carrie Wright, PhD. "
-date: "3/18/2020"
-output: 
-    html_document:
-        theme: cosmo 
-        toc: true
-        toc_float: true
-        highlight: tango
-        number_sections: false
+
+css: style.css
+output:
+  html_document:
+    self_contained: yes
+    code_download: yes
+    highlight: tango
+    number_sections: no
+    theme: cosmo
+    toc: yes
+    toc_float: yes
+  pdf_document:
+    toc: yes
+  word_document:
+    toc: yes
+
 ---
+<style>
+#TOC {
+  background: url("https://opencasestudies.github.io/img/logo.jpg");
+  background-size: contain;
+  padding-top: 240px !important;
+  background-repeat: no-repeat;
+}
+</style>
 
 ```{r, echo=FALSE}
 knit_time_start <- Sys.time()
@@ -27,47 +43,71 @@ knitr::include_graphics(here::here("img", "final_plot.png"))
 ```
 ####
 
-# Overview
 
-Questions:
+## {.disclaimer_block}
 
-1. How has tobacco/nicotine use by American youth changed since 2015?
-2. How do vaping rates compare between males and females?
-3. What vaping brands and flavors appear to be used the most frequently?
-    + During the past 30 days, what brand of e-cigarettes did you usually use?
-4. Have vaping rates possibly influenced tobacco/nicotine use?
+**Disclaimer**: The purpose of the [Open Case Studies](https://opencasestudies.github.io){target="_blank"} project is **to demonstrate the use of various data science methods, tools, and software in the context of messy, real-world data**. A given case study does not cover all aspects of the research process, is not claiming to be the most appropriate way to analyze a given data set, and should not be used in the context of making policy decisions without external consultation from scientific experts. 
 
-References:
+## **Motivation**
+*** 
 
+#### {.reference_block}
+
+Yanosky, J. D. et al. Spatio-temporal modeling of particulate air pollution in the conterminous United States using geographic and meteorological predictors. *Environ Health* 13, 63 (2014).
 - [Article in Frontiers of Pharmacology](https://www.frontiersin.org/articles/10.3389/fphar.2019.01619/full)
 
 - [Morbidity and Mortality Weekly Report](https://www.cdc.gov/mmwr/volumes/68/wr/mm6806e1.htm?s_cid=mm6806e1_w)
 
 - [Statista Visualization](https://www.statista.com/statistics/881837/vaping-and-electronic-cigarette-use-us-by-gender/)
 
-# Motivation
 
-## Background
+####
 
-## Analysis goal
 
-## Learning objectives
+## **Main Questions**
+*** 
 
-Pooled Cross-sectional Data vs Panel Data *Ask Michael about this if unclear*
+#### {.main_question_block}
+<b><u> Our main question: </u></b>
 
-Survey weights
+1) How has tobacco/nicotine use by American youth changed since 2015? 
+2) How do vaping rates compare between males and females?
+3) What vaping brands and flavors appear to be used the most frequently?
+    + During the past 30 days, what brand of e-cigarettes did you usually use?
+4) Have vaping rates possibly influenced tobacco/nicotine use?
 
-Data visualization
+####
 
-Working with codebooks
 
-## Libraries
+## **Learning Objectives** 
+*** 
+
+In this case study, we will cover how to make a variety of visualizations to compare multiple groups across time. We will also demonstrate how to work with codebooks. We will cover the concept of survey weighting and introduce the `srvyr` package. We will discuss the difference between pooled cross-sectional data and panel data. We will especially focus on using packages and functions from the [`Tidyverse`](https://www.tidyverse.org/){target="_blank"} for wrangling data, such as `dpyr` and for visualization, suchas as `ggplot2`. The tidyverse is a library of packages created by RStudio. While some students may be familiar with previous R programming packages, these packages make data science in R especially efficient.
+
+
+```{r, out.width = "20%", echo = FALSE, fig.align ="center"}
+#include_graphics("https://tidyverse.tidyverse.org/logo.png")
+```
+
+![]("https://tidyverse.tidyverse.org/logo.png")
+
+*** 
+
+
+We will begin by loading the packages that we will need:
+
 
 ```{r}
 library(here)
-library(tidyverse)
+#library(tidyverse)
+library(dplyr)
+library(stringr)
 library(readxl)
+library(readr)
 library(srvyr)
+library(ggplot2)
+library(forcats)
+library(purrr)
 library(cowplot)
 ```
 
