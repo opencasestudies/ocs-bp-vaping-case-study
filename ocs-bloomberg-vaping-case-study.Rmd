@@ -19,7 +19,13 @@ knit_time_start <- Sys.time()
 knitr::opts_chunk$set(fig.width=10, fig.height=8, dpi=300) 
 ```
 
-![](final_plot.png)
+
+
+#### {.outline }
+```{r, echo = FALSE, out.width = "800 px"}
+knitr::include_graphics(here::here("img", "final_plot.png"))
+```
+####
 
 # Overview
 
@@ -58,6 +64,7 @@ Working with codebooks
 ## Libraries
 
 ```{r}
+library(here)
 library(tidyverse)
 library(readxl)
 library(srvyr)
@@ -75,11 +82,11 @@ sessionInfo()
 ## Datasets
 
 ```{r, echo=FALSE, eval=FALSE}
-tbl <- list.files(recursive = TRUE,
+tbl <- list.files(here::here(), recursive = TRUE,
                   pattern = "*.xlsx") %>% 
   map(~read_excel(.))
 
-tbl_names <- list.files(recursive = TRUE,
+tbl_names <- list.files(here::here(""), recursive = TRUE,
                         pattern = "*.xlsx") %>%
   str_extract("nyts[2][0][1][5-9]")
 
@@ -202,7 +209,7 @@ tbl[["nyts2019"]] <- tbl[["nyts2019"]] %>%
 dir.create("data_reduced",
            showWarnings = FALSE)
 
-mapply(write_csv, tbl, path=paste0("data_reduced/",
+mapply(write_csv, tbl, path=paste0("docs/data_reduced/",
                                    names(tbl),
                                    '.csv')
        )
@@ -886,7 +893,7 @@ plot2
 What vaping brands and flavors appear to be used the most frequently?
 
 ```{r, echo=FALSE, fig.cap="Huang J, Duan Z, Kwok J, et al. Tob Control 2019;28:146–151.", out.width = '100%'}
-knitr::include_graphics("HuangJ_DuanZ_KwokJ_et_al_TobaccoControl_Figure1.png")
+knitr::include_graphics(here::here("img", "HuangJ_DuanZ_KwokJ_et_al_TobaccoControl_Figure1.png"))
 ```
 
 [Paper](https://tobaccocontrol.bmj.com/content/tobaccocontrol/28/2/146.full.pdf)
