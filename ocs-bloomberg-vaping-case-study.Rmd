@@ -64,6 +64,12 @@ library(srvyr)
 library(cowplot)
 ```
 
+## Session Info
+
+```{r}
+sessionInfo()
+```
+
 # Data import
 
 ## Datasets
