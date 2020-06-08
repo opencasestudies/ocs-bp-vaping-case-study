@@ -64,7 +64,7 @@ library(srvyr)
 library(cowplot)
 ```
 
-## Session Info
+## Session info
 
 ```{r}
 sessionInfo()
