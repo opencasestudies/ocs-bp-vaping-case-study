@@ -35,6 +35,13 @@ knit_time_start <- Sys.time()
 knitr::opts_chunk$set(fig.width=10, fig.height=8, dpi=300) 
 ```
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(include = TRUE, comment = NA, echo = TRUE,
+                      message = FALSE, warning = FALSE, cache = FALSE,
+                      fig.align = "center", out.width = '90%')
+library(here)
+library(knitr)
+```
 
 
 #### {.outline }
@@ -86,10 +93,10 @@ In this case study, we will cover how to make a variety of visualizations to com
 
 
 ```{r, out.width = "20%", echo = FALSE, fig.align ="center"}
-#include_graphics("https://tidyverse.tidyverse.org/logo.png")
+
+include_graphics("https://tidyverse.tidyverse.org/logo.png")
 ```
 
-![]("https://tidyverse.tidyverse.org/logo.png")
 
 *** 
 
@@ -97,10 +104,12 @@ In this case study, we will cover how to make a variety of visualizations to com
 We will begin by loading the packages that we will need:
 
 
+
+
 ```{r}
 library(here)
-#library(tidyverse)
 library(dplyr)
+library(tidyr)
 library(stringr)
 library(readxl)
 library(readr)
@@ -872,9 +881,7 @@ plot1 <- nyts_data %>%
                 sum(!is.na(tobacco_current))) %>%
     rename("Ever"=tobacco_ever_year,
            "Current"=tobacco_current_year) %>%
-    gather(key=User,
-           value=`Percentage of students`,
-           -year) %>%
+  pivot_longer(cols = -year, names_to = "User", values_to = "Percentage of students")%>%
     ggplot(aes(x=year,y=`Percentage of students`, linetype=User)) +
     geom_line() + 
   geom_point(show.legend = FALSE) +
@@ -905,10 +912,8 @@ plot2 <- nyts_data %>%
     filter(!is.na(female)) %>%
     rename("E-cigarettes, Ever"=EELCIGT_year,
            "E-cigarettes, Current"=CELCIGT_year) %>%
-    gather(key=Category,
-           value=`Percentage of students`,
-           -year,
-           -female) %>%
+  #converting all columns between and including `E-cigarettes, Ever` and `E-cigarettes, Current` into one column called category
+    pivot_longer(cols = `E-cigarettes, Ever`:`E-cigarettes, Current`, names_to = "Category", values_to = "Percentage of students")%>%
     mutate(User = case_when(Category == "E-cigarettes, Ever" ~ "Ever",
                                Category == "E-cigarettes, Current" ~ "Current")) %>%
     mutate(Sex = case_when(female == TRUE ~ "Females",
@@ -976,7 +981,8 @@ plot4 <- nyts_data %>%
               `Alcoholic Drink`=(sum(alcoholic_drink, na.rm = TRUE)*100)/
                 sum(!is.na(alcoholic_drink)),
               `Candy/Desserts/Sweets`=(sum(candy_dessert_sweets, na.rm = TRUE)*100)/sum(!is.na(candy_dessert_sweets))) %>%
-  gather(key=Flavor,value=`Percentage of students`,-year) %>%
+  pivot_longer(cols = -year, names_to = "Percentage of students", values_to = "Flavor") %>%
+
   ggplot(aes(x=year, y=`Percentage of students`, color=Flavor)) +
   geom_line() +
   geom_point(show.legend = FALSE) +
@@ -1051,7 +1057,8 @@ plot5 <- nyts_data %>%
             `Other`=(sum(other, na.rm = TRUE)*100)/
               sum(!is.na(other)),
             Respondents=n()) %>%
-  gather(key=Flavor,value=`Percentage of students`,-year, -Group, -Respondents) %>%
+  #converting all columns between and including Menthol and Other to one column called Flavor
+  pivot_longer(cols = Menthol:Other, names_to = "Flavor", values_to = "Percentage of students") %>%
   filter(!is.na(`Percentage of students`),
          Flavor!="Other") %>%
   group_by(Flavor) %>%
@@ -1093,9 +1100,10 @@ plot6 <- nyts_data %>%
            "E-cigarettes, Ever"=EELCIGT_year,
            "Cigarettes, Current"=CCIGT_year,
            "E-cigarettes, Current"=CELCIGT_year) %>%
-    gather(key=Category,
-           value=`Percentage of students`,
-           -year) %>%
+  pivot_longer(cols= -year, names_to = "Category", values_to = "Percentage of students")%>%
+    # gather(key=Category,
+    #        value=`Percentage of students`,
+    #        -year) %>%
     mutate(User = case_when(Category == "Cigarettes, Ever" ~ "Ever",
                                Category == "E-cigarettes, Ever" ~ "Ever",
                                Category == "Cigarettes, Current" ~ "Current",
@@ -1147,9 +1155,7 @@ plot7 <- nyts_data %>%
                 sum(!is.na(non_ecig_ever)),
               non_ecig_current_year=(sum(non_ecig_current, na.rm = TRUE)*100)/
                 sum(!is.na(non_ecig_current))) %>%
-    gather(key=Category,
-           value=`Percentage of students`,
-           -year)  %>%
+    pivot_longer(cols = -year, names_to = "Category", values_to = "Percentage of students") %>%
     mutate(User = case_when(Category =="ecig_ever_year" ~ "Ever",
                            Category =="non_ecig_ever_year" ~ "Ever",
                            Category =="ecig_current_year" ~ "Current",
@@ -1202,9 +1208,10 @@ plot8 <- nyts_data %>%
                 sum(!is.na(non_ecig_ever)),
               non_ecig_current_year=(sum(non_ecig_current, na.rm = TRUE)*100)/
                 sum(!is.na(non_ecig_current))) %>%
-    gather(key=Category,
-           value=`Percentage of students`,
-           -year) %>%
+    pivot_longer(cols = -year, names_to = "Category", values_to = "Percentage of students") %>%
+    # gather(key=Category,
+    #        value=`Percentage of students`,
+    #        -year) %>%
     mutate(User = case_when(Category =="ecig_ever_year" ~ "Ever",
                            Category =="non_ecig_ever_year" ~ "Ever",
                            Category =="ecig_current_year" ~ "Current",
@@ -1305,9 +1312,10 @@ plotA_w <- nyts_data %>%
   summarise(tobacco_ever_year = survey_mean(tobacco_ever, vartype = "ci", na.rm=TRUE),
             tobacco_current_year = survey_mean(tobacco_current, vartype = "ci", na.rm=TRUE))  %>%
   mutate_at(vars(-year), "*", 100) %>%
-    gather(key=Type,
-           value=`Percentage of students`,
-           -year) %>%
+    pivot_longer(cols = -year, names_to = "Type", values_to = "Percentage of students") %>%
+    # gather(key=Type,
+    #        value=`Percentage of students`,
+    #        -year) %>%
   mutate(Estimate = case_when(grepl("_low", Type) ~ "Lower",
                           grepl("_upp", Type) ~ "Upper",
                           TRUE ~ "Mean"),
@@ -1315,6 +1323,7 @@ plotA_w <- nyts_data %>%
                           grepl("current", Type) ~ "Current",
                           TRUE ~ "Mean")) %>%
   dplyr::select(-Type) %>%
+#  pivot_wider_spec()
   spread(Estimate, `Percentage of students`) %>%
   ggplot(aes(x=year,y=Mean)) +
   geom_line(aes(linetype=User)) +
@@ -1362,9 +1371,10 @@ plotB_w <- nyts_data %>%
                 non_ecig_current_year,
                 contains("low"),
                 contains("upp")) %>%
-    gather(key=Category,
-           value=`Percentage of students`,
-           -year)  %>%
+  pivot_longer(cols = -year, names_to = "Category", values_to = "Percentage of students") %>%
+    # gather(key=Category,
+    #        value=`Percentage of students`,
+    #        -year)  %>%
   mutate(Estimate = case_when(grepl("_low", Category) ~ "Lower",
                           grepl("_upp", Category) ~ "Upper",
                           TRUE ~ "Mean"),
@@ -1389,6 +1399,7 @@ plotB_w <- nyts_data %>%
     labs(title = "% ever trying e-cigarettes increases &\n% ever trying other products decreases",
          y = "% of students")
 
+#### the wrangling looks the same as the above plot...
 plotC_w <- nyts_data %>%
     mutate(ecig_sum_ever = select(., EELCIGT) %>%
                apply(1, sum, na.rm=TRUE),
@@ -1422,9 +1433,10 @@ plotC_w <- nyts_data %>%
                 non_ecig_current_year,
                 contains("low"),
                 contains("upp")) %>%
-    gather(key=Category,
-           value=`Percentage of students`,
-           -year) %>%
+  pivot_longer(cols = -year, names_to = "Category", values_to = "Percentage of students") %>%
+    # gather(key=Category,
+    #        value=`Percentage of students`,
+    #        -year) %>%
     mutate(Estimate = case_when(grepl("_low", Category) ~ "Lower",
                           grepl("_upp", Category) ~ "Upper",
                           TRUE ~ "Mean"),
@@ -1508,9 +1520,10 @@ plotA_w_8 <- nyts_data %>%
   summarise(tobacco_ever_year = survey_mean(tobacco_ever, vartype = "ci", na.rm=TRUE),
             tobacco_current_year = survey_mean(tobacco_current, vartype = "ci", na.rm=TRUE))  %>%
   mutate_at(vars(-year), "*", 100) %>%
-    gather(key=Type,
-           value=`Percentage of students`,
-           -year) %>%
+    pivot_longer(cols = -year, names_to = "Type", values_to = "Percentage of students")%>%
+    # gather(key=Type,
+    #        value=`Percentage of students`,
+    #        -year) %>%
   mutate(Estimate = case_when(grepl("_low", Type) ~ "Lower",
                           grepl("_upp", Type) ~ "Upper",
                           TRUE ~ "Mean"),
@@ -1571,9 +1584,10 @@ plotB_w_8 <- nyts_data %>%
                 non_ecig_current_year,
                 contains("low"),
                 contains("upp")) %>%
-    gather(key=Category,
-           value=`Percentage of students`,
-           -year)  %>%
+   pivot_longer(cols = -year, names_to = "Category", values_to = "Percentage of students")%>%
+    # gather(key=Category,
+    #        value=`Percentage of students`,
+    #        -year)  %>%
   mutate(Estimate = case_when(grepl("_low", Category) ~ "Lower",
                           grepl("_upp", Category) ~ "Upper",
                           TRUE ~ "Mean"),
@@ -1637,9 +1651,10 @@ plotC_w_8 <- nyts_data %>%
                 non_ecig_current_year,
                 contains("low"),
                 contains("upp")) %>%
-    gather(key=Category,
-           value=`Percentage of students`,
-           -year) %>%
+  pivot_longer(cols = -year, names_to = "Category", values_to = "Percentage of students")%>%
+    # gather(key=Category,
+    #        value=`Percentage of students`,
+    #        -year) %>%
     mutate(Estimate = case_when(grepl("_low", Category) ~ "Lower",
                           grepl("_upp", Category) ~ "Upper",
                           TRUE ~ "Mean"),
