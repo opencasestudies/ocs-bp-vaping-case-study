@@ -51,22 +51,53 @@ knitr::include_graphics(here::here("img", "final_plot.png"))
 ####
 
 
+
+
 ## {.disclaimer_block}
 
 **Disclaimer**: The purpose of the [Open Case Studies](https://opencasestudies.github.io){target="_blank"} project is **to demonstrate the use of various data science methods, tools, and software in the context of messy, real-world data**. A given case study does not cover all aspects of the research process, is not claiming to be the most appropriate way to analyze a given data set, and should not be used in the context of making policy decisions without external consultation from scientific experts. 
 
 ## **Motivation**
 *** 
+According to a recent [report](https://www.cdc.gov/mmwr/volumes/68/wr/mm6806e1.htm?s_cid=mm6806e1_w){target="_blank"}, overall tobacco use **increased** in youths (middle schooland high school students) in the United States in 2017 and 2018, despite previous years of declining use.
+
+This major increase is attributed to an increase in the use of electronic cigaarette (e-cigarette) products.
+
+E-cigarettes are referred to by many different names, including but not limited to:
+
+1) Electronic nicotine delivery systems (ENDS)
+2) Vapes
+3) e-hookahs
+4) vape pens
+5) tanks
+6) mods
+
+The devices vary greatly:
+
+```{r, echo = FALSE, fig.align ="center"}
+
+include_graphics("https://www.lung.org/getmedia/8ac8ab8c-e7fc-497b-8384-441615f50ff0/ecigs_K.jpg.jpg")
+```
+
+##### [[source](https://www.lung.org/quit-smoking/e-cigarettes-vaping/lung-health)]
+
+See this [CDC guide](https://www.cdc.gov/tobacco/basic_information/e-cigarettes/pdfs/ecigarette-or-vaping-products-visual-dictionary-508.pdf){target="_blank"} and the [American Lung Association website](https://www.lung.org/quit-smoking/e-cigarettes-vaping/lung-health){target="_blank"} for more information. 
+
+The report found that:
+
+> During 2017–2018, current use of any tobacco product **increased 38.3%** (from 19.6% to 27.1%) among high school students and **28.6%** (from 5.6% to 7.2%) among middle school students; e-cigarette use **increased 77.8%** (from 11.7% to 20.8%) among high school students and **48.5%** (from 3.3% to 4.9%) among middle school students.
+
+
+In 2018, the [Federal Drug Administration (FDA) in the United States](https://acsjournals.onlinelibrary.wiley.com/doi/full/10.1002/cncr.31868){target="_blank"} stated that e-cigarette usage use among youth reached:  
+
+> “nothing short of an **epidemic proportion of growth**”
+
+
+In this case study, we will be invistigating the same data used in the report that generated the above findings. This data comes from the [The National Youth Tobacco Survey (NYTS)](https://www.cdc.gov/tobacco/data_statistics/surveys/nyts/index.htm){target="_blank"}.
 
 #### {.reference_block}
 
-Yanosky, J. D. et al. Spatio-temporal modeling of particulate air pollution in the conterminous United States using geographic and meteorological predictors. *Environ Health* 13, 63 (2014).
-- [Article in Frontiers of Pharmacology](https://www.frontiersin.org/articles/10.3389/fphar.2019.01619/full)
-
-- [Morbidity and Mortality Weekly Report](https://www.cdc.gov/mmwr/volumes/68/wr/mm6806e1.htm?s_cid=mm6806e1_w)
-
-- [Statista Visualization](https://www.statista.com/statistics/881837/vaping-and-electronic-cigarette-use-us-by-gender/)
-
+Gentzke, Andrea S., Melisa Creamer, Karen A. Cullen, Bridget K. Ambrose, Gordon Willis, Ahmed Jamal, and Brian A. King.  “Vital Signs: Tobacco Product Use Among Middle and High School Students - United States, 2011-2018.” **MMWR. Morbidity and Mortality Weekly Report** 68 (6): 157–64 (2019).
 
 ####
 
@@ -77,10 +108,14 @@ Yanosky, J. D. et al. Spatio-temporal modeling of particulate air pollution in t
 #### {.main_question_block}
 <b><u> Our main question: </u></b>
 
-1) How has tobacco/nicotine use by American youth changed since 2015? 
+1) How has tobacco/nicotine use by American youths changed since 2015? 
 2) How do vaping rates compare between males and females?
-3) What vaping brands and flavors appear to be used the most frequently?
-    + During the past 30 days, what brand of e-cigarettes did you usually use?
+3) What vaping brands and flavors appear to be used the most frequently?  
+We will base this on the following survey questions:   
+> "During the past 30 days, what brand of e-cigarettes did you usually use?"   
+>"What flavors of tobacco products have you used in the past
+30 days?"  
+
 4) Have vaping rates possibly influenced tobacco/nicotine use?
 
 ####
@@ -89,7 +124,7 @@ Yanosky, J. D. et al. Spatio-temporal modeling of particulate air pollution in t
 ## **Learning Objectives** 
 *** 
 
-In this case study, we will cover how to make a variety of visualizations to compare multiple groups across time. We will also demonstrate how to work with codebooks. We will cover the concept of survey weighting and introduce the `srvyr` package. We will discuss the difference between pooled cross-sectional data and panel data. We will especially focus on using packages and functions from the [`Tidyverse`](https://www.tidyverse.org/){target="_blank"} for wrangling data, such as `dpyr` and for visualization, suchas as `ggplot2`. The tidyverse is a library of packages created by RStudio. While some students may be familiar with previous R programming packages, these packages make data science in R especially efficient.
+In this case study, we will cover how to import data from multiple files efficiently, how to import data from excel files, and how to make a variety of visualizations to compare multiple groups across time. We will also demonstrate how to work with codebooks. We will cover the concept of survey weighting and introduce the `srvyr` package. We will discuss the difference between pooled cross-sectional data and panel data. We will especially focus on using packages and functions from the [`Tidyverse`](https://www.tidyverse.org/){target="_blank"} for wrangling data, such as `tidyr` and `dpyr` and for visualization, such as as `ggplot2`. The tidyverse is a library of packages created by RStudio. While some students may be familiar with previous R programming packages, these packages make data science in R especially efficient.
 
 
 ```{r, out.width = "20%", echo = FALSE, fig.align ="center"}
@@ -103,43 +138,189 @@ include_graphics("https://tidyverse.tidyverse.org/logo.png")
 
 We will begin by loading the packages that we will need:
 
-
-
-
 ```{r}
 library(here)
-library(dplyr)
-library(tidyr)
-library(stringr)
 library(readxl)
+library(purrr)
+library(dplyr)
+library(stringr)
+library(tidyr)
+library(forcats)
 library(readr)
+library(summarytools)
 library(srvyr)
 library(ggplot2)
-library(forcats)
-library(purrr)
 library(cowplot)
 ```
 
-## Session info
+ Package   | Use                                                                         
+---------- |-------------
+[here](https://github.com/jennybc/here_here){target="_blank"}       | to easily load and save data  
+[readxl](https://readxl.tidyverse.org/){target="_blank"}      | to import the data in the excel files  
+[purrr](https://purrr.tidyverse.org/){target="_blank"}   | to import the data in all the different excel and csv files efficiently
+[readr](https://readr.tidyverse.org/){target="_blank"}      | to import the CSV file data
+[dplyr](https://dplyr.tidyverse.org/){target="_blank"}      | to arrange/filter/select/compare specific subsets of the data  
+[summarytools](https://cran.r-project.org/web/packages/skimr/index.html){target="_blank"}      | to get an overview of data in a different style   
+[tidyr](https://tidyr.tidyverse.org/){target="_blank"}      | to rearrange data in wide and long formats 
 
-```{r}
-sessionInfo()
+
+[stringr](https://stringr.tidyverse.org/articles/stringr.html){target="_blank"}    | to manipulate the character strings within the data   
+[ggplot2](https://ggplot2.tidyverse.org/){target="_blank"}    | to make visualizations with multiple layers  
+[ggpubr](https://cran.r-project.org/web/packages/ggpubr/index.html){target="_blank"}    | to easily add regression line equations to plots  
+[forcats](https://forcats.tidyverse.org/){target="_blank"}    | to change details about factors (categorical variables)  
+[lmerTest](https://cran.r-project.org/web/packages/lmerTest/lmerTest.pdf)| to perform linear mixed model testing   
+[car](https://cran.r-project.org/web/packages/car/car.pdf)| to perform Levene's Test of Homogeneity of Variances   
+[ggiraph](https://cran.r-project.org/web/packages/ggiraph/index.html)| to make plots interactive   
+[ggforce](https://cran.r-project.org/web/packages/ggforce/ggforce.pdf)| to modify facets in plots  
+[viridis](https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html)| to plot in color palette    
+[cowplot](https://cran.r-project.org/web/packages/cowplot/vignettes/introduction.html){target="_blank"} | to allow plots to be combined   [skimr](https://cran.r-project.org/web/packages/skimr/index.html){target="_blank"}      | to get an overview of data   
+
+
+
+
+The first time we use a function, we will use the `::` to indicate which package we are using. Unless we have overlapping function names, this is not necessary, but we will include it here to be informative about where the functions we will use come from.
+
+
+## **Context**
+*** 
+
+According to the cited [Morbidity and Mortality Weekly Report](https://www.cdc.gov/mmwr/volumes/68/wr/mm6806e1.htm?s_cid=mm6806e1_w) this was what was already known about this topic and the implications of this study:
+
+```{r, echo = FALSE, fig.align ="center", out.width = "800 px"}
+
+knitr::include_graphics(here::here("img", "context.png"))
+
 ```
 
-# Data import
 
-## Datasets
+Importantly, the vapors used in e-cigarettes contain harmful chemicals:
 
-```{r, echo=FALSE, eval=FALSE}
-tbl <- list.files(here::here(), recursive = TRUE,
-                  pattern = "*.xlsx") %>% 
-  map(~read_excel(.))
+```{r, echo = FALSE, fig.align ="center"}
 
-tbl_names <- list.files(here::here(""), recursive = TRUE,
-                        pattern = "*.xlsx") %>%
+include_graphics("https://www.cdc.gov/tobacco/basic_information/e-cigarettes/images/e-cigarette-aerosol-can-contain-harmful-ingredients-desktop-700.jpg")
+```
+
+E-cigarette usage has also been associated with [lung injury]((https://www.frontiersin.org/articles/10.3389/fphar.2019.01619/full)){target="_blank"}
+
+```{r, echo = FALSE, fig.align ="center", out.width = "800 px"}
+
+knitr::include_graphics(here::here("img", "lung.png"))
+```
+
+See [here](https://www.cdc.gov/tobacco/basic_information/e-cigarettes/Quick-Facts-on-the-Risks-of-E-cigarettes-for-Kids-Teens-and-Young-Adults.html){target="_blank"} for additonal information about the potential health effects of e-cigarettes in teens and young adults.
+
+## **Limitations**
+*** 
+There are some important considerations regarding this data analysis to keep in mind: 
+
+AVOCADO..Need Michael to look at these...
+
+1) The data included in the [National Youth Tobacco Survey (NYTS)](https://www.cdc.gov/tobacco/data_statistics/surveys/nyts/index.htm){target="_blank"} does not follow the same individual students over time.  A [longitudinal study](https://www.bmj.com/about-bmj/resources-readers/publications/epidemiology-uninitiated/7-longitudinal-studies){target="_blank"} that does follow the same individuals over time collects data called [panel data](https://en.wikipedia.org/wiki/Panel_data). The data in this study is called pooled [cross-sectional data]https://en.wikipedia.org/wiki/Cross-sectional_data, this data is obtained from random collection of obervations across time.
+
+According to wikipedia:
+>Panel data differs from pooled cross-sectional data across time, because it deals with the observations on the same subjects in different times whereas the latter observes different subjects in different time periods
+
+
+AVOCADO revisit this...
+2) The data also includes percentages of students that reported use of particular tobacco product, but the survey questions did not ask  how much uses of one product compared to another - for example menthol flavored products where used at the near exclusion of other flavors. 
+
+While [gender](https://www.genderspectrum.org/quick-links/understanding-gender/){target="_blank"} and [sex](https://www.who.int/genomics/gender/en/index1.html){target="_blank"} are not actually binary, the data  used in this analysis only contains information for groups of individuals who answered the survey questions as male or female. 
+
+
+AVOCADO.. should we drop the race data? we didnt use it...
+Furthermore, while the race of individual students was surveyed and asked students to self report based on what race or races they considered themselves to be, this list only included the following options:    
+1) Hispanic, Latino, Latina, or Spanish origin as one single race with the following further options:  
+    1) Mexican, Mexican American, Chicano, or Chicana  
+    2) Puerto Rican  
+    3) Cuban  
+    4) Yes, Another Hispanic, Latino, Latina, or Spanish origin  
+2)
+
+
+## **What are the data?**
+*** 
+ 
+The data in this case study comes from the [National Youth Tobacco Survey (NYTS)](https://www.cdc.gov/tobacco/data_statistics/surveys/nyts/index.htm){target="_blank"} which is an annual survey that asks students  in high school and middle school (grades 6-12) about tobacco usage in the United States of America.
+
+The data for this survey is freely available online at this [website](https://www.cdc.gov/tobacco/data_statistics/surveys/nyts/data/index.html){target="_blank"} with data from 1999, 2000, 2002, 2004, 2006, 2009,  and 2011-2019. We will be using data from **2015-2019** due to the fact that these years are the most recent that asked questions recarding e-cigarette usage.
+
+Each year includes documentation, such as a [codebook](https://www.icpsr.umich.edu/icpsrweb/content/shared/ICPSR/faqs/what-is-a-codebook.html) and an excel file containing the data:
+
+```{r, echo = FALSE, fig.align ="center", out.width = "600 px"}
+
+knitr::include_graphics(here::here("img", "data.png"))
+```
+Therefore, since we are using data from **2015-2019**, the data we are interested in is located in 5 different excel files, each with their own [codebook](https://www.icpsr.umich.edu/icpsrweb/content/shared/ICPSR/faqs/what-is-a-codebook.html).
+
+The [codebook](https://www.icpsr.umich.edu/icpsrweb/content/shared/ICPSR/faqs/what-is-a-codebook.html) contains information describing the data within the excel file. 
+
+As you can see the excel file contains very short variable names and values, and it is not clear what they mean without the codebook:
+
+```{r, echo = FALSE, fig.align ="center", out.width = "600 px"}
+
+knitr::include_graphics(here::here("img", "excel.png"))
+```
+
+The codebook explains what the variables (the columns) are:
+```{r, echo = FALSE, fig.align ="center", out.width = "600 px"}
+
+knitr::include_graphics(here::here("img", "variables.png"))
+```
+
+And the codebook explains what the values for each variable are:
+
+```{r, echo = FALSE, fig.align ="center", out.width = "600 px"}
+
+knitr::include_graphics(here::here("img", "qn1.png"))
+```
+
+We will explain more later about what the values on the right indicate.
+
+The reason that there are codebooks for each year is because the questions asked year varied slightly.
+
+
+The data in this survey is what is called pooled cross-sectional data. In otherwords, different subsets of students are surveyed each year and it is not clear which, if any , individuals particpate from one year to the next.
+
+## **Data Import**
+*** 
+Since these excel files are so large, it takes a bit of time for the data to load. To make the process faster, we previously imported these files, selected only our questions of interest, and saved this data as csv files. 
+
+AVOCADO should we drop the race data? we didn't end up doing anything with this....
+
+<details><summary> Click here for details on how the data was originally imported </summary>
+
+First we created a list of filenames of all the different excel files. Using the `here()` function of the `here` package, we looked in all the directories of the project.
+The `list.files()` function looked for all files with .xlsx within these subdirectories.
+```{r}
+excel_files<-list.files(here::here(), recursive = TRUE,
+                  pattern = "*.xlsx")
+excel_files
+```
+
+All the files were read using read_excel of the readxl package.Using the map() function of the purrr package this was done efficiently.
+This created a single list of tibbles (one for each file). 
+```{r, eval = FALSE}
+tbl <- excel_files %>% 
+       map(~readxl::read_excel(.))
+```
+
+Each excel file name was extracted using the str_extract() function of the stringr package.
+```{r}
+tbl_names <- excel_files %>%
   str_extract("nyts[2][0][1][5-9]")
+tbl_names
+```
 
+These names became the names of the tibbles in the list of tibbles.
+```{r, eval = FALSE}
 names(tbl) <- tbl_names
+```
+
+
+Specific columns were selected from each of the tibbles using the varaible name, as identified in the codebook for being of interest.
+In some cases functions like starts_with() of the dplyr package were used to select several variables.
+
+```{r, eval = FALSE}
 
 tbl[["nyts2015"]] <- tbl[["nyts2015"]] %>%
     dplyr::select(psu,
@@ -254,21 +435,37 @@ tbl[["nyts2019"]] <- tbl[["nyts2019"]] %>%
                   Q62F, #Candy/Desserts/Other Sweets
                   Q62G, #Some Other Flavor Not Listed Here 
                   )
-
-dir.create("data_reduced",
-           showWarnings = FALSE)
-
-mapply(write_csv, tbl, path=paste0("docs/data_reduced/",
-                                   names(tbl),
-                                   '.csv')
-       )
 ```
+
+A directory was created using the base `dir.create()` function called `data_reduced` for the csv files. 
+New csv files were created for each of the tbls in the list using the `write_csv()` function of the `readr` package.
+This was done all at once using the base `mappy()` function.
+
+```{r, eval = FALSE}
+# 
+dir.create("docs/data_reduced")
+
+mapply(write_csv, tbl, path=here(paste0("docs/data_reduced/",
+                                  names(tbl),
+                                   '.csv'))
+     )
+# tbl %>%
+#   names(.) %>%
+# map(~write_csv(tibble(.) , path=paste0("docs/data_reduced2/",., ".csv")))
+#                                   
+```
+
+</details>
+
+
+
+Now we will show how to read in the data from the five CSV files that were created from the five different excel files.
+
+### Reading in the CSV files
 
 ```{r, echo=FALSE, include=FALSE}
 start_time <- Sys.time()
-csvs <- list.files(recursive = TRUE,
-                   pattern = "*.csv") %>% 
-  map(~read_csv(.))
+
 end_time <- Sys.time()
 
 test_time <- end_time - start_time
@@ -277,9 +474,17 @@ time_message <- paste("Duration of data import:",
       round(as.numeric(test_time) ,3),
       units(test_time)
       )
+```
+
+
+```{r}
+csvs <- list.files(here::here(),recursive = TRUE,
+                   pattern = "*.csv")%>%
+  map(~read_csv(.))
+
 
 csvs_names <- list.files(recursive = TRUE,
-                         pattern = "*.csv") %>%
+                         pattern = "*.csv")%>%
   str_extract("nyts[2][0][1][5-9]")
 
 names(csvs) <- csvs_names
@@ -289,40 +494,26 @@ rm(csvs)
 rm(csvs_names)
 ```
 
-```{r, eval=FALSE}
-nyts_data <- list.files(recursive = TRUE,
-                   pattern = "*.xlsx") %>% 
-  map(~read_excel(.))
-
-nyts_data_names <- list.files(recursive = TRUE,
-                         pattern = "*.xlsx") %>%
-  str_extract("nyts[2][0][1][5-9]")
-
-names(nyts_data) <- nyts_data_names
-
-names(nyts_data)
-```
-
-# Data wrangling
 
 ```{r}
+
 nyts_data[["nyts2015"]] <- nyts_data[["nyts2015"]] %>%
-    dplyr::select(psu,
-                  finwgt,
-                  stratum,
-                  Qn1, #Age
-                  Qn2, #Sex
-                  Qn3, #Grade
-                  starts_with("Qn4"), #Hispanic/Latino
-                  starts_with("Qn5"), #Race
-                  starts_with("E",
-                              ignore.case = FALSE),
-                  starts_with("C",
-                              ignore.case = FALSE),
-                  -EFLAVCIGTS,
-                  -CFLAVCIGTS,
-                  -EFLAVCIGAR,
-                  ) %>%
+    # dplyr::select(psu,
+    #               finwgt,
+    #               stratum,
+    #               Qn1, #Age
+    #               Qn2, #Sex
+    #               Qn3, #Grade
+    #               starts_with("Qn4"), #Hispanic/Latino
+    #               starts_with("Qn5"), #Race
+    #               starts_with("E",
+    #                           ignore.case = FALSE),
+    #               starts_with("C",
+    #                           ignore.case = FALSE),
+    #               -EFLAVCIGTS,
+    #               -CFLAVCIGTS,
+    #               -EFLAVCIGAR,
+    #               ) %>%
     rename(Age=Qn1,
            female=Qn2,
            Grade=Qn3,
@@ -350,7 +541,16 @@ nyts_data[["nyts2015"]] <- nyts_data[["nyts2015"]] %>%
   dplyr::select(-starts_with("Q"))
 ```
 
+
+#### {.scrollable }
 ```{r}
+# Scroll through the output!
+
+
+```
+####
+
+```{r, eval = FALSE}
 sapply(nyts_data[["nyts2015"]], function(x)
     summary(
         factor(x)
@@ -398,7 +598,7 @@ nyts_data[["nyts2015"]] <- nyts_data[["nyts2015"]] %>%
                       .missing = NA)))
 ```
 
-```{r}
+```{r, eval = FALSE}
 sapply(nyts_data[["nyts2015"]], function(x)
     summary(
         factor(x)
@@ -457,11 +657,11 @@ nyts_data[["nyts2016"]] <- nyts_data[["nyts2016"]] %>%
            brand_ecig=NA) %>%
   dplyr::select(-starts_with("Q"))
 
-sapply(nyts_data[["nyts2016"]], function(x)
-    summary(
-        factor(x)
-        )
-    )
+# sapply(nyts_data[["nyts2016"]], function(x)
+#     summary(
+#         factor(x)
+#         )
+#     )
 
 nyts_data[["nyts2016"]] <- nyts_data[["nyts2016"]] %>%
   mutate_all(~ replace(., . %in% c("*", "**"), NA)) %>%
@@ -505,11 +705,11 @@ nyts_data[["nyts2016"]] <- nyts_data[["nyts2016"]] %>%
                        .default = FALSE,
                       .missing = FALSE)))
 
-sapply(nyts_data[["nyts2016"]], function(x)
-    summary(
-        factor(x)
-        )
-    )
+# sapply(nyts_data[["nyts2016"]], function(x)
+#     summary(
+#         factor(x)
+#         )
+#     )
 ```
 
 ```{r}
@@ -563,11 +763,11 @@ nyts_data[["nyts2017"]] <- nyts_data[["nyts2017"]] %>%
            brand_ecig=NA) %>%
   dplyr::select(-starts_with("Q"))
 
-sapply(nyts_data[["nyts2017"]], function(x)
-    summary(
-        factor(x)
-        )
-    )
+# sapply(nyts_data[["nyts2017"]], function(x)
+#     summary(
+#         factor(x)
+#         )
+#     )
 
 nyts_data[["nyts2017"]] <- nyts_data[["nyts2017"]] %>%
   mutate_all(~ replace(., . %in% c("*", "**"), NA)) %>%
@@ -611,11 +811,11 @@ nyts_data[["nyts2017"]] <- nyts_data[["nyts2017"]] %>%
                        .default = FALSE,
                       .missing = FALSE)))
 
-sapply(nyts_data[["nyts2017"]], function(x)
-    summary(
-        factor(x)
-        )
-    )
+# sapply(nyts_data[["nyts2017"]], function(x)
+#     summary(
+#         factor(x)
+#         )
+#     )
 ```
 
 ```{r}
@@ -668,11 +868,11 @@ nyts_data[["nyts2018"]] <- nyts_data[["nyts2018"]] %>%
            brand_ecig=NA) %>%
   dplyr::select(-starts_with("Q"))
 
-sapply(nyts_data[["nyts2018"]], function(x)
-    summary(
-        factor(x)
-        )
-    )
+# sapply(nyts_data[["nyts2018"]], function(x)
+#     summary(
+#         factor(x)
+#         )
+#     )
 
 nyts_data[["nyts2018"]] <- nyts_data[["nyts2018"]] %>%
   mutate_all(~ replace(., . %in% c("*", "**"), NA)) %>%
@@ -715,11 +915,11 @@ nyts_data[["nyts2018"]] <- nyts_data[["nyts2018"]] %>%
                        .default = FALSE,
                       .missing = FALSE)))
 
-sapply(nyts_data[["nyts2018"]], function(x)
-    summary(
-        factor(x)
-        )
-    )
+# sapply(nyts_data[["nyts2018"]], function(x)
+#     summary(
+#         factor(x)
+#         )
+#     )
 ```
 
 ```{r}
@@ -774,11 +974,11 @@ nyts_data[["nyts2019"]] <- nyts_data[["nyts2019"]] %>%
            no_use="missing") %>%
   dplyr::select(-starts_with("Q"))
 
-sapply(nyts_data[["nyts2019"]], function(x)
-    summary(
-        factor(x)
-        )
-    )
+# sapply(nyts_data[["nyts2019"]], function(x)
+#     summary(
+#         factor(x)
+#         )
+#     )
 
 nyts_data[["nyts2019"]] <- nyts_data[["nyts2019"]] %>%
   mutate_all(~ replace(., . %in% c(".N",".S",".Z"), NA)) %>%
@@ -830,11 +1030,11 @@ nyts_data[["nyts2019"]] <- nyts_data[["nyts2019"]] %>%
                            .default = FALSE,
                            .missing =FALSE))) #Ask Michael about this if unclear
 
-sapply(nyts_data[["nyts2019"]], function(x)
-    summary(
-        factor(x)
-        )
-    )
+# sapply(nyts_data[["nyts2019"]], function(x)
+#     summary(
+#         factor(x)
+#         )
+#     )
 ```
 
 ```{r}
@@ -842,13 +1042,15 @@ nyts_data <- nyts_data %>%
   map_df(bind_rows, .id = "year") %>%
   mutate(year=as.numeric(str_remove(year,"nyts")))
 
-sapply(nyts_data, class)
+#sapply(nyts_data, class)
 
-sapply(nyts_data, function(x)
-    summary(
-        factor(x)
-        )
-    )
+# sapply(nyts_data, function(x)
+#     summary(
+#         factor(x)
+#         )
+#     )
+
+
 ```
 
 <style>
@@ -860,9 +1062,30 @@ Reminder: Current users are a subset of ever users.
 
 </div>
 
-# Data visualization
 
-## Question 1 
+
+## **Data Exploration and Wrangling**
+*** 
+
+We will also use the `%>%` pipe which can be used to define the input for later sequential steps. This will make more sense when we have multiple sequential steps using the same data object. To use the pipe notation we need to install and load dplyr as well.
+
+
+
+## **Data Visualization**
+*** 
+
+### Question 1 
+
+For lots of pivot_longer() that are the same... can use pivot_longer_spec()
+
+spec <- relig_income %>% build_longer_spec(
+  cols = -religion,
+  names_to = "income",
+  values_to = "count"
+)
+pivot_longer_spec(relig_income, spec)
+
+But need to decide if we are going to create some new data frames...
 
 ```{r}
 plot1 <- nyts_data %>%
@@ -899,7 +1122,7 @@ plot1 <- nyts_data %>%
 plot1 
 ```
 
-## Question 2
+### Question 2
 
 ```{r}
 plot2 <- nyts_data %>%
@@ -933,7 +1156,7 @@ plot2 <- nyts_data %>%
 plot2
 ```
 
-## Question 3
+### Question 3
 
 What vaping brands and flavors appear to be used the most frequently?
 
@@ -1081,7 +1304,7 @@ plot5 <- nyts_data %>%
 plot5
 ```
 
-## Question 4
+### Question 4
 
 Have vaping rates possibly influenced tobacco/nicotine use?
 
@@ -1323,8 +1546,9 @@ plotA_w <- nyts_data %>%
                           grepl("current", Type) ~ "Current",
                           TRUE ~ "Mean")) %>%
   dplyr::select(-Type) %>%
-#  pivot_wider_spec()
-  spread(Estimate, `Percentage of students`) %>%
+  pivot_wider(names_from = Estimate, 
+              values_from = `Percentage of students`) %>%
+  #spread(Estimate, `Percentage of students`) %>%
   ggplot(aes(x=year,y=Mean)) +
   geom_line(aes(linetype=User)) +
   geom_linerange(aes(ymin = Lower, ymax = Upper), show.legend = FALSE) +
@@ -1383,7 +1607,9 @@ plotB_w <- nyts_data %>%
          Product = case_when(grepl("non_ecig", Category) ~ "Other products",
                           TRUE ~ "E-cigarettes")) %>%
   dplyr::select(-Category) %>%
-  spread(Estimate, `Percentage of students`) %>%
+  pivot_wider(names_from = Estimate, 
+              values_from = `Percentage of students`) %>%
+  #spread(Estimate, `Percentage of students`) %>%
   filter(User=="Ever") %>%
   dplyr::rename("Lower_temp" = Upper,
                 "Upper_temp" = Lower) %>%
@@ -1445,7 +1671,9 @@ plotC_w <- nyts_data %>%
          Product = case_when(grepl("non_ecig", Category) ~ "Other products",
                           TRUE ~ "E-cigarettes")) %>%
   dplyr::select(-Category) %>%
-  spread(Estimate, `Percentage of students`) %>%
+  pivot_wider(names_from = Estimate, 
+              values_from = `Percentage of students`) %>%
+  #spread(Estimate, `Percentage of students`) %>%
     ggplot(aes(x=year,y=Mean, color=Product)) +
   geom_line(aes(linetype=User)) +
   geom_linerange(aes(ymin = Lower, ymax = Upper), show.legend = FALSE) +
@@ -1531,7 +1759,9 @@ plotA_w_8 <- nyts_data %>%
                           grepl("current", Type) ~ "Current",
                           TRUE ~ "Mean")) %>%
   dplyr::select(-Type) %>%
-  spread(Estimate, `Percentage of students`) %>%
+  pivot_wider(names_from = Estimate, 
+              values_from = `Percentage of students`) %>%
+  #spread(Estimate, `Percentage of students`) %>%
   ggplot(aes(x=year,y=Mean)) +
   geom_line(aes(linetype=User)) +
   geom_linerange(aes(ymin = Lower, ymax = Upper)) + 
@@ -1596,7 +1826,9 @@ plotB_w_8 <- nyts_data %>%
          Product = case_when(grepl("non_ecig", Category) ~ "Other products",
                           TRUE ~ "E-cigarettes")) %>%
   dplyr::select(-Category) %>%
-  spread(Estimate, `Percentage of students`) %>%
+  pivot_wider(names_from = Estimate, 
+              values_from = `Percentage of students`) %>%
+  #spread(Estimate, `Percentage of students`) %>%
   filter(User=="Ever") %>%
   dplyr::rename("Lower_temp" = Upper,
                 "Upper_temp" = Lower) %>%
@@ -1663,7 +1895,9 @@ plotC_w_8 <- nyts_data %>%
          Product = case_when(grepl("non_ecig", Category) ~ "Other products",
                           TRUE ~ "E-cigarettes")) %>%
   dplyr::select(-Category) %>%
-  spread(Estimate, `Percentage of students`) %>%
+  pivot_wider(names_from = Estimate, 
+              values_from = `Percentage of students`) %>%
+  #spread(Estimate, `Percentage of students`) %>%
     ggplot(aes(x=year,y=Mean, color=Product)) +
   geom_line(aes(linetype=User)) +
   geom_linerange(aes(ymin = Lower, ymax = Upper)) + 
@@ -1846,7 +2080,8 @@ final_plot
 ggsave("final_plot.png")
 ```
 
-# Homework questions
+## **Suggested Homework**
+*** 
 
 <style>
 div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
@@ -1860,7 +2095,7 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 
 </div>
 
-# Notes
+### Notes
 
 Ever and current variables are limited to those shared by all years of data included in this case study.
 
@@ -1878,8 +2113,38 @@ knit_time_message <- paste("Knit time:",
 
 <p style="color:red">New code: `r knit_time_message`. Previous code: ~ 3 m. </p>
 
-# Problems
+### Problems
 
 I had difficulty producing a plot that succinctly presented a trend. It's very easy to produce plots that are very useful once one is familiar with the data. Some plots, however, cannot stand alone and need additional context to be clear for those without prior knowledge of the data. When I first shared a plot I had been working on with others, it became clear that in my effort to present a complicated idea briefly I had left out information that would make the trend easily interpretable. To solve this issue, I began to present visualizations of the data alongside my original plot. The final figure I created contained several additional plots, each presenting the same trend at a different level than my initial plot.
 
 My "centerpiece" plot is the middle plot in `final_plot`. The 8 plots around it help provide a very clear picture of what is going on in the US with regards to e-cigarette use and nicotine product use at large. On its own, it's difficult to understand the trends in the US and how important the weighting scheme is for inference. Once you add the left and right columns, it's clear what is going on. 
+
+
+
+## **Data Analysis**
+*** 
+
+### **content header**
+*** 
+
+
+
+## **Summary**
+*** 
+
+
+
+## **Helpful Links**
+*** 
+
+review of [tidymodels](https://rviews.rstudio.com/2019/06/19/a-gentle-intro-to-tidymodels/){target="_blank"} 
+
+guide for [preprocessing with recipes](http://www.rebeccabarter.com/blog/2019-06-06_pre_processing/)
+
+
+## **Session info**
+***
+
+```{r}
+sessionInfo()
+```
