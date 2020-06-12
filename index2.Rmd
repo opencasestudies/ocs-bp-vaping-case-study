@@ -59,9 +59,9 @@ knitr::include_graphics(here::here("img", "final_plot.png"))
 
 ## **Motivation**
 *** 
-According to a recent [report](https://www.cdc.gov/mmwr/volumes/68/wr/mm6806e1.htm?s_cid=mm6806e1_w){target="_blank"}, overall tobacco use **increased** in youths (middle schooland high school students) in the United States in 2017 and 2018, despite previous years of declining use.
+According to a recent [report](https://www.cdc.gov/mmwr/volumes/68/wr/mm6806e1.htm?s_cid=mm6806e1_w){target="_blank"}, overall tobacco use **increased** in youths (middle school and high school students) in the United States in 2017 and 2018, despite previous years of declining use.
 
-This major increase is attributed to an increase in the use of electronic cigaarette (e-cigarette) products.
+This major increase is attributed to an increase in the use of electronic cigarette (e-cigarette) products.
 
 E-cigarettes are referred to by many different names, including but not limited to:
 
@@ -93,7 +93,7 @@ In 2018, the [Federal Drug Administration (FDA) in the United States](https://ac
 > “nothing short of an **epidemic proportion of growth**”
 
 
-In this case study, we will be invistigating the same data used in the report that generated the above findings. This data comes from the [The National Youth Tobacco Survey (NYTS)](https://www.cdc.gov/tobacco/data_statistics/surveys/nyts/index.htm){target="_blank"}.
+In this case study, we will be investigating the same data used in the report that generated the above findings. This data comes from the [The National Youth Tobacco Survey (NYTS)](https://www.cdc.gov/tobacco/data_statistics/surveys/nyts/index.htm){target="_blank"}.
 
 #### {.reference_block}
 
@@ -141,41 +141,30 @@ We will begin by loading the packages that we will need:
 ```{r}
 library(here)
 library(readxl)
+library(stringr)
 library(purrr)
 library(dplyr)
-library(stringr)
-library(tidyr)
-library(forcats)
 library(readr)
-library(summarytools)
-library(srvyr)
+library(tidyr)
 library(ggplot2)
+library(forcats)
+library(srvyr)
 library(cowplot)
 ```
 
  Package   | Use                                                                         
 ---------- |-------------
 [here](https://github.com/jennybc/here_here){target="_blank"}       | to easily load and save data  
-[readxl](https://readxl.tidyverse.org/){target="_blank"}      | to import the data in the excel files  
+[readxl](https://readxl.tidyverse.org/){target="_blank"}      | to import the data in the excel files 
+[stringr](https://stringr.tidyverse.org/articles/stringr.html){target="_blank"}    | to manipulate the character strings within the data  
 [purrr](https://purrr.tidyverse.org/){target="_blank"}   | to import the data in all the different excel and csv files efficiently
-[readr](https://readr.tidyverse.org/){target="_blank"}      | to import the CSV file data
 [dplyr](https://dplyr.tidyverse.org/){target="_blank"}      | to arrange/filter/select/compare specific subsets of the data  
-[summarytools](https://cran.r-project.org/web/packages/skimr/index.html){target="_blank"}      | to get an overview of data in a different style   
+[readr](https://readr.tidyverse.org/){target="_blank"}      | to import the CSV file data
 [tidyr](https://tidyr.tidyverse.org/){target="_blank"}      | to rearrange data in wide and long formats 
-
-
-[stringr](https://stringr.tidyverse.org/articles/stringr.html){target="_blank"}    | to manipulate the character strings within the data   
 [ggplot2](https://ggplot2.tidyverse.org/){target="_blank"}    | to make visualizations with multiple layers  
-[ggpubr](https://cran.r-project.org/web/packages/ggpubr/index.html){target="_blank"}    | to easily add regression line equations to plots  
-[forcats](https://forcats.tidyverse.org/){target="_blank"}    | to change details about factors (categorical variables)  
-[lmerTest](https://cran.r-project.org/web/packages/lmerTest/lmerTest.pdf)| to perform linear mixed model testing   
-[car](https://cran.r-project.org/web/packages/car/car.pdf)| to perform Levene's Test of Homogeneity of Variances   
-[ggiraph](https://cran.r-project.org/web/packages/ggiraph/index.html)| to make plots interactive   
-[ggforce](https://cran.r-project.org/web/packages/ggforce/ggforce.pdf)| to modify facets in plots  
-[viridis](https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html)| to plot in color palette    
-[cowplot](https://cran.r-project.org/web/packages/cowplot/vignettes/introduction.html){target="_blank"} | to allow plots to be combined   [skimr](https://cran.r-project.org/web/packages/skimr/index.html){target="_blank"}      | to get an overview of data   
-
-
+[forcats](https://forcats.tidyverse.org/){target="_blank"}    | to allow for reordering of factors in plots
+[syrvr](https://cran.r-project.org/web/packages/srvyr/srvyr.pdf){target="_blank"} | to use survey weights
+[cowplot](https://cran.r-project.org/web/packages/cowplot/vignettes/introduction.html){target="_blank"} | to allow plots to be combined 
 
 
 The first time we use a function, we will use the `::` to indicate which package we are using. Unless we have overlapping function names, this is not necessary, but we will include it here to be informative about where the functions we will use come from.
@@ -200,34 +189,38 @@ Importantly, the vapors used in e-cigarettes contain harmful chemicals:
 include_graphics("https://www.cdc.gov/tobacco/basic_information/e-cigarettes/images/e-cigarette-aerosol-can-contain-harmful-ingredients-desktop-700.jpg")
 ```
 
-E-cigarette usage has also been associated with [lung injury]((https://www.frontiersin.org/articles/10.3389/fphar.2019.01619/full)){target="_blank"}
+#### [[source](https://www.cdc.gov/tobacco/basic_information/e-cigarettes/images/e-cigarette-aerosol-can-contain-harmful-ingredients-desktop-700.jpg)]{target="_blank"} 
+
+E-cigarette usage has also been associated with [lung injury]((https://www.frontiersin.org/articles/10.3389/fphar.2019.01619/full)){target="_blank"}:
 
 ```{r, echo = FALSE, fig.align ="center", out.width = "800 px"}
 
 knitr::include_graphics(here::here("img", "lung.png"))
 ```
 
-See [here](https://www.cdc.gov/tobacco/basic_information/e-cigarettes/Quick-Facts-on-the-Risks-of-E-cigarettes-for-Kids-Teens-and-Young-Adults.html){target="_blank"} for additonal information about the potential health effects of e-cigarettes in teens and young adults.
+#### [[source](https://www.frontiersin.org/articles/10.3389/fphar.2019.01619/full)]{target="_blank"} 
+
+See [here](https://www.cdc.gov/tobacco/basic_information/e-cigarettes/Quick-Facts-on-the-Risks-of-E-cigarettes-for-Kids-Teens-and-Young-Adults.html){target="_blank"} for additional information about the potential health effects of e-cigarettes in teens and young adults.
 
 ## **Limitations**
 *** 
 There are some important considerations regarding this data analysis to keep in mind: 
 
-1) The data included in the [National Youth Tobacco Survey (NYTS)](https://www.cdc.gov/tobacco/data_statistics/surveys/nyts/index.htm){target="_blank"} does not follow the same individual students over time.  A [longitudinal study](https://www.bmj.com/about-bmj/resources-readers/publications/epidemiology-uninitiated/7-longitudinal-studies){target="_blank"} that does follow the same individuals over time collects data called [panel data](https://en.wikipedia.org/wiki/Panel_data). The data in this study is called pooled [cross-sectional data]https://en.wikipedia.org/wiki/Cross-sectional_data, this data is obtained from random collection of obervations across time.
+1) The data included in the [National Youth Tobacco Survey (NYTS)](https://www.cdc.gov/tobacco/data_statistics/surveys/nyts/index.htm){target="_blank"} does not follow the same individual students over time.  A [longitudinal study](https://www.bmj.com/about-bmj/resources-readers/publications/epidemiology-uninitiated/7-longitudinal-studies){target="_blank"} that does follow the same individuals over time collects data called [panel data](https://en.wikipedia.org/wiki/Panel_data). The data in this study is called pooled [cross-sectional data]https://en.wikipedia.org/wiki/Cross-sectional_data, this data is obtained from random collection of observations across time.
 
-According to wikipedia:
+According to Wikipedia:
 >Panel data differs from pooled cross-sectional data across time, because it deals with the observations on the same subjects in different times whereas the latter observes different subjects in different time periods
 
 2) The data also includes percentages of students that reported use of particular tobacco product, but the survey questions did not ask how much uses of one product compared to another - for example the survey asked questions like:"What flavors of tobacco products have you used in the past 30 days?" Thus, it is unclear how often one flavor was used by the same individual over another.
 
-While [gender](https://www.genderspectrum.org/quick-links/understanding-gender/){target="_blank"} and [sex](https://www.who.int/genomics/gender/en/index1.html){target="_blank"} are not actually binary, the dataused in this analysis only contains information for groups of individuals who answered the survey questions as male or female. 
+While [gender](https://www.genderspectrum.org/quick-links/understanding-gender/){target="_blank"} and [sex](https://www.who.int/genomics/gender/en/index1.html){target="_blank"} are not actually binary, the data used in this analysis only contains information for groups of individuals who answered the survey questions as male or female. 
 
 ## **What are the data?**
 *** 
  
 The data in this case study comes from the [National Youth Tobacco Survey (NYTS)](https://www.cdc.gov/tobacco/data_statistics/surveys/nyts/index.htm){target="_blank"} which is an annual survey that asks students  in high school and middle school (grades 6-12) about tobacco usage in the United States of America.
 
-The data for this survey is freely available online at this [website](https://www.cdc.gov/tobacco/data_statistics/surveys/nyts/data/index.html){target="_blank"} with data from 1999, 2000, 2002, 2004, 2006, 2009,  and 2011-2019. We will be using data from **2015-2019** due to the fact that these years are the most recent that asked questions recarding e-cigarette usage.
+The data for this survey is freely available online at this [website](https://www.cdc.gov/tobacco/data_statistics/surveys/nyts/data/index.html){target="_blank"} with data from 1999, 2000, 2002, 2004, 2006, 2009,  and 2011-2019. We will be using data from **2015-2019** due to the fact that these years are the most recent that asked questions regarding e-cigarette usage.
 
 Each year includes documentation, such as a [codebook](https://www.icpsr.umich.edu/icpsrweb/content/shared/ICPSR/faqs/what-is-a-codebook.html) and an excel file containing the data:
 
@@ -264,7 +257,7 @@ We will explain more later about what the values on the right indicate.
 The reason that there are codebooks for each year is because the questions asked year varied slightly.
 
 
-The data in this survey is what is called pooled cross-sectional data. In otherwords, different subsets of students are surveyed each year and it is not clear which, if any , individuals particpate from one year to the next.
+The data in this survey is what is called pooled cross-sectional data. In other words, different subsets of students are surveyed each year and it is not clear which, if any , individuals participate from one year to the next.
 
 ## **Data Import**
 *** 
@@ -275,8 +268,8 @@ Since these excel files are so large (each has roughly 20,000 rows), it takes a 
 
 <details><summary> Click here for details on how the data was originally imported </summary>
 
-First we created a list of filenames of all the different excel files. Using the `here()` function of the `here` package, we looked in all the directories of the project.
-The `list.files()` function looked for all files with .xlsx within these subdirectories.
+First we created a list of file names of all the different excel files. Using the `here()` function of the `here` package, we looked in all the directories of the project.
+The `list.files()` function looked for all files with .xlsx within these sub-directories.
 ```{r}
 excel_files<-list.files(here::here(), recursive = TRUE,
                   pattern = "*.xlsx")
@@ -293,7 +286,7 @@ tbl_files <- excel_files %>%
        map(~readxl::read_excel(.))
 ```
 
-Each excel file name was extracted using the `str_extract()` function of the `stringr` package. Here we are keeping occurances of the character string "nyts201" followed by a "5","6","7","8", or "9".
+Each excel file name was extracted using the `str_extract()` function of the `stringr` package. Here we are keeping occurrences of the character string "nyts201" followed by a "5","6","7","8", or "9".
 ```{r}
 tbl_names <- excel_files %>%
   str_extract("nyts[2][0][1][5-9]")
@@ -307,7 +300,7 @@ names(tbl_files) <- tbl_names
 ```
 
 
-Specific columns were selected from each of the tibbles using the varaible name, as identified in the codebook for being of interest.
+Specific columns were selected from each of the tibbles using the variable name, as identified in the codebook for being of interest.
 In some cases functions like `starts_with()` of the `dplyr` package were used to select several variables. Most of the survey questions about tobacco use start with an `"E"` or a `"C"` according to the codebooks. 
 
 ```{r, eval = FALSE}
@@ -476,12 +469,12 @@ names(nyts_data) <- nyts_data_names
 ## **Data Exploration and Wrangling**
 *** 
 
-Here is what the data for 2015 looks like:
+So let's take a look at our data. We can get a good sense of it using the `glimpse()` function of the `dplyr` package.
 
 #### {.scrollable }
 
 ```{r}
-glimpse(nyts_data[["nyts2015"]])
+dplyr::glimpse(nyts_data[["nyts2015"]])
 ```
 ####
 
@@ -520,9 +513,9 @@ knitr::include_graphics(here::here("img", "grade.png"))
 
 **This is why it is so important to always check the codebook!!**
 
-We also need to add new variables about usage of brands and specific flavors of e-cigrattes, because although later years have questions about this, this year unfortunately only has broad questions about flavors. Eventually we want to put the data from each year together, so we need the same variables for each year. Thus we need to add variables that just say `NA` for the brand and flavor data for this year.
+We also need to add new variables about usage of brands and specific flavors of e-cigarettes, because although later years have questions about this, this year unfortunately only has broad questions about flavors. Eventually we want to put the data from each year together, so we need the same variables for each year. Thus we need to add variables that just say `NA` for the brand and flavor data for this year.
 
-To change the existing variables and create new variabels, we will use the `mutate` function of the `dplyr` package.
+To change the existing variables and create new variables, we will use the `mutate` function of the `dplyr` package.
 
 ```{r}
 nyts_data[["nyts2015"]] <- nyts_data[["nyts2015"]] %>%
@@ -543,12 +536,12 @@ Now we can see how the data has changed:
 
 #### {.scrollable }
 ```{r}
-dplyr::glimpse(nyts_data[["nyts2015"]])
+glimpse(nyts_data[["nyts2015"]])
 ```
 ####
 
 
-For the next years, we do have flavor questions, but not a brand question. We can replace these vague question names like `Q50A` with values like `menthol`.  The next 3 years have the same structure for these questions. We will also create a brand variable that is just `NA` values.
+For the next years, we do have flavor questions, but not a brand question. We can replace these vague question names like `Q50A` with values like `menthol`.  The next 3 years have the same structure for these questions. For each of these years, we also want create a brand variable that is just `NA` values.  We can do this efficiently if we create a function to do all of these steps at once. Then we can use the `map_at()` function of the `purrr` package to apply the function we created (for renaming variables etc.) to the all of the data except for the data from 2015. By using `vars()` inside of the `map_at()` function we can specify what tibbles within our `nyts_data` list that we want to include or exclude.
 
 ```{r}
 
@@ -605,7 +598,7 @@ It's looking better!
 
 ### Updating Values
 
-We also  want to replace the value of `19` for `Age` to be `">18"` and the value of `13` for `Grade` to be replaced with `"Ungraded/Other"` Also accroding to the codebooks, numeric values of `1` indicate a survey answer of `FALSE`, while a value of `2` indicates `TRUE`. `Sex` needs to be recoded, but it is a bit unclear if it is encoded slightly differently across years.
+We also  want to replace the value of `19` for `Age` to be `">18"` and the value of `13` for `Grade` to be replaced with `"Ungraded/Other"` Also according to the codebooks, numeric values of `1` indicate a survey answer of `FALSE`, while a value of `2` indicates `TRUE`. `Sex` needs to be recoded, but it is a bit unclear if it is encoded slightly differently across years.
 
 
 Let's create a function to make all these updates except for `Sex`:
@@ -720,7 +713,7 @@ Great! Now we have all the same variables and our values don't need to be handle
 nyts_data <- nyts_data %>%
   map_df(bind_rows, .id = "year")
 
-head(nyts_data)
+glimpse(nyts_data)
 ```
 
 Looks like we just need to remove `"nyts"` from the year variable that we created from the names of the tibbles in our list.
@@ -733,7 +726,7 @@ nyts_data <- nyts_data %>%
 
 Here is our clean and wrangled data:
 ```{r}
-head(nyts_data)
+glimpse(nyts_data)
 
 ```
 
@@ -1405,7 +1398,7 @@ figure_w <- plot_grid(title_w,
 figure_w
 ```
 
-### Hypothethical Cohort
+### Hypothetical Cohort
 
 ```{r}
 plotA_w_8 <- nyts_data %>%
