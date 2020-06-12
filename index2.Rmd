@@ -476,10 +476,6 @@ names(nyts_data) <- nyts_data_names
 ## **Data Exploration and Wrangling**
 *** 
 
-
-### Renaming variables  
-*** 
-
 Here is what the data for 2015 looks like:
 
 #### {.scrollable }
@@ -488,6 +484,9 @@ Here is what the data for 2015 looks like:
 glimpse(nyts_data[["nyts2015"]])
 ```
 ####
+
+### Updating variables  
+*** 
 
 Currently, it isn't very clear what most of the variables indicate.
 
@@ -592,6 +591,17 @@ nyts_data[["nyts2019"]] <- nyts_data[["nyts2019"]] %>%
     mutate(no_use="missing")
 ```
 
+
+Now let's take a look at the variables for each of the years:
+
+#### {.scrollable }
+
+```{r}
+map(nyts_data, names)
+```
+####
+
+It's looking better!
 
 ### Updating Values
 
