@@ -283,7 +283,10 @@ The data in this survey is what is called pooled cross-sectional data. In otherw
 
 ## **Data Import**
 *** 
-Since these excel files are so large, it takes a bit of time for the data to load. To make the process faster, we previously imported these files, selected only our questions of interest, and saved this data as csv files. 
+
+### Reading in the excel files
+***
+Since these excel files are so large (each has roughly 20,000), it takes a bit of time for the data to load. To make the process faster, we previously imported these files, selected only our questions of interest, and saved this data as csv files. 
 
 AVOCADO should we drop the race data? we didn't end up doing anything with this....
 
@@ -297,14 +300,14 @@ excel_files<-list.files(here::here(), recursive = TRUE,
 excel_files
 ```
 
-All the files were read using read_excel of the readxl package.Using the map() function of the purrr package this was done efficiently.
+All the files were read using read_excel of the readxl package.Using the `map()` function of the `purrr` package this was done efficiently.
 This created a single list of tibbles (one for each file). 
 ```{r, eval = FALSE}
 tbl <- excel_files %>% 
        map(~readxl::read_excel(.))
 ```
 
-Each excel file name was extracted using the str_extract() function of the stringr package.
+Each excel file name was extracted using the `str_extract()` function of the `stringr` package.
 ```{r}
 tbl_names <- excel_files %>%
   str_extract("nyts[2][0][1][5-9]")
@@ -318,7 +321,7 @@ names(tbl) <- tbl_names
 
 
 Specific columns were selected from each of the tibbles using the varaible name, as identified in the codebook for being of interest.
-In some cases functions like starts_with() of the dplyr package were used to select several variables.
+In some cases functions like `starts_with()` of the `dplyr` package were used to select several variables.
 
 ```{r, eval = FALSE}
 
@@ -362,7 +365,7 @@ tbl[["nyts2016"]] <- tbl[["nyts2016"]] %>%
                   Q50F, #Candy/Desserts/Other Sweets
                   Q50G, #Some Other Flavor Not Listed Here
                   Q50H #I Did Not Use Flavored Tobacco Products In the Past
-                  ) 
+                  )
 
 tbl[["nyts2017"]] <- tbl[["nyts2017"]] %>%
     dplyr::select(psu,
@@ -429,11 +432,11 @@ tbl[["nyts2019"]] <- tbl[["nyts2019"]] %>%
                   Q40, #Brang, e-cigarettes
                   Q62A, #Menthol # What flavors of tobacco products have you used in the past 30 days? (Select one or more)
                   Q62B, #Clove or spice
-                  Q62C, #Fruit 
+                  Q62C, #Fruit
                   Q62D, #Chocolate
                   Q62E, #Alcoholic Drink
                   Q62F, #Candy/Desserts/Other Sweets
-                  Q62G, #Some Other Flavor Not Listed Here 
+                  Q62G, #Some Other Flavor Not Listed Here
                   )
 ```
 
@@ -459,9 +462,10 @@ mapply(write_csv, tbl, path=here(paste0("docs/data_reduced/",
 
 
 
-Now we will show how to read in the data from the five CSV files that were created from the five different excel files.
+Now we will show how to read in the data from the five csv files that were created from the five different excel files.
 
 ### Reading in the CSV files
+***
 
 ```{r, echo=FALSE, include=FALSE}
 start_time <- Sys.time()
@@ -495,26 +499,29 @@ rm(csvs_names)
 ```
 
 
+## **Data Exploration and Wrangling**
+*** 
+
+
+### Renaming variables  
+*** 
+
+Here is what the data for 2015 looks like:
+#### {.scrollable }
+```{r}
+glimpse(nyts_data[["nyts2015"]])
+```
+####
+
+Currently, it isn't very clear what most of the variables indicate.
+
+We want to rename variables like `Qn1` to something more meaningful like `Age`.
+
+To do this we will use the `rename()` function of the `dplyr` package. The new name is always listed first before the `=`.
 ```{r}
 
 nyts_data[["nyts2015"]] <- nyts_data[["nyts2015"]] %>%
-    # dplyr::select(psu,
-    #               finwgt,
-    #               stratum,
-    #               Qn1, #Age
-    #               Qn2, #Sex
-    #               Qn3, #Grade
-    #               starts_with("Qn4"), #Hispanic/Latino
-    #               starts_with("Qn5"), #Race
-    #               starts_with("E",
-    #                           ignore.case = FALSE),
-    #               starts_with("C",
-    #                           ignore.case = FALSE),
-    #               -EFLAVCIGTS,
-    #               -CFLAVCIGTS,
-    #               -EFLAVCIGAR,
-    #               ) %>%
-    rename(Age=Qn1,
+    dplyr::rename(Age=Qn1,
            female=Qn2,
            Grade=Qn3,
            Not_HL=Qn4a,
@@ -526,8 +533,34 @@ nyts_data[["nyts2015"]] <- nyts_data[["nyts2015"]] %>%
            Race_Asian=Qn5b,
            Race_BAA=Qn5c,
            Race_NHOPI=Qn5d,
-           Race_White=Qn5e) %>%
-    mutate(Age=Age+8,
+           Race_White=Qn5e)
+```
+
+
+We also want to update the values for age and grade, so that they are more understandable. 
+
+Recallfrom the codebook for this year, that age isn't listed perhaps in the way one might expect:
+
+```{r, echo = FALSE, fig.align ="center", out.width = "600 px"}
+
+knitr::include_graphics(here::here("img", "qn1.png"))
+```
+
+The same is true for grade:
+```{r, echo = FALSE, fig.align ="center", out.width = "600 px"}
+
+knitr::include_graphics(here::here("img", "grade.png"))
+```
+
+**This is why it is so important to always check the codebook!!**
+
+We also need to add new variables about usage of brands and flavors of e-cigrattes, because although later years have questions about this, this year unfortunately does not. Eventually we want to put the data from each year together, so we need the same variables for each year. Thus we need to add variabels that just say NA for the brand and flavor data for this year.
+
+To change the existing variables and create new variabels, we will use the `mutate` function of the `dplyr` package.
+
+```{r}
+nyts_data[["nyts2015"]] <- nyts_data[["nyts2015"]] %>%
+  dplyr::mutate(Age=Age+8,
            Grade=Grade+5,
            brand_ecig=NA,
            menthol=NA,
@@ -542,27 +575,21 @@ nyts_data[["nyts2015"]] <- nyts_data[["nyts2015"]] %>%
 ```
 
 
+Now we can see how the data has changed:
+
 #### {.scrollable }
 ```{r}
-# Scroll through the output!
-
-
+dplyr::glimpse(nyts_data[["nyts2015"]])
+skimr::skim(nyts_data[["nyts2015"]])
 ```
 ####
 
-```{r, eval = FALSE}
-sapply(nyts_data[["nyts2015"]], function(x)
-    summary(
-        factor(x)
-        )
-    )
-```
 
 ```{r}
 #Note about difference between recode and fct_recode
 nyts_data[["nyts2015"]] <- nyts_data[["nyts2015"]] %>%
-  mutate_all(~ replace(., . %in% c("."), NA)) %>%
-  mutate(Age=as.character(Age),
+  #mutate_all(~ replace(., . %in% c("."), NA)) %>%
+   mutate(Age=as.character(Age),
          Grade=as.character(Grade)
          ) %>%
   mutate(Age=recode(Age,
@@ -598,38 +625,9 @@ nyts_data[["nyts2015"]] <- nyts_data[["nyts2015"]] %>%
                       .missing = NA)))
 ```
 
-```{r, eval = FALSE}
-sapply(nyts_data[["nyts2015"]], function(x)
-    summary(
-        factor(x)
-        )
-    )
-```
 
 ```{r}
 nyts_data[["nyts2016"]] <- nyts_data[["nyts2016"]] %>%
-    dplyr::select(psu,
-                  finwgt,
-                  stratum,
-                  Q1, #Age
-                  Q2, #Sex
-                  Q3, #Grade
-                  starts_with("Q4"), #Hispanic/Latino
-                  starts_with("Q5"), #Race
-                  starts_with("E",
-                              ignore.case = FALSE),
-                  starts_with("C",
-                              ignore.case = FALSE),
-                  -EFLAVCIGAR,
-                  Q50A, #Menthol # What flavors of tobacco products have you used in the past 30 days? (Select one or more)
-                  Q50B, #Clove or spice
-                  Q50C, #Fruit
-                  Q50D, #Chocolate
-                  Q50E, #Alcoholic Drink
-                  Q50F, #Candy/Desserts/Other Sweets
-                  Q50G, #Some Other Flavor Not Listed Here
-                  Q50H #I Did Not Use Flavored Tobacco Products In the Past
-                  ) %>%
     rename(Age=Q1,
            female=Q2,
            Grade=Q3,
@@ -656,13 +654,10 @@ nyts_data[["nyts2016"]] <- nyts_data[["nyts2016"]] %>%
            Grade = as.numeric(Grade) + 5,
            brand_ecig=NA) %>%
   dplyr::select(-starts_with("Q"))
+```
 
-# sapply(nyts_data[["nyts2016"]], function(x)
-#     summary(
-#         factor(x)
-#         )
-#     )
 
+```{r}
 nyts_data[["nyts2016"]] <- nyts_data[["nyts2016"]] %>%
   mutate_all(~ replace(., . %in% c("*", "**"), NA)) %>%
   mutate(Age=as.character(Age),
@@ -705,37 +700,10 @@ nyts_data[["nyts2016"]] <- nyts_data[["nyts2016"]] %>%
                        .default = FALSE,
                       .missing = FALSE)))
 
-# sapply(nyts_data[["nyts2016"]], function(x)
-#     summary(
-#         factor(x)
-#         )
-#     )
 ```
 
 ```{r}
 nyts_data[["nyts2017"]] <- nyts_data[["nyts2017"]] %>%
-    dplyr::select(psu,
-                  finwgt,
-                  stratum,
-                  Q1, #Age
-                  Q2, #Sex
-                  Q3, #Grade
-                  starts_with("Q4"), #Hispanic/Latino
-                  starts_with("Q5"), #Race
-                  starts_with("E",
-                              ignore.case = FALSE),
-                  starts_with("C",
-                              ignore.case = FALSE),
-                  CBIDIS,
-                  Q50A, #Menthol # What flavors of tobacco products have you used in the past 30 days? (Select one or more)
-                  Q50B, #Clove or spice
-                  Q50C, #Fruit
-                  Q50D, #Chocolate
-                  Q50E, #Alcoholic Drink
-                  Q50F, #Candy/Desserts/Other Sweets
-                  Q50G, #Some Other Flavor Not Listed Here
-                  Q50H #I Did Not Use Flavored Tobacco Products In the Past
-                  ) %>%
     rename(Age=Q1,
            female=Q2,
            Grade=Q3,
@@ -762,13 +730,9 @@ nyts_data[["nyts2017"]] <- nyts_data[["nyts2017"]] %>%
            Grade = as.numeric(Grade) + 5,
            brand_ecig=NA) %>%
   dplyr::select(-starts_with("Q"))
+```
 
-# sapply(nyts_data[["nyts2017"]], function(x)
-#     summary(
-#         factor(x)
-#         )
-#     )
-
+```{r}
 nyts_data[["nyts2017"]] <- nyts_data[["nyts2017"]] %>%
   mutate_all(~ replace(., . %in% c("*", "**"), NA)) %>%
   mutate(Age=as.character(Age),
@@ -810,37 +774,10 @@ nyts_data[["nyts2017"]] <- nyts_data[["nyts2017"]] %>%
                            `1` = TRUE,
                        .default = FALSE,
                       .missing = FALSE)))
-
-# sapply(nyts_data[["nyts2017"]], function(x)
-#     summary(
-#         factor(x)
-#         )
-#     )
 ```
 
 ```{r}
 nyts_data[["nyts2018"]] <- nyts_data[["nyts2018"]] %>%
-    dplyr::select(psu,
-                  finwgt,
-                  stratum,
-                  Q1, #Age
-                  Q2, #Sex
-                  Q3, #Grade
-                  starts_with("Q4"), #Hispanic/Latino
-                  starts_with("Q5"), #Race
-                  starts_with("E",
-                              ignore.case = FALSE),
-                  starts_with("C",
-                              ignore.case = FALSE),
-                  Q50A, #Menthol # What flavors of tobacco products have you used in the past 30 days? (Select one or more)
-                  Q50B, #Clove or spice
-                  Q50C, #Fruit
-                  Q50D, #Chocolate
-                  Q50E, #Alcoholic Drink
-                  Q50F, #Candy/Desserts/Other Sweets
-                  Q50G, #Some Other Flavor Not Listed Here
-                  Q50H #I Did Not Use Flavored Tobacco Products In the Past
-                  ) %>%
     rename(Age=Q1,
            female=Q2,
            Grade=Q3,
@@ -867,13 +804,10 @@ nyts_data[["nyts2018"]] <- nyts_data[["nyts2018"]] %>%
            Grade = as.numeric(Grade) + 5,
            brand_ecig=NA) %>%
   dplyr::select(-starts_with("Q"))
+```
 
-# sapply(nyts_data[["nyts2018"]], function(x)
-#     summary(
-#         factor(x)
-#         )
-#     )
 
+```{r}
 nyts_data[["nyts2018"]] <- nyts_data[["nyts2018"]] %>%
   mutate_all(~ replace(., . %in% c("*", "**"), NA)) %>%
   mutate(Age=as.character(Age),
@@ -914,39 +848,10 @@ nyts_data[["nyts2018"]] <- nyts_data[["nyts2018"]] %>%
                            `1` = TRUE,
                        .default = FALSE,
                       .missing = FALSE)))
-
-# sapply(nyts_data[["nyts2018"]], function(x)
-#     summary(
-#         factor(x)
-#         )
-#     )
 ```
 
 ```{r}
 nyts_data[["nyts2019"]] <- nyts_data[["nyts2019"]] %>%
-    dplyr::select(psu,
-                  finwgt,
-                  stratum,
-                  Q1, #Age
-                  Q2, #Sex
-                  Q3, #Grade
-                  starts_with("Q4"), #Hispanic/Latino
-                  starts_with("Q5"), #Race
-                  starts_with("E",
-                              ignore.case = FALSE),
-                  starts_with("C",
-                              ignore.case = FALSE),
-                  -EHTP,
-                  -CHTP,
-                  Q40, #Brang, e-cigarettes
-                  Q62A, #Menthol # What flavors of tobacco products have you used in the past 30 days? (Select one or more)
-                  Q62B, #Clove or spice
-                  Q62C, #Fruit 
-                  Q62D, #Chocolate
-                  Q62E, #Alcoholic Drink
-                  Q62F, #Candy/Desserts/Other Sweets
-                  Q62G, #Some Other Flavor Not Listed Here 
-                  )  %>%
     rename(brand_ecig=Q40,
            Age=Q1,
            female=Q2,
@@ -973,13 +878,10 @@ nyts_data[["nyts2019"]] <- nyts_data[["nyts2019"]] %>%
            Grade = as.numeric(Grade) + 5,
            no_use="missing") %>%
   dplyr::select(-starts_with("Q"))
+```
 
-# sapply(nyts_data[["nyts2019"]], function(x)
-#     summary(
-#         factor(x)
-#         )
-#     )
 
+```{r}
 nyts_data[["nyts2019"]] <- nyts_data[["nyts2019"]] %>%
   mutate_all(~ replace(., . %in% c(".N",".S",".Z"), NA)) %>%
   mutate(Age=as.character(Age),
@@ -1030,11 +932,6 @@ nyts_data[["nyts2019"]] <- nyts_data[["nyts2019"]] %>%
                            .default = FALSE,
                            .missing =FALSE))) #Ask Michael about this if unclear
 
-# sapply(nyts_data[["nyts2019"]], function(x)
-#     summary(
-#         factor(x)
-#         )
-#     )
 ```
 
 ```{r}
@@ -1063,9 +960,6 @@ Reminder: Current users are a subset of ever users.
 </div>
 
 
-
-## **Data Exploration and Wrangling**
-*** 
 
 We will also use the `%>%` pipe which can be used to define the input for later sequential steps. This will make more sense when we have multiple sequential steps using the same data object. To use the pipe notation we need to install and load dplyr as well.
 
