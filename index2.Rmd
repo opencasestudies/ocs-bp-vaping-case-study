@@ -741,11 +741,67 @@ Reminder: Current users are a subset of ever users.
 
 
 
+### variable table
+<details><summary> Click here to see a table about the variables </summary>
+
+value 1 = yes, value 2 = no
+
+Variable   | Details                                                                        
+---------- |-------------
+**year**  | the year that the survey results from a particular student was acquired 
+**psu** | the primary sampling unit for the survey weighting
+**finwgt** | the final analysis weight for the survey weighting
+**stratum** | the stratum used for variance estimation for the survey weighting
+**Age** | the age of the student when they took the survey
+**Sex** | the sex of the student when they took the survey
+**Grade** | the grade of the the student when the took the survey
+**ECIGT** | student reported having ever tried cigarette smoking, even one or two puffs
+**ECIGAR** | student reported having ever tried cigar smoking, even one or two puffs
+**ESLT** | student reported having ever tried chewing tobacco, snuff, or dip
+**EELCIGT** | student reported having ever tried e-cigarettes
+**EROLLCIGTS** | student reported having ever tried roll-your-own cigarettes
+**EFLAVCIGTS** |  (not in 2019)
+**EBIDIS** | student reported having ever tried bidis (small brown cigarettes wrapped in a leaf)
+**EFLAVCIGAR** | (not in 2019)
+**EHOOKAH** | student reported having ever smoked tobacco from a hookah or a waterpipe
+**EPIPE** | student reported having ever smoked tobacco from a pipe (not hookah)
+**ESNUS** | student reported having ever used snus, such as Camel or Malboro Snus
+**EDISSOLV** | student reported having ever tried dissolvable tobacco products such as Ariva, Stonewall, Camel orbs, Camel sticks, Marlboro sticks, or Camel strips
+**EHTP** | student reported having ever tried heated (also known as "heat-not-burn") tobacco products
+**CCIGT** | student reported they smoked cigarettes on >= 1 of the past 30 days
+**CCIGAR** | student reported they smoked cigars on >= 1 of the past 30 days
+**CSLT** | student reported they used chewing tobacco, snuff, or dip on >= 1 of the past 30 days
+**CELCIGT** | student reported they have used electronic cigarettes or e-cigarettes (days??? CHECK non2019!)
+**CROLLCIGTS** | student reported that have smoked roll-your-own cigarettes during the past 30 days
+**CFLAVCIGTS**| (not in 2019)
+**CBIDIS** |
+**CHOOKAH** | student reported they smoked tobacco in a hookah on >= 1 of the past 30 days
+**CPIPE** | student reported they smoked tobacco in a pipe (not hookah) during the past 30 days
+**CSNUS** | student reported they used snus during the past 30 days  
+**CDISSOLV** | student reported they used dissolvable tobacco products such as Ariva, Stonewall, Camel orbs, Camel sticks, Marlboro sticks, or Camel strips during the past 30 days
+**brand_ecig** | student answer to "During the past 30 days, what brand of e-cigarettes did
+you usually use?"
+**menthol** | student answered yes to "Menthol cigarettes are cigarettes that taste like mint.
+During the past 30 days, were the cigarettes that you usually
+smoked menthol?"
+**clove_spice** | student selected clove or spice as the answer to "What flavors of tobacco products have you used in the past 30 days? (choose one or more)"
+**fruit** | student selected fruit as the answer to "What flavors of tobacco products have you used in the past 30 days? (choose one or more)"
+**chocolate** | student selected chocolate as the answer to "What flavors of tobacco products have you used in the past 30 days? (choose one or more)"
+**alcoholic_drink** | student selected alcoholic drink (such as wine, cognac, margarita, or other cocktails) as the answer to "What flavors of tobacco products have you used in the past 30 days? (choose one or more)"
+**candy_dessert_sweets** | student selected candy_dessert_sweets
 
 
+**fips** | Federal information processing standard number for the county where the monitor is located <br> -- 5 digit id code for counties (zero is often the first value and sometimes is not shown) <br> -- the first 2 numbers indicate the state <br> -- the last three numbers indicate the county <br>  **Example**: Alabama's state code is 01 because it is first alphabetically <br> (note: Alaska and Hawaii are not included because they are not part of the contiguous US)  
+**Lat** | Latitude of the monitor in degrees  
+**Lon** | Longitude of the monitor in degrees  
+
+</details>
 
 ## **Data Visualization**
 *** 
+
+
+
 Recall that our main questions were:
 
 1) How has tobacco/nicotine use by American youths changed since 2015? 
