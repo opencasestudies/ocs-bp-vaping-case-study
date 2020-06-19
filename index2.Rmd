@@ -868,7 +868,6 @@ cw_nyts_data <-nyts_data %>%
 
 We are interested in investing how vaping product use has compared with other tobacco use. First we want to get a sense of how tobacco use has changed in general since 2015. 
 
-One thing we will be inger
 
 
 For lots of pivot_longer() that are the same... can use pivot_longer_spec()
@@ -909,41 +908,6 @@ plot1
 ```
 
 
-```{r}
-plot1 <- nyts_data %>%
-    mutate(tobacco_sum_ever = select(., starts_with("E", ignore.case = FALSE)) %>%
-               apply(1, sum, na.rm=TRUE),
-           tobacco_sum_current = select(., starts_with("C", ignore.case = FALSE)) %>%
-               apply(1, sum, na.rm=TRUE)) %>%
-    mutate(tobacco_ever = case_when(tobacco_sum_ever > 0 ~ TRUE,
-                                    tobacco_sum_ever ==0 ~ FALSE),
-           tobacco_current = case_when(tobacco_sum_current > 0 ~ TRUE,
-                                    tobacco_sum_current ==0 ~ FALSE)) %>%
-    group_by(year) %>%
-    summarise(tobacco_ever_year=(sum(tobacco_ever, na.rm = TRUE)*100)/
-                sum(!is.na(tobacco_ever)),
-              tobacco_current_year=(sum(tobacco_current, na.rm = TRUE)*100)/
-                sum(!is.na(tobacco_current))) %>%
-    rename("Ever"=tobacco_ever_year,
-           "Current"=tobacco_current_year) %>%
-  pivot_longer(cols = -year, names_to = "User", values_to = "Percentage of students")%>%
-    ggplot(aes(x=year,y=`Percentage of students`, linetype=User)) +
-    geom_line() + 
-  geom_point(show.legend = FALSE) +
-  scale_linetype_manual(values = c(2,1)) +
-    scale_y_continuous(breaks = seq(0,70,by=10),
-                       labels = seq(0,70,by=10),
-                       limits = c(0,70)) +
-    theme_minimal() +
-    theme(legend.position = "bottom",
-          axis.title.x = element_blank()) +
-    labs(title = "How does nicotine use vary over the years?",
-         subtitle = "Current and ever users of nicotine products",
-         y = "% of students")
-
-plot1 
-```
-
 ### Question 2
 
 ```{r}
@@ -961,8 +925,6 @@ plot2 <- nyts_data %>%
     pivot_longer(cols = `E-cigarettes, Ever`:`E-cigarettes, Current`, names_to = "Category", values_to = "Percentage of students")%>%
     mutate(User = case_when(Category == "E-cigarettes, Ever" ~ "Ever",
                                Category == "E-cigarettes, Current" ~ "Current")) %>%
-    # mutate(Sex = case_when(female == TRUE ~ "Females",
-    #                            female == FALSE ~ "Males")) %>%
     ggplot(aes(x=year,y=`Percentage of students`, color=Sex, linetype=User)) +
     geom_line() + 
   geom_point(show.legend = FALSE) +
@@ -1146,9 +1108,6 @@ plot6 <- nyts_data %>%
            "Cigarettes, Current"=CCIGT_year,
            "E-cigarettes, Current"=CELCIGT_year) %>%
   pivot_longer(cols= -year, names_to = "Category", values_to = "Percentage of students")%>%
-    # gather(key=Category,
-    #        value=`Percentage of students`,
-    #        -year) %>%
     mutate(User = case_when(Category == "Cigarettes, Ever" ~ "Ever",
                                Category == "E-cigarettes, Ever" ~ "Ever",
                                Category == "Cigarettes, Current" ~ "Current",
@@ -1254,9 +1213,6 @@ plot8 <- nyts_data %>%
               non_ecig_current_year=(sum(non_ecig_current, na.rm = TRUE)*100)/
                 sum(!is.na(non_ecig_current))) %>%
     pivot_longer(cols = -year, names_to = "Category", values_to = "Percentage of students") %>%
-    # gather(key=Category,
-    #        value=`Percentage of students`,
-    #        -year) %>%
     mutate(User = case_when(Category =="ecig_ever_year" ~ "Ever",
                            Category =="non_ecig_ever_year" ~ "Ever",
                            Category =="ecig_current_year" ~ "Current",
@@ -1350,9 +1306,6 @@ plotA_w <- cw_nyts_data %>%
             tobacco_current_year = survey_mean(tobacco_current, vartype = "ci", na.rm=TRUE))  %>%
   mutate_at(vars(-year), "*", 100) %>%
     pivot_longer(cols = -year, names_to = "Type", values_to = "Percentage of students") %>%
-    # gather(key=Type,
-    #        value=`Percentage of students`,
-    #        -year) %>%
   mutate(Estimate = case_when(grepl("_low", Type) ~ "Lower",
                           grepl("_upp", Type) ~ "Upper",
                           TRUE ~ "Mean"),
@@ -1362,7 +1315,6 @@ plotA_w <- cw_nyts_data %>%
   dplyr::select(-Type) %>%
   pivot_wider(names_from = Estimate, 
               values_from = `Percentage of students`) %>%
-  #spread(Estimate, `Percentage of students`) %>%
   ggplot(aes(x=year,y=Mean)) +
   geom_line(aes(linetype=User)) +
   geom_linerange(aes(ymin = Lower, ymax = Upper), show.legend = FALSE) +
@@ -1410,9 +1362,6 @@ plotB_w <- nyts_data %>%
                 contains("low"),
                 contains("upp")) %>%
   pivot_longer(cols = -year, names_to = "Category", values_to = "Percentage of students") %>%
-    # gather(key=Category,
-    #        value=`Percentage of students`,
-    #        -year)  %>%
   mutate(Estimate = case_when(grepl("_low", Category) ~ "Lower",
                           grepl("_upp", Category) ~ "Upper",
                           TRUE ~ "Mean"),
@@ -1423,7 +1372,6 @@ plotB_w <- nyts_data %>%
   dplyr::select(-Category) %>%
   pivot_wider(names_from = Estimate, 
               values_from = `Percentage of students`) %>%
-  #spread(Estimate, `Percentage of students`) %>%
   filter(User=="Ever") %>%
   dplyr::rename("Lower_temp" = Upper,
                 "Upper_temp" = Lower) %>%
@@ -1474,9 +1422,6 @@ plotC_w <- nyts_data %>%
                 contains("low"),
                 contains("upp")) %>%
   pivot_longer(cols = -year, names_to = "Category", values_to = "Percentage of students") %>%
-    # gather(key=Category,
-    #        value=`Percentage of students`,
-    #        -year) %>%
     mutate(Estimate = case_when(grepl("_low", Category) ~ "Lower",
                           grepl("_upp", Category) ~ "Upper",
                           TRUE ~ "Mean"),
@@ -1487,7 +1432,6 @@ plotC_w <- nyts_data %>%
   dplyr::select(-Category) %>%
   pivot_wider(names_from = Estimate, 
               values_from = `Percentage of students`) %>%
-  #spread(Estimate, `Percentage of students`) %>%
     ggplot(aes(x=year,y=Mean, color=Product)) +
   geom_line(aes(linetype=User)) +
   geom_linerange(aes(ymin = Lower, ymax = Upper), show.legend = FALSE) +
@@ -1556,9 +1500,6 @@ plotA_w <- nyts_data %>%
             tobacco_current_year = survey_mean(tobacco_current, vartype = "ci", na.rm=TRUE))  %>%
   mutate_at(vars(-year), "*", 100) %>%
     pivot_longer(cols = -year, names_to = "Type", values_to = "Percentage of students") %>%
-    # gather(key=Type,
-    #        value=`Percentage of students`,
-    #        -year) %>%
   mutate(Estimate = case_when(grepl("_low", Type) ~ "Lower",
                           grepl("_upp", Type) ~ "Upper",
                           TRUE ~ "Mean"),
@@ -1568,7 +1509,6 @@ plotA_w <- nyts_data %>%
   dplyr::select(-Type) %>%
   pivot_wider(names_from = Estimate, 
               values_from = `Percentage of students`) %>%
-  #spread(Estimate, `Percentage of students`) %>%
   ggplot(aes(x=year,y=Mean)) +
   geom_line(aes(linetype=User)) +
   geom_linerange(aes(ymin = Lower, ymax = Upper), show.legend = FALSE) +
@@ -1616,9 +1556,6 @@ plotB_w <- nyts_data %>%
                 contains("low"),
                 contains("upp")) %>%
   pivot_longer(cols = -year, names_to = "Category", values_to = "Percentage of students") %>%
-    # gather(key=Category,
-    #        value=`Percentage of students`,
-    #        -year)  %>%
   mutate(Estimate = case_when(grepl("_low", Category) ~ "Lower",
                           grepl("_upp", Category) ~ "Upper",
                           TRUE ~ "Mean"),
@@ -1629,7 +1566,6 @@ plotB_w <- nyts_data %>%
   dplyr::select(-Category) %>%
   pivot_wider(names_from = Estimate, 
               values_from = `Percentage of students`) %>%
-  #spread(Estimate, `Percentage of students`) %>%
   filter(User=="Ever") %>%
   dplyr::rename("Lower_temp" = Upper,
                 "Upper_temp" = Lower) %>%
@@ -1680,9 +1616,6 @@ plotC_w <- nyts_data %>%
                 contains("low"),
                 contains("upp")) %>%
   pivot_longer(cols = -year, names_to = "Category", values_to = "Percentage of students") %>%
-    # gather(key=Category,
-    #        value=`Percentage of students`,
-    #        -year) %>%
     mutate(Estimate = case_when(grepl("_low", Category) ~ "Lower",
                           grepl("_upp", Category) ~ "Upper",
                           TRUE ~ "Mean"),
@@ -1693,7 +1626,6 @@ plotC_w <- nyts_data %>%
   dplyr::select(-Category) %>%
   pivot_wider(names_from = Estimate, 
               values_from = `Percentage of students`) %>%
-  #spread(Estimate, `Percentage of students`) %>%
     ggplot(aes(x=year,y=Mean, color=Product)) +
   geom_line(aes(linetype=User)) +
   geom_linerange(aes(ymin = Lower, ymax = Upper), show.legend = FALSE) +
@@ -1762,9 +1694,6 @@ plotA_w_8 <- cw_nyts_data %>%
             tobacco_current_year = survey_mean(tobacco_current, vartype = "ci", na.rm=TRUE))  %>%
   mutate_at(vars(-year), "*", 100) %>%
     pivot_longer(cols = -year, names_to = "Type", values_to = "Percentage of students")%>%
-    # gather(key=Type,
-    #        value=`Percentage of students`,
-    #        -year) %>%
   mutate(Estimate = case_when(grepl("_low", Type) ~ "Lower",
                           grepl("_upp", Type) ~ "Upper",
                           TRUE ~ "Mean"),
@@ -1774,7 +1703,6 @@ plotA_w_8 <- cw_nyts_data %>%
   dplyr::select(-Type) %>%
   pivot_wider(names_from = Estimate, 
               values_from = `Percentage of students`) %>%
-  #spread(Estimate, `Percentage of students`) %>%
   ggplot(aes(x=year,y=Mean)) +
   geom_line(aes(linetype=User)) +
   geom_linerange(aes(ymin = Lower, ymax = Upper)) + 
@@ -1828,9 +1756,6 @@ plotB_w_8 <- nyts_data %>%
                 contains("low"),
                 contains("upp")) %>%
    pivot_longer(cols = -year, names_to = "Category", values_to = "Percentage of students")%>%
-    # gather(key=Category,
-    #        value=`Percentage of students`,
-    #        -year)  %>%
   mutate(Estimate = case_when(grepl("_low", Category) ~ "Lower",
                           grepl("_upp", Category) ~ "Upper",
                           TRUE ~ "Mean"),
@@ -1897,9 +1822,6 @@ plotC_w_8 <- nyts_data %>%
                 contains("low"),
                 contains("upp")) %>%
   pivot_longer(cols = -year, names_to = "Category", values_to = "Percentage of students")%>%
-    # gather(key=Category,
-    #        value=`Percentage of students`,
-    #        -year) %>%
     mutate(Estimate = case_when(grepl("_low", Category) ~ "Lower",
                           grepl("_upp", Category) ~ "Upper",
                           TRUE ~ "Mean"),
@@ -1990,9 +1912,6 @@ plotA_w_8 <- nyts_data %>%
             tobacco_current_year = survey_mean(tobacco_current, vartype = "ci", na.rm=TRUE))  %>%
   mutate_at(vars(-year), "*", 100) %>%
     pivot_longer(cols = -year, names_to = "Type", values_to = "Percentage of students")%>%
-    # gather(key=Type,
-    #        value=`Percentage of students`,
-    #        -year) %>%
   mutate(Estimate = case_when(grepl("_low", Type) ~ "Lower",
                           grepl("_upp", Type) ~ "Upper",
                           TRUE ~ "Mean"),
@@ -2056,9 +1975,6 @@ plotB_w_8 <- nyts_data %>%
                 contains("low"),
                 contains("upp")) %>%
    pivot_longer(cols = -year, names_to = "Category", values_to = "Percentage of students")%>%
-    # gather(key=Category,
-    #        value=`Percentage of students`,
-    #        -year)  %>%
   mutate(Estimate = case_when(grepl("_low", Category) ~ "Lower",
                           grepl("_upp", Category) ~ "Upper",
                           TRUE ~ "Mean"),
@@ -2069,7 +1985,6 @@ plotB_w_8 <- nyts_data %>%
   dplyr::select(-Category) %>%
   pivot_wider(names_from = Estimate, 
               values_from = `Percentage of students`) %>%
-  #spread(Estimate, `Percentage of students`) %>%
   filter(User=="Ever") %>%
   dplyr::rename("Lower_temp" = Upper,
                 "Upper_temp" = Lower) %>%
@@ -2125,9 +2040,6 @@ plotC_w_8 <- nyts_data %>%
                 contains("low"),
                 contains("upp")) %>%
   pivot_longer(cols = -year, names_to = "Category", values_to = "Percentage of students")%>%
-    # gather(key=Category,
-    #        value=`Percentage of students`,
-    #        -year) %>%
     mutate(Estimate = case_when(grepl("_low", Category) ~ "Lower",
                           grepl("_upp", Category) ~ "Upper",
                           TRUE ~ "Mean"),
@@ -2138,7 +2050,6 @@ plotC_w_8 <- nyts_data %>%
   dplyr::select(-Category) %>%
   pivot_wider(names_from = Estimate, 
               values_from = `Percentage of students`) %>%
-  #spread(Estimate, `Percentage of students`) %>%
     ggplot(aes(x=year,y=Mean, color=Product)) +
   geom_line(aes(linetype=User)) +
   geom_linerange(aes(ymin = Lower, ymax = Upper)) + 
