@@ -725,10 +725,14 @@ nyts_data <- nyts_data %>%
 ```
 
 Here is our clean and wrangled data:
+
+#### .{scrollable}
 ```{r}
 glimpse(nyts_data)
 
 ```
+
+####
 
 <style>
 div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
@@ -853,7 +857,7 @@ We will sum across the ever or current tobacco usage questions to get determine 
  
 
 ```{r}
-cw_nyts_data <-nyts_data %>%
+nyts_data <-nyts_data %>%
     mutate(tobacco_sum_ever = select(., starts_with("E", ignore.case = FALSE)) %>%
                apply(1, sum, na.rm=TRUE),
            tobacco_sum_current = select(., starts_with("C", ignore.case = FALSE)) %>%
@@ -862,12 +866,55 @@ cw_nyts_data <-nyts_data %>%
                                     tobacco_sum_ever ==0 ~ FALSE),
            tobacco_current = case_when(tobacco_sum_current > 0 ~ TRUE,
                                     tobacco_sum_current ==0 ~ FALSE)) 
+
+cw_nyts_data <-nyts_data
+
 ```
+
+
+#### {.scrollable}
+```{r}
+glimpse(nyts_data)
+```
+####
+
+
+
+We are also interested in e-cigaratte usage compared to other tobacco products, so we will create some variables related to the sum of all e-cigarette usage questions and the sum of all tobacco usage questions besides those that ask about e-cigarettes.
+
+```{r}
+   nyts_data <-nyts_data %>% mutate(ecig_sum_ever = select(., EELCIGT) %>%
+               apply(1, sum, na.rm=TRUE),
+           ecig_sum_current = select(., CELCIGT) %>%
+               apply(1, sum, na.rm=TRUE),
+           non_ecig_sum_ever = select(., starts_with("E", ignore.case = FALSE)) %>%
+               select(.,-EELCIGT) %>%
+               apply(1, sum, na.rm=TRUE),
+           non_ecig_sum_current = select(., starts_with("C", ignore.case = FALSE)) %>%
+               select(.,-CELCIGT) %>%
+               apply(1, sum, na.rm=TRUE)) %>%
+    mutate(ecig_ever = case_when(ecig_sum_ever > 0 ~ TRUE,
+                                    ecig_sum_ever ==0 ~ FALSE),
+           ecig_current = case_when(ecig_sum_current > 0 ~ TRUE,
+                                    ecig_sum_current ==0 ~ FALSE),
+           non_ecig_ever = case_when(non_ecig_sum_ever > 0 ~ TRUE,
+                                    non_ecig_sum_ever ==0 ~ FALSE),
+           non_ecig_current = case_when(non_ecig_sum_current > 0 ~ TRUE,
+                                    non_ecig_sum_current ==0 ~ FALSE))
+cw_nyts_data <-nyts_data
+```
+
+
+
+#### {.scrollable}
+```{r}
+glimpse(nyts_data)
+```
+
 
 ### Question 1 
 
 We are interested in investing how vaping product use has compared with other tobacco use. First we want to get a sense of how tobacco use has changed in general since 2015. 
-
 
 
 For lots of pivot_longer() that are the same... can use pivot_longer_spec()
@@ -879,7 +926,7 @@ spec <- relig_income %>% build_longer_spec(
 )
 pivot_longer_spec(relig_income, spec)
 
-my version of plot1
+
 ```{r}
 plot1 <- cw_nyts_data %>%
     group_by(year) %>%
@@ -1013,24 +1060,6 @@ plot5 <- nyts_data %>%
            alcoholic_drink==TRUE|
            candy_dessert_sweets==TRUE|
            other==TRUE) %>%
-  mutate(ecig_sum_ever = select(., EELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           ecig_sum_current = select(., CELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           non_ecig_sum_ever = select(., starts_with("E", ignore.case = FALSE)) %>%
-               select(.,-EELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           non_ecig_sum_current = select(., starts_with("C", ignore.case = FALSE)) %>%
-               select(.,-CELCIGT) %>%
-               apply(1, sum, na.rm=TRUE)) %>%
-    mutate(ecig_ever = case_when(ecig_sum_ever > 0 ~ TRUE,
-                                    ecig_sum_ever ==0 ~ FALSE),
-           ecig_current = case_when(ecig_sum_current > 0 ~ TRUE,
-                                    ecig_sum_current ==0 ~ FALSE),
-           non_ecig_ever = case_when(non_ecig_sum_ever > 0 ~ TRUE,
-                                    non_ecig_sum_ever ==0 ~ FALSE),
-           non_ecig_current = case_when(non_ecig_sum_current > 0 ~ TRUE,
-                                    non_ecig_sum_current ==0 ~ FALSE)) %>%
   mutate(ecig_only_ever = case_when(ecig_ever == TRUE &
                                       non_ecig_ever ==FALSE ~ TRUE,
                                     TRUE ~ FALSE),
@@ -1132,24 +1161,6 @@ plot6
 
 ```{r}
 plot7 <- nyts_data %>%
-    mutate(ecig_sum_ever = select(., EELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           ecig_sum_current = select(., CELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           non_ecig_sum_ever = select(., starts_with("E", ignore.case = FALSE)) %>%
-               select(.,-EELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           non_ecig_sum_current = select(., starts_with("C", ignore.case = FALSE)) %>%
-               select(.,-CELCIGT) %>%
-               apply(1, sum, na.rm=TRUE)) %>%
-    mutate(ecig_ever = case_when(ecig_sum_ever > 0 ~ TRUE,
-                                    ecig_sum_ever ==0 ~ FALSE),
-           ecig_current = case_when(ecig_sum_current > 0 ~ TRUE,
-                                    ecig_sum_current ==0 ~ FALSE),
-           non_ecig_ever = case_when(non_ecig_sum_ever > 0 ~ TRUE,
-                                    non_ecig_sum_ever ==0 ~ FALSE),
-           non_ecig_current = case_when(non_ecig_sum_current > 0 ~ TRUE,
-                                    non_ecig_sum_current ==0 ~ FALSE)) %>%
     group_by(year) %>%
     summarise(ecig_ever_year=(sum(ecig_ever, na.rm = TRUE)*100)/
                 sum(!is.na(ecig_ever)),
@@ -1185,24 +1196,6 @@ plot7
 
 ```{r}
 plot8 <- nyts_data %>%
-    mutate(ecig_sum_ever = select(., EELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           ecig_sum_current = select(., CELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           non_ecig_sum_ever = select(., starts_with("E", ignore.case = FALSE)) %>%
-               select(.,-EELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           non_ecig_sum_current = select(., starts_with("C", ignore.case = FALSE)) %>%
-               select(.,-CELCIGT) %>%
-               apply(1, sum, na.rm=TRUE)) %>%
-    mutate(ecig_ever = case_when(ecig_sum_ever > 0 ~ TRUE,
-                                    ecig_sum_ever ==0 ~ FALSE),
-           ecig_current = case_when(ecig_sum_current > 0 ~ TRUE,
-                                    ecig_sum_current ==0 ~ FALSE),
-           non_ecig_ever = case_when(non_ecig_sum_ever > 0 ~ TRUE,
-                                    non_ecig_sum_ever ==0 ~ FALSE),
-           non_ecig_current = case_when(non_ecig_sum_current > 0 ~ TRUE,
-                                    non_ecig_sum_current ==0 ~ FALSE)) %>%
     group_by(year) %>%
     summarise(ecig_ever_year=(sum(ecig_ever, na.rm = TRUE)*100)/
                 sum(!is.na(ecig_ever)),
@@ -1297,203 +1290,8 @@ figure_uw
 ```
 
 ### Weighted Sample
-my version
-```{r}
-plotA_w <- cw_nyts_data %>%
-  as_survey_design(strata = stratum, ids = psu, weight  = finwgt, nest=TRUE) %>%
-    group_by(year) %>%
-  summarise(tobacco_ever_year = survey_mean(tobacco_ever, vartype = "ci", na.rm=TRUE),
-            tobacco_current_year = survey_mean(tobacco_current, vartype = "ci", na.rm=TRUE))  %>%
-  mutate_at(vars(-year), "*", 100) %>%
-    pivot_longer(cols = -year, names_to = "Type", values_to = "Percentage of students") %>%
-  mutate(Estimate = case_when(grepl("_low", Type) ~ "Lower",
-                          grepl("_upp", Type) ~ "Upper",
-                          TRUE ~ "Mean"),
-         User = case_when(grepl("ever", Type) ~ "Ever",
-                          grepl("current", Type) ~ "Current",
-                          TRUE ~ "Mean")) %>%
-  dplyr::select(-Type) %>%
-  pivot_wider(names_from = Estimate, 
-              values_from = `Percentage of students`) %>%
-  ggplot(aes(x=year,y=Mean)) +
-  geom_line(aes(linetype=User)) +
-  geom_linerange(aes(ymin = Lower, ymax = Upper), show.legend = FALSE) +
-  scale_linetype_manual(values = c(2,1)) +
-    scale_y_continuous(breaks = seq(0,70,by=10),
-                       labels = seq(0,70,by=10),
-                       limits = c(0,70)) +
-    theme_minimal() +
-    theme(legend.position = "none",
-          axis.title.x = element_blank()) +
-    labs(title = "Nicotine product users more prevalent after 2017",
-         y = "% of students")
-
-plotB_w <- nyts_data %>%
-    mutate(ecig_sum_ever = select(., EELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           ecig_sum_current = select(., CELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           non_ecig_sum_ever = select(., starts_with("E", ignore.case = FALSE)) %>%
-               select(.,-EELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           non_ecig_sum_current = select(., starts_with("C", ignore.case = FALSE)) %>%
-               select(.,-CELCIGT) %>%
-               apply(1, sum, na.rm=TRUE)) %>%
-    mutate(ecig_ever = case_when(ecig_sum_ever > 0 ~ TRUE,
-                                    ecig_sum_ever ==0 ~ FALSE),
-           ecig_current = case_when(ecig_sum_current > 0 ~ TRUE,
-                                    ecig_sum_current ==0 ~ FALSE),
-           non_ecig_ever = case_when(non_ecig_sum_ever > 0 ~ TRUE,
-                                    non_ecig_sum_ever ==0 ~ FALSE),
-           non_ecig_current = case_when(non_ecig_sum_current > 0 ~ TRUE,
-                                    non_ecig_sum_current ==0 ~ FALSE)) %>%
-  as_survey_design(strata = stratum, ids = psu, weight  = finwgt, nest=TRUE) %>%
-    group_by(year) %>%
-    summarise(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
-            ecig_current_year = survey_mean(ecig_current, vartype = "ci", na.rm=TRUE),
-            non_ecig_ever_year = survey_mean(non_ecig_ever, vartype = "ci", na.rm=TRUE),
-            non_ecig_current_year = survey_mean(non_ecig_current, vartype = "ci", na.rm=TRUE)) %>%
-  mutate_at(vars(-year), "*", 100) %>%
-  dplyr::select(year,
-                ecig_ever_year,
-                ecig_current_year,
-                non_ecig_ever_year,
-                non_ecig_current_year,
-                contains("low"),
-                contains("upp")) %>%
-  pivot_longer(cols = -year, names_to = "Category", values_to = "Percentage of students") %>%
-  mutate(Estimate = case_when(grepl("_low", Category) ~ "Lower",
-                          grepl("_upp", Category) ~ "Upper",
-                          TRUE ~ "Mean"),
-         User = case_when(grepl("current", Category) ~ "Current",
-                          TRUE ~ "Ever",),
-         Product = case_when(grepl("non_ecig", Category) ~ "Other products",
-                          TRUE ~ "E-cigarettes")) %>%
-  dplyr::select(-Category) %>%
-  pivot_wider(names_from = Estimate, 
-              values_from = `Percentage of students`) %>%
-  filter(User=="Ever") %>%
-  dplyr::rename("Lower_temp" = Upper,
-                "Upper_temp" = Lower) %>%
-  dplyr::rename("Lower"=Lower_temp,
-                "Upper"=Upper_temp) %>%
-    ggplot(aes(x=year,y=Mean, color=Product)) +
-  geom_line(linetype=1) +
-  geom_linerange(aes(ymin = Lower, ymax = Upper), show.legend = FALSE) +
-  scale_y_continuous(breaks = seq(10, 60, by = 10), limits = c(10,60)) +
-    theme_minimal() +
-    theme(legend.position = "none",
-          axis.title.x = element_blank()) +
-    labs(title = "% ever trying e-cigarettes increases &\n% ever trying other products decreases",
-         y = "% of students")
-
-#### the wrangling looks the same as the above plot...
-plotC_w <- nyts_data %>%
-    mutate(ecig_sum_ever = select(., EELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           ecig_sum_current = select(., CELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           non_ecig_sum_ever = select(., starts_with("E", ignore.case = FALSE)) %>%
-               select(.,-EELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           non_ecig_sum_current = select(., starts_with("C", ignore.case = FALSE)) %>%
-               select(.,-CELCIGT) %>%
-               apply(1, sum, na.rm=TRUE)) %>%
-    mutate(ecig_ever = case_when(ecig_sum_ever > 0 ~ TRUE,
-                                    ecig_sum_ever ==0 ~ FALSE),
-           ecig_current = case_when(ecig_sum_current > 0 ~ TRUE,
-                                    ecig_sum_current ==0 ~ FALSE),
-           non_ecig_ever = case_when(non_ecig_sum_ever > 0 ~ TRUE,
-                                    non_ecig_sum_ever ==0 ~ FALSE),
-           non_ecig_current = case_when(non_ecig_sum_current > 0 ~ TRUE,
-                                    non_ecig_sum_current ==0 ~ FALSE)) %>%
-  as_survey_design(strata = stratum, ids = psu, weight  = finwgt, nest=TRUE) %>%
-    group_by(year) %>%
-  summarise(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
-            ecig_current_year = survey_mean(ecig_current, vartype = "ci", na.rm=TRUE),
-            non_ecig_ever_year = survey_mean(non_ecig_ever, vartype = "ci", na.rm=TRUE),
-            non_ecig_current_year = survey_mean(non_ecig_current, vartype = "ci", na.rm=TRUE)) %>%
-  mutate_at(vars(-year), "*", 100) %>%
-  dplyr::select(year,
-                ecig_ever_year,
-                ecig_current_year,
-                non_ecig_ever_year,
-                non_ecig_current_year,
-                contains("low"),
-                contains("upp")) %>%
-  pivot_longer(cols = -year, names_to = "Category", values_to = "Percentage of students") %>%
-    mutate(Estimate = case_when(grepl("_low", Category) ~ "Lower",
-                          grepl("_upp", Category) ~ "Upper",
-                          TRUE ~ "Mean"),
-         User = case_when(grepl("ever", Category) ~ "Ever",
-                          grepl("current", Category) ~ "Current"),
-         Product = case_when(grepl("non_ecig", Category) ~ "Other products",
-                          TRUE ~ "E-cigarettes")) %>%
-  dplyr::select(-Category) %>%
-  pivot_wider(names_from = Estimate, 
-              values_from = `Percentage of students`) %>%
-    ggplot(aes(x=year,y=Mean, color=Product)) +
-  geom_line(aes(linetype=User)) +
-  geom_linerange(aes(ymin = Lower, ymax = Upper), show.legend = FALSE) +
-  scale_linetype_manual(values = c(2,1)) +
-  scale_y_continuous(breaks = seq(0, 60, by = 10), limits = c(0,60)) +
-    theme_minimal() +
-    theme(legend.position = "none",
-          axis.title.x = element_blank()) +
-    labs(title = "% Using e-cigarettes increases &\n% using Other products decreases",
-         y = "% of students")
-
-title_w <- ggdraw() + 
-  draw_label(
-    expression("Have vaping rates possibly influenced tobacco/nicotine use?"),
-    fontface = 'bold',
-    size=14,
-    x = 0,
-    hjust = 0
-  ) +
-  theme(
-    plot.margin = margin(0, 0, 0, 0)
-  )
-
-plotsA_w <- plot_grid(plotA_w,
-                     rel_widths = c(1),
-                     align = "v",
-                     axis = "bt")
-plotsBC_w <- plot_grid(plotB_w,
-                     plotC_w,
-                     rel_widths = c(1,1),
-                     align = "v",
-                     axis = "bt")
-
-legend_w <- get_legend(plotB_w +
-                       theme(legend.position = "bottom",
-                             legend.direction = "horizontal"))
-
-figure_w <- plot_grid(title_w,
-                      plotsA_w,
-                      plotsBC_w,
-                      legend_w,
-                      ncol = 1,
-                      rel_heights = c(0.1,
-                                      1,
-                                      1,
-                                      0.1),
-                      scale = 1.0)
-
-figure_w
-```
-
-
 ```{r}
 plotA_w <- nyts_data %>%
-    mutate(tobacco_sum_ever = select(., starts_with("E", ignore.case = FALSE)) %>%
-               apply(1, sum, na.rm=TRUE),
-           tobacco_sum_current = select(., starts_with("C", ignore.case = FALSE)) %>%
-               apply(1, sum, na.rm=TRUE)) %>%
-    mutate(tobacco_ever = case_when(tobacco_sum_ever > 0 ~ TRUE,
-                                    tobacco_sum_ever ==0 ~ FALSE),
-           tobacco_current = case_when(tobacco_sum_current > 0 ~ TRUE,
-                                    tobacco_sum_current ==0 ~ FALSE)) %>%
   as_survey_design(strata = stratum, ids = psu, weight  = finwgt, nest=TRUE) %>%
     group_by(year) %>%
   summarise(tobacco_ever_year = survey_mean(tobacco_ever, vartype = "ci", na.rm=TRUE),
@@ -1523,24 +1321,6 @@ plotA_w <- nyts_data %>%
          y = "% of students")
 
 plotB_w <- nyts_data %>%
-    mutate(ecig_sum_ever = select(., EELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           ecig_sum_current = select(., CELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           non_ecig_sum_ever = select(., starts_with("E", ignore.case = FALSE)) %>%
-               select(.,-EELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           non_ecig_sum_current = select(., starts_with("C", ignore.case = FALSE)) %>%
-               select(.,-CELCIGT) %>%
-               apply(1, sum, na.rm=TRUE)) %>%
-    mutate(ecig_ever = case_when(ecig_sum_ever > 0 ~ TRUE,
-                                    ecig_sum_ever ==0 ~ FALSE),
-           ecig_current = case_when(ecig_sum_current > 0 ~ TRUE,
-                                    ecig_sum_current ==0 ~ FALSE),
-           non_ecig_ever = case_when(non_ecig_sum_ever > 0 ~ TRUE,
-                                    non_ecig_sum_ever ==0 ~ FALSE),
-           non_ecig_current = case_when(non_ecig_sum_current > 0 ~ TRUE,
-                                    non_ecig_sum_current ==0 ~ FALSE)) %>%
   as_survey_design(strata = stratum, ids = psu, weight  = finwgt, nest=TRUE) %>%
     group_by(year) %>%
     summarise(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
@@ -1583,24 +1363,6 @@ plotB_w <- nyts_data %>%
 
 #### the wrangling looks the same as the above plot...
 plotC_w <- nyts_data %>%
-    mutate(ecig_sum_ever = select(., EELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           ecig_sum_current = select(., CELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           non_ecig_sum_ever = select(., starts_with("E", ignore.case = FALSE)) %>%
-               select(.,-EELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           non_ecig_sum_current = select(., starts_with("C", ignore.case = FALSE)) %>%
-               select(.,-CELCIGT) %>%
-               apply(1, sum, na.rm=TRUE)) %>%
-    mutate(ecig_ever = case_when(ecig_sum_ever > 0 ~ TRUE,
-                                    ecig_sum_ever ==0 ~ FALSE),
-           ecig_current = case_when(ecig_sum_current > 0 ~ TRUE,
-                                    ecig_sum_current ==0 ~ FALSE),
-           non_ecig_ever = case_when(non_ecig_sum_ever > 0 ~ TRUE,
-                                    non_ecig_sum_ever ==0 ~ FALSE),
-           non_ecig_current = case_when(non_ecig_sum_current > 0 ~ TRUE,
-                                    non_ecig_sum_current ==0 ~ FALSE)) %>%
   as_survey_design(strata = stratum, ids = psu, weight  = finwgt, nest=TRUE) %>%
     group_by(year) %>%
   summarise(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
@@ -1678,218 +1440,6 @@ figure_w
 ```
 
 ### Hypothetical Cohort
-
-My version
-```{r}
-plotA_w_8 <- cw_nyts_data %>%
-  filter((Grade == "8" & year == 2015) |
-         (Grade == "9" & year == 2016) |
-         (Grade == "10" & year == 2017) |
-         (Grade == "11" & year == 2018) |
-          (Grade == "12" & year == 2019) 
-         ) %>%
-  as_survey_design(strata = stratum, ids = psu, weight  = finwgt) %>%
-    group_by(year) %>%
-  summarise(tobacco_ever_year = survey_mean(tobacco_ever, vartype = "ci", na.rm=TRUE),
-            tobacco_current_year = survey_mean(tobacco_current, vartype = "ci", na.rm=TRUE))  %>%
-  mutate_at(vars(-year), "*", 100) %>%
-    pivot_longer(cols = -year, names_to = "Type", values_to = "Percentage of students")%>%
-  mutate(Estimate = case_when(grepl("_low", Type) ~ "Lower",
-                          grepl("_upp", Type) ~ "Upper",
-                          TRUE ~ "Mean"),
-         User = case_when(grepl("ever", Type) ~ "Ever",
-                          grepl("current", Type) ~ "Current",
-                          TRUE ~ "Mean")) %>%
-  dplyr::select(-Type) %>%
-  pivot_wider(names_from = Estimate, 
-              values_from = `Percentage of students`) %>%
-  ggplot(aes(x=year,y=Mean)) +
-  geom_line(aes(linetype=User)) +
-  geom_linerange(aes(ymin = Lower, ymax = Upper)) + 
-  scale_linetype_manual(values = c(2,1)) +
-    scale_y_continuous(breaks = seq(0,70,by=10),
-                       labels = seq(0,70,by=10),
-                       limits = c(0,70)) +
-    theme_minimal() +
-    theme(legend.position = "none",
-          axis.title.x = element_blank()) +
-    labs(title = "Nicotine product users becoming increasingly prevalent",
-         y = "% of students")
-
-plotB_w_8 <- nyts_data %>%
-  filter((Grade == "8" & year == 2015) |
-         (Grade == "9" & year == 2016) |
-         (Grade == "10" & year == 2017) |
-         (Grade == "11" & year == 2018) |
-          (Grade == "12" & year == 2019) 
-         ) %>%
-    mutate(ecig_sum_ever = select(., EELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           ecig_sum_current = select(., CELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           non_ecig_sum_ever = select(., starts_with("E", ignore.case = FALSE)) %>%
-               select(.,-EELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           non_ecig_sum_current = select(., starts_with("C", ignore.case = FALSE)) %>%
-               select(.,-CELCIGT) %>%
-               apply(1, sum, na.rm=TRUE)) %>%
-    mutate(ecig_ever = case_when(ecig_sum_ever > 0 ~ TRUE,
-                                    ecig_sum_ever ==0 ~ FALSE),
-           ecig_current = case_when(ecig_sum_current > 0 ~ TRUE,
-                                    ecig_sum_current ==0 ~ FALSE),
-           non_ecig_ever = case_when(non_ecig_sum_ever > 0 ~ TRUE,
-                                    non_ecig_sum_ever ==0 ~ FALSE),
-           non_ecig_current = case_when(non_ecig_sum_current > 0 ~ TRUE,
-                                    non_ecig_sum_current ==0 ~ FALSE)) %>%
-  as_survey_design(strata = stratum, ids = psu, weight  = finwgt) %>%
-    group_by(year) %>%
-    summarise(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
-            ecig_current_year = survey_mean(ecig_current, vartype = "ci", na.rm=TRUE),
-            non_ecig_ever_year = survey_mean(non_ecig_ever, vartype = "ci", na.rm=TRUE),
-            non_ecig_current_year = survey_mean(non_ecig_current, vartype = "ci", na.rm=TRUE)) %>%
-  mutate_at(vars(-year), "*", 100) %>%
-  dplyr::select(year,
-                ecig_ever_year,
-                ecig_current_year,
-                non_ecig_ever_year,
-                non_ecig_current_year,
-                contains("low"),
-                contains("upp")) %>%
-   pivot_longer(cols = -year, names_to = "Category", values_to = "Percentage of students")%>%
-  mutate(Estimate = case_when(grepl("_low", Category) ~ "Lower",
-                          grepl("_upp", Category) ~ "Upper",
-                          TRUE ~ "Mean"),
-         User = case_when(grepl("current", Category) ~ "Current",
-                          TRUE ~ "Ever",),
-         Product = case_when(grepl("non_ecig", Category) ~ "Other products",
-                          TRUE ~ "E-cigarettes")) %>%
-  dplyr::select(-Category) %>%
-  pivot_wider(names_from = Estimate, 
-              values_from = `Percentage of students`) %>%
-  #spread(Estimate, `Percentage of students`) %>%
-  filter(User=="Ever") %>%
-  dplyr::rename("Lower_temp" = Upper,
-                "Upper_temp" = Lower) %>%
-  dplyr::rename("Lower"=Lower_temp,
-                "Upper"=Upper_temp) %>%
-  ggplot(aes(x=year,y=Mean, color=Product)) +
-  geom_line(linetype=1) +
-  geom_linerange(aes(ymin = Lower, ymax = Upper)) + 
-  scale_y_continuous(breaks = seq(10, 60, by = 10), limits = c(10,60)) +
-    theme_minimal() +
-    theme(legend.position = "none",
-          axis.title.x = element_blank()) +
-    labs(title = "% ever trying nicotine products increases",
-         y = "% of students")
-
-plotC_w_8 <- nyts_data %>%
-  filter((Grade == "8" & year == 2015) |
-         (Grade == "9" & year == 2016) |
-         (Grade == "10" & year == 2017) |
-         (Grade == "11" & year == 2018) |
-          (Grade == "12" & year == 2019) 
-         ) %>%
-    mutate(ecig_sum_ever = select(., EELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           ecig_sum_current = select(., CELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           non_ecig_sum_ever = select(., starts_with("E", ignore.case = FALSE)) %>%
-               select(.,-EELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           non_ecig_sum_current = select(., starts_with("C", ignore.case = FALSE)) %>%
-               select(.,-CELCIGT) %>%
-               apply(1, sum, na.rm=TRUE)) %>%
-    mutate(ecig_ever = case_when(ecig_sum_ever > 0 ~ TRUE,
-                                    ecig_sum_ever ==0 ~ FALSE),
-           ecig_current = case_when(ecig_sum_current > 0 ~ TRUE,
-                                    ecig_sum_current ==0 ~ FALSE),
-           non_ecig_ever = case_when(non_ecig_sum_ever > 0 ~ TRUE,
-                                    non_ecig_sum_ever ==0 ~ FALSE),
-           non_ecig_current = case_when(non_ecig_sum_current > 0 ~ TRUE,
-                                    non_ecig_sum_current ==0 ~ FALSE)) %>%
-  as_survey_design(strata = stratum, ids = psu, weight  = finwgt) %>%
-    group_by(year) %>%
-  summarise(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
-            ecig_current_year = survey_mean(ecig_current, vartype = "ci", na.rm=TRUE),
-            non_ecig_ever_year = survey_mean(non_ecig_ever, vartype = "ci", na.rm=TRUE),
-            non_ecig_current_year = survey_mean(non_ecig_current, vartype = "ci", na.rm=TRUE)) %>%
-  mutate_at(vars(-year), "*", 100) %>%
-  dplyr::select(year,
-                ecig_ever_year,
-                ecig_current_year,
-                non_ecig_ever_year,
-                non_ecig_current_year,
-                contains("low"),
-                contains("upp")) %>%
-  pivot_longer(cols = -year, names_to = "Category", values_to = "Percentage of students")%>%
-    mutate(Estimate = case_when(grepl("_low", Category) ~ "Lower",
-                          grepl("_upp", Category) ~ "Upper",
-                          TRUE ~ "Mean"),
-         User = case_when(grepl("ever", Category) ~ "Ever",
-                          grepl("current", Category) ~ "Current"),
-         Product = case_when(grepl("non_ecig", Category) ~ "Other products",
-                          TRUE ~ "E-cigarettes")) %>%
-  dplyr::select(-Category) %>%
-  pivot_wider(names_from = Estimate, 
-              values_from = `Percentage of students`) %>%
-  #spread(Estimate, `Percentage of students`) %>%
-    ggplot(aes(x=year,y=Mean, color=Product)) +
-  geom_line(aes(linetype=User)) +
-  geom_linerange(aes(ymin = Lower, ymax = Upper)) + 
-  scale_linetype_manual(values = c(2,1)) +
-  scale_y_continuous(breaks = seq(0, 60, by = 10), limits = c(0,60)) +
-    theme_minimal() +
-    theme(legend.position = "none",
-          axis.title.x = element_blank()) +
-    labs(title = "E-cigarette use surpasses use of other nicotine products",
-         y = "% of students")
-
-title_w_8 <- ggdraw() + 
-  draw_label(
-    expression("Among"~8^th~"graders in 2015, have vaping rates possibly influenced tobacco/nicotine use?"),
-    fontface = 'bold',
-    size=14,
-    x = 0,
-    hjust = 0
-  ) +
-  theme(
-    plot.margin = margin(0, 0, 0, 0)
-  )
-
-plotsA_w_8 <- plot_grid(plotA_w_8,
-                        rel_widths = c(1),
-                        align = "v",
-                        axis = "bt")
-
-plotsBC_w_8 <- plot_grid(plotB_w_8,
-                         plotC_w_8,
-                         rel_widths = c(1,1),
-                         axis = "bt")
-
-legend_w_8 <- get_legend(plotB_w_8 +
-                       theme(legend.position = "bottom",
-                             legend.direction = "horizontal"))
-
-figure_w_8 <- plot_grid(title_w_8,
-                        plotsA_w_8,
-                        plotsBC_w_8,
-                        legend_w_8,
-                        ncol = 1,
-                        rel_heights = c(0.1,
-                                      1,
-                                      1,
-                                      0.1),
-                        scale = 1.0
-)
-
-figure_w_8
-
-
-
-```
-
-
-
 ```{r}
 plotA_w_8 <- nyts_data %>%
   filter((Grade == "8" & year == 2015) |
@@ -1942,24 +1492,6 @@ plotB_w_8 <- nyts_data %>%
          (Grade == "11" & year == 2018) |
           (Grade == "12" & year == 2019) 
          ) %>%
-    mutate(ecig_sum_ever = select(., EELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           ecig_sum_current = select(., CELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           non_ecig_sum_ever = select(., starts_with("E", ignore.case = FALSE)) %>%
-               select(.,-EELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           non_ecig_sum_current = select(., starts_with("C", ignore.case = FALSE)) %>%
-               select(.,-CELCIGT) %>%
-               apply(1, sum, na.rm=TRUE)) %>%
-    mutate(ecig_ever = case_when(ecig_sum_ever > 0 ~ TRUE,
-                                    ecig_sum_ever ==0 ~ FALSE),
-           ecig_current = case_when(ecig_sum_current > 0 ~ TRUE,
-                                    ecig_sum_current ==0 ~ FALSE),
-           non_ecig_ever = case_when(non_ecig_sum_ever > 0 ~ TRUE,
-                                    non_ecig_sum_ever ==0 ~ FALSE),
-           non_ecig_current = case_when(non_ecig_sum_current > 0 ~ TRUE,
-                                    non_ecig_sum_current ==0 ~ FALSE)) %>%
   as_survey_design(strata = stratum, ids = psu, weight  = finwgt) %>%
     group_by(year) %>%
     summarise(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
@@ -2007,24 +1539,6 @@ plotC_w_8 <- nyts_data %>%
          (Grade == "11" & year == 2018) |
           (Grade == "12" & year == 2019) 
          ) %>%
-    mutate(ecig_sum_ever = select(., EELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           ecig_sum_current = select(., CELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           non_ecig_sum_ever = select(., starts_with("E", ignore.case = FALSE)) %>%
-               select(.,-EELCIGT) %>%
-               apply(1, sum, na.rm=TRUE),
-           non_ecig_sum_current = select(., starts_with("C", ignore.case = FALSE)) %>%
-               select(.,-CELCIGT) %>%
-               apply(1, sum, na.rm=TRUE)) %>%
-    mutate(ecig_ever = case_when(ecig_sum_ever > 0 ~ TRUE,
-                                    ecig_sum_ever ==0 ~ FALSE),
-           ecig_current = case_when(ecig_sum_current > 0 ~ TRUE,
-                                    ecig_sum_current ==0 ~ FALSE),
-           non_ecig_ever = case_when(non_ecig_sum_ever > 0 ~ TRUE,
-                                    non_ecig_sum_ever ==0 ~ FALSE),
-           non_ecig_current = case_when(non_ecig_sum_current > 0 ~ TRUE,
-                                    non_ecig_sum_current ==0 ~ FALSE)) %>%
   as_survey_design(strata = stratum, ids = psu, weight  = finwgt) %>%
     group_by(year) %>%
   summarise(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
