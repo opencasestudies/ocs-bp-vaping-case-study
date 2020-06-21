@@ -124,7 +124,7 @@ We will base this on the following survey questions:
 ## **Learning Objectives** 
 *** 
 
-In this case study, we will cover how to import data from multiple files efficiently, how to import data from excel files, and how to make a variety of visualizations to compare multiple groups across time. We will also demonstrate how to work with codebooks. We will cover the concept of survey weighting and introduce the `srvyr` package. We will discuss the difference between pooled cross-sectional data and panel data. We will especially focus on using packages and functions from the [`Tidyverse`](https://www.tidyverse.org/){target="_blank"} for wrangling data, such as `tidyr` and `dpyr` and for visualization, such as as `ggplot2`. The tidyverse is a library of packages created by RStudio. While some students may be familiar with previous R programming packages, these packages make data science in R especially efficient.
+In this case study, we will cover how to import data from multiple files efficiently, how to import data from excel files, and how to make a variety of visualizations to compare multiple groups across time. We will also demonstrate how to work with codebooks. We will cover the concept of survey weighting and introduce the `srvyr` package. We will discuss the difference between pooled cross-sectional data and panel data. We will especially focus on using packages and functions from the [`Tidyverse`](https://www.tidyverse.org/){target="_blank"} for wrangling data, such as `tidyr` and `dplyr` and for visualization, such as as `ggplot2`. The tidyverse is a library of packages created by RStudio. While some students may be familiar with previous R programming packages, these packages make data science in R especially efficient.
 
 
 ```{r, out.width = "20%", echo = FALSE, fig.align ="center"}
@@ -206,14 +206,15 @@ See [here](https://www.cdc.gov/tobacco/basic_information/e-cigarettes/Quick-Fact
 *** 
 There are some important considerations regarding this data analysis to keep in mind: 
 
-1) The data included in the [National Youth Tobacco Survey (NYTS)](https://www.cdc.gov/tobacco/data_statistics/surveys/nyts/index.htm){target="_blank"} does not follow the same individual students over time.  A [longitudinal study](https://www.bmj.com/about-bmj/resources-readers/publications/epidemiology-uninitiated/7-longitudinal-studies){target="_blank"} that does follow the same individuals over time collects data called [panel data](https://en.wikipedia.org/wiki/Panel_data). The data in this study is called pooled [cross-sectional data]https://en.wikipedia.org/wiki/Cross-sectional_data, this data is obtained from random collection of observations across time.
+1) The data included in the [National Youth Tobacco Survey (NYTS)](https://www.cdc.gov/tobacco/data_statistics/surveys/nyts/index.htm){target="_blank"} does not follow the same individual students over time.  A [longitudinal study](https://www.bmj.com/about-bmj/resources-readers/publications/epidemiology-uninitiated/7-longitudinal-studies){target="_blank"} that does follow the same individuals over time collects data called [panel data](https://en.wikipedia.org/wiki/Panel_data). The data in this study is called pooled [cross-sectional data](https://en.wikipedia.org/wiki/Cross-sectional_data), and is obtained from random collection of observations across time.
 
 According to Wikipedia:
->Panel data differs from pooled cross-sectional data across time, because it deals with the observations on the same subjects in different times whereas the latter observes different subjects in different time periods
 
-2) The data also includes percentages of students that reported use of particular tobacco product, but the survey questions did not ask how much uses of one product compared to another - for example the survey asked questions like:"What flavors of tobacco products have you used in the past 30 days?" Thus, it is unclear how often one flavor was used by the same individual over another.
+> Panel data differs from pooled cross-sectional data across time, because it deals with the observations on the same subjects in different times whereas the latter observes different subjects in different time periods
 
-While [gender](https://www.genderspectrum.org/quick-links/understanding-gender/){target="_blank"} and [sex](https://www.who.int/genomics/gender/en/index1.html){target="_blank"} are not actually binary, the data used in this analysis only contains information for groups of individuals who answered the survey questions as male or female. 
+2) The data include percentages of students reporting use of each particular tobacco product, but the survey questions did not ask the relative amount of use of one product compared to another. For example the survey included questions like:"What flavors of tobacco products have you used in the past 30 days?" but did not ask how often one flavor was used by the same individual over another.
+
+While [gender](https://www.genderspectrum.org/quick-links/understanding-gender/){target="_blank"} and [sex](https://www.who.int/genomics/gender/en/index1.html){target="_blank"} are not actually binary, the data used in this analysis only contain information for groups of individuals who answered the survey questions as male or female. 
 
 ## **What are the data?**
 *** 
@@ -228,11 +229,11 @@ Each year includes documentation, such as a [codebook](https://www.icpsr.umich.e
 
 knitr::include_graphics(here::here("img", "data.png"))
 ```
-Therefore, since we are using data from **2015-2019**, the data we are interested in is located in 5 different excel files, each with their own [codebook](https://www.icpsr.umich.edu/icpsrweb/content/shared/ICPSR/faqs/what-is-a-codebook.html).
+Therefore, since we are using data from **2015-2019**, the data we are interested in are located in 5 different excel files, one for each year, each with their own [codebook](https://www.icpsr.umich.edu/icpsrweb/content/shared/ICPSR/faqs/what-is-a-codebook.html).
 
 The [codebook](https://www.icpsr.umich.edu/icpsrweb/content/shared/ICPSR/faqs/what-is-a-codebook.html) contains information describing the data within the excel file. 
 
-As you can see the excel file contains very short variable names and values, and it is not clear what they mean without the codebook:
+As you can see the excel file contains very short variable names and numeric values, and it is not clear what they mean without the codebook:
 
 ```{r, echo = FALSE, fig.align ="center", out.width = "600 px"}
 
@@ -254,17 +255,17 @@ knitr::include_graphics(here::here("img", "qn1.png"))
 
 We will explain more later about what the values on the right indicate.
 
-The reason that there are codebooks for each year is because the questions asked year varied slightly.
+The reason that there are codebooks for each year is because the questions asked each year varied slightly.
 
 
-The data in this survey is what is called pooled cross-sectional data. In other words, different subsets of students are surveyed each year and it is not clear which, if any , individuals participate from one year to the next.
+The data in this survey are what is called pooled cross-sectional data. In other words, different subsets of students are surveyed each year and it is not clear which, if any, individuals participate more than once from one year to the next.
 
 ## **Data Import**
 *** 
 
 ### Reading in the excel files
 ***
-Since these excel files are so large (each has roughly 20,000 rows), it takes a bit of time for the data to load. To make the process faster, we previously imported these files, selected only our questions of interest, and saved this data as csv files. 
+Since these excel files are so large (each has roughly 20,000 rows), it takes a bit of time for the data to load. To make the process faster, we previously imported these files, selected only the columns relevant to our questions of interest, and saved these data subsets as comma-separated (.csv) files. 
 
 <details><summary> Click here for details on how the data was originally imported </summary>
 

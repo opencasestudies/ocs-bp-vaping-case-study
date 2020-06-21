@@ -1,0 +1,8 @@
+
+
+For title of main figure: Would something like "What is the relationship between vaping rates and tobacco/nicotine use?" be OK? I feel like the title there now sounds like we are trying hard not to say anything causal (which I know is the case) but why not just avoid any implication?
+
+I don't see a legend indicating the distinction between the dashed and solid lines in the main figure; am I missing it?
+
+
+
