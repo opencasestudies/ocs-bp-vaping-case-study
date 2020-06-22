@@ -911,6 +911,45 @@ We are also interested in e-cigarette usage compared to other tobacco products, 
 glimpse(nyts_data)
 ```
 
+Finally, we are also interested in students that only use e-cigarettes and those that only other forms of tobacco.
+We will again use the case_when function to accomplish creating new variables. 
+
+Here is a toy example of what we will do with the larger dataset:
+```{r}
+test <- tibble(ecig_ever = c("TRUE", "TRUE","FALSE", "FALSE"), 
+               non_ecig_ever = c("TRUE", "FALSE","TRUE", "FALSE"))
+test %<>% mutate(ecig_only_ever = case_when(ecig_ever == TRUE &
+                                  non_ecig_ever == FALSE ~ TRUE,
+                                                    TRUE ~ FALSE))
+
+test
+```
+
+```{r}
+nyts_data %<>%
+    mutate(ecig_only_ever = case_when(ecig_ever == TRUE &
+                                  non_ecig_ever == FALSE ~ TRUE,
+                                                    TRUE ~ FALSE),
+           ecig_only_current = case_when(ecig_current == TRUE &
+                                        non_ecig_ever == FALSE ~ TRUE,
+                                                          TRUE ~ FALSE),
+           non_ecig_only_ever = case_when(non_ecig_ever == TRUE &
+                                              ecig_ever == FALSE ~ TRUE,
+                                                            TRUE ~ FALSE),
+           non_ecig_only_current = case_when(non_ecig_current == TRUE &
+                                                    ecig_ever == FALSE ~ TRUE,
+                                                                  TRUE ~ FALSE)) %>%
+  mutate(Group = case_when(ecig_only_ever == TRUE |
+                        ecig_only_current == TRUE ~ "Only e-cigarettes",
+                       non_ecig_only_ever == TRUE |
+                    non_ecig_only_current == TRUE ~ "Only other products",
+                                    TRUE ~ "Both"))
+```
+
+#### {.scrollable}
+```{r}
+glimpse(nyts_data)
+```
 
 ### Question 1 
 
@@ -1091,14 +1130,7 @@ summarize(Menthol=(mean(menthol, na.rm = TRUE)*100),
             fill = reorder(Flavor, `Percentage of students`)))+
  geom_bar(stat = "identity", position = "dodge", color = "black")+
   scale_fill_viridis(discrete=TRUE)+
-  
-  # ggplot(aes(x=year, y=`Percentage of students`, color=Flavor)) +
-  # geom_line() +
-  # geom_point(show.legend = FALSE) +
   theme_minimal() +
-  # theme(legend.position = "bottom",
-  #         axis.text.x = element_text(angle = 90),
-  #         axis.title.x = element_blank()) + 
   guides(fill=guide_legend("Flavor"))+
   labs(title = "What flavors appear to be used the most frequently?",
        subtitle = "Flavors of tobacco products used in the past 30 days")
@@ -1134,39 +1166,16 @@ plot5 <- nyts_data %>%
            alcoholic_drink==TRUE|
            candy_dessert_sweets==TRUE|
            other==TRUE) %>%
-  # mutate(ecig_only_ever = case_when(ecig_ever == TRUE &
-  #                                     non_ecig_ever ==FALSE ~ TRUE,
-  #                                   TRUE ~ FALSE),
-  #          ecig_only_current = case_when(ecig_current == TRUE &
-  #                                          non_ecig_ever ==FALSE ~ TRUE,
-  #                                   TRUE ~ FALSE),
-  #          non_ecig_only_ever = case_when(non_ecig_ever == TRUE &
-  #                                           ecig_ever ==FALSE ~ TRUE,
-  #                                   TRUE ~ FALSE),
-  #          non_ecig_only_current = case_when(non_ecig_current == TRUE &
-  #                                              ecig_ever ==FALSE ~ TRUE,
-  #                                   TRUE ~ FALSE)) %>%
-  # mutate(Group = case_when(ecig_only_ever==TRUE |
-  #                            ecig_only_current==TRUE ~ "Only e-cigarettes",
-  #                        non_ecig_only_ever==TRUE |
-  #                          non_ecig_only_current==TRUE ~ "Only other products",
-  #                                   TRUE ~ "Both")) %>%
   filter(Group!="Both") %>%
   group_by(year, Group) %>%
-summarize(`Menthol`=(sum(menthol, na.rm = TRUE)*100)/
-              sum(!is.na(menthol)),
-              `Clove or Spice`=(sum(clove_spice, na.rm = TRUE)*100)/
-              sum(!is.na(clove_spice)),
-              `Fruit`=(sum(fruit, na.rm = TRUE)*100)/sum(!is.na(fruit)),
-              `Chocolate`=(sum(chocolate, na.rm = TRUE)*100)/
-              sum(!is.na(chocolate)),
-              `Alcoholic Drink`=(sum(alcoholic_drink, na.rm = TRUE)*100)/
-              sum(!is.na(alcoholic_drink)),
-              `Candy/Desserts/Sweets`=(sum(candy_dessert_sweets, na.rm = TRUE)*100)/
-              sum(!is.na(candy_dessert_sweets)),
-            `Other`=(sum(other, na.rm = TRUE)*100)/
-              sum(!is.na(other)),
-            Respondents=n()) %>%
+summarize(Menthol=(mean(menthol, na.rm = TRUE)*100),
+         `Clove or Spice`=(mean(clove_spice, na.rm = TRUE)*100),
+              `Fruit`=(mean(fruit, na.rm = TRUE)*100),
+              `Chocolate`=(mean(chocolate, na.rm = TRUE)*100),
+              `Alcoholic Drink`=(mean(alcoholic_drink, na.rm = TRUE)*100),
+              `Candy/Desserts/Sweets`=(mean(candy_dessert_sweets, na.rm = TRUE)*100),
+              `Other`=(mean(other, na.rm = TRUE)*100),
+               Respondents=n()) %>%
   #converting all columns between and including Menthol and Other to one column called Flavor
   pivot_longer(cols = Menthol:Other, names_to = "Flavor", values_to = "Percentage of students") %>%
   filter(!is.na(`Percentage of students`),
