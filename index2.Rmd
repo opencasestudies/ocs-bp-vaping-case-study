@@ -923,11 +923,10 @@ To create a visualiztion about how tobacco usage has changed over time, we will 
 nyts_data %>%
     dplyr::group_by(year) %>%
     dplyr::summarize(Ever=(mean(tobacco_ever, na.rm = TRUE)*100),
-                     Current=(mean(tobacco_current, na.rm = TRUE)*100))%>%
-   head()
+                     Current=(mean(tobacco_current, na.rm = TRUE)*100))
 
 ```
-We will use the `pivot_longer` function to take all collumns except year (in this case the `Ever` and `Current` columns), to create a column called `User` that will contain the current column name information and a column called `Percentage of students` which will contain the mean percentage values that we just calculated.
+We will use the `pivot_longer` function to take all collumns except year (in this case the `Ever` and `Current` columns), to create a column called `User` that will contain the current column name information and a column called `Percentage of students` which will contain the mean percentage values that we just calculated. This converts our data into a format called long format.
 
 ```{r}
 
@@ -935,15 +934,14 @@ nyts_data %>%
     dplyr::group_by(year) %>%
     dplyr::summarize(Ever=(mean(tobacco_ever, na.rm = TRUE)*100),
                      Current=(mean(tobacco_current, na.rm = TRUE)*100))%>%
-   pivot_longer(cols = -year, names_to = "User", values_to = "Percentage of students")%>%
-   head()
+   pivot_longer(cols = -year, names_to = "User", values_to = "Percentage of students")
 
 ```
-  
+You may have noticed that our data is longer than it used to be! Hence the name of the function `pivot_longer()`. Data is often easier to plot when it is in this format.
   
 Now we will use this data to create a plot using the `ggplot2` package. 
 
-The first thing we do to create a plot is specify what data we are using for our x and y axes with the`aes()` argument of the `ggplot()` function. Then we add layers to our plot that specify what type of plot we would like to create. We can use the `geom_line()` function to create a lines for each type of user. We specify that we want to use different line types for each user using `aes()`. We will also add points to our lines using the `geom_point()` function.
+The first thing we do to create a plot is specify what data we are using for our x axis and y axis with the`aes()` argument of the `ggplot()` function. Then we add layers to our plot that specify what type of plot we would like to create. We can use the `geom_line()` function to create lines for each type of user. We specify that we want to use different line types for each user using `aes()`. We will also add points to our lines using the `geom_point()` function. We can add additional layers to specify colors and details about labels and legends etc.
   
 ```{r}  
   
@@ -972,6 +970,8 @@ plot1 <- nyts_data %>%
 plot1 
 ```
 
+Nice! Now we can see how overall tobacco usage has changed since 2017. It appears that usage has increased a bit since 2017, and has surpassed the levels in 2015.
+
 
 Now we want to look how e-cigarette smoking rates compare between males and females across time. 
 
@@ -984,26 +984,37 @@ Here are some color options:
 ```{r}
 
 scales:: show_col(viridis_pal()(6))
-
+v_colors =  viridis(6)[c(1,4)]
 ```
 
 We will select the first and fourth colors for our plot. 
 
-We will calculate the mean e-cigarette ever and current percentages for each year and sex category again using the `group_by()` function and the `summarize()` function. We will use the `pivot_lo
+We will calculate the mean e-cigarette ever and current percentages for each year and sex category again using the `group_by()` function and the `summarize()` function. We will again use the `pivot_longer` function to convert our data to long format.
 
 ```{r}
- v_colors =  viridis(6)[c(1,4)]
+
+nyts_data %>%
+     group_by(year, Sex) %>%
+     summarize(Ever=(mean(EELCIGT, na.rm = TRUE)*100),
+               Current=(mean(CELCIGT, na.rm = TRUE)*100))%>%
+     filter(!is.na(Sex)) %>%
+     pivot_longer(cols = Ever:Current, 
+               names_to = "User", 
+               values_to = "Percentage of students") %>%
+     head()
+
 plot2 <- nyts_data %>%
      group_by(year, Sex) %>%
      summarize(Ever=(mean(EELCIGT, na.rm = TRUE)*100),
                Current=(mean(CELCIGT, na.rm = TRUE)*100))%>%
-    filter(!is.na(Sex)) %>%
-  #converting the columns names for Evern and Current into one column called Category and the values to a column called Percentage of students
-  pivot_longer(cols = Ever:Current, names_to = "Category", values_to = "Percentage of students")
-    ggplot(aes(x=year,y=`Percentage of students`, color= Sex, linetype=User)) +
-    geom_line() + 
-  geom_point(show.legend = FALSE, size = 3) +
-  scale_linetype_manual(values = c(2,1)) +
+     filter(!is.na(Sex)) %>%
+     pivot_longer(cols = Ever:Current, 
+               names_to = "User", 
+               values_to = "Percentage of students") %>%
+    ggplot(aes(x = year,y =`Percentage of students`, color = Sex)) +
+    geom_line(aes(linetype = User)) + 
+    geom_point(show.legend = FALSE, size = 3) +
+    scale_linetype_manual(values = c(2,1)) +
     scale_color_manual(values =v_colors)+
     theme_minimal() +
     theme(legend.position = "bottom",
@@ -1018,10 +1029,21 @@ plot2
 
 ### Question 3
 
-We are also interested in what vaping brands and flavors appear to be used the most frequently?
+We are also interested in what vaping brands and flavors appear to be used the most frequently. Only the 2019 data has this information. Therefore, we will filter for just this year using the `filter()` function of  the `dplyr` package. We will use the `summarize()` function slightly differently this time, to calculate the total number of students using each brand `n` using the `n()` function and the `sum()` function to calculate the percent for each brand based on the counts. 
 
 
 ```{r}
+
+ nyts_data %>%
+    filter(year==2019) %>%
+    group_by(brand_ecig) %>%
+    filter(!is.na(brand_ecig)) %>%
+  summarize(n = n()) %>%
+    mutate(total = sum(n),
+           Percent = n*100/total) %>%
+    mutate(brand_ecig = fct_reorder(brand_ecig, desc(Percent)))
+
+
 plot3 <- nyts_data %>%
     filter(year==2019) %>%
     group_by(brand_ecig) %>%
@@ -1048,6 +1070,9 @@ Juul appears to be the most widely used brand. This is in agreement with a recen
 ```{r, echo=FALSE, fig.cap="Huang J, Duan Z, Kwok J, et al. Tob Control 2019;28:146–151.", out.width = '100%'}
 knitr::include_graphics(here::here("img", "HuangJ_DuanZ_KwokJ_et_al_TobaccoControl_Figure1.png"))
 ```
+
+We are also interested in how the usage of different flavors has changed over the years.
+To evaluate this we will calculate the precentage of students using each flavor each year.
 
 ```{r}
 plot4 <- nyts_data %>%
