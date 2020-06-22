@@ -147,6 +147,7 @@ library(dplyr)
 library(readr)
 library(tidyr)
 library(ggplot2)
+library(scales)
 library(viridis)
 library(forcats)
 library(srvyr)
@@ -162,7 +163,8 @@ library(cowplot)
 [dplyr](https://dplyr.tidyverse.org/){target="_blank"}      | to arrange/filter/select/compare specific subsets of the data  
 [readr](https://readr.tidyverse.org/){target="_blank"}      | to import the CSV file data
 [tidyr](https://tidyr.tidyverse.org/){target="_blank"}      | to rearrange data in wide and long formats 
-[ggplot2](https://ggplot2.tidyverse.org/){target="_blank"}    | to make visualizations with multiple layers 
+[ggplot2](https://ggplot2.tidyverse.org/){target="_blank"}    | to make visualizations with multiple layers
+[scales](https://cran.r-project.org/web/packages/scales/scales.pdf){target="_blank"}    | to allow us to look at the colors within the viridis package
 [viridis](https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html){target="_blank"}    | to make plots with a color palette that is compatible with color blindness
 [forcats](https://forcats.tidyverse.org/){target="_blank"}    | to allow for reordering of factors in plots
 [syrvr](https://cran.r-project.org/web/packages/srvyr/srvyr.pdf){target="_blank"} | to use survey weights
@@ -943,9 +945,25 @@ plot1
 ```
 
 
+Now we want to look how e-cigarette smoking rates compare between males and females across time. 
+
+In this plot we will add color. To select colors that will be distinguisible by indiviudals with color-blinness we will use the viridis color palette of the `viridis` package. We can choose which colors we want to use by using the `show_col()` function of the `scales` package.
+
+
 ### Question 2
 
+Here are some color options:
 ```{r}
+
+
+scales:: show_col(viridis_pal()(6))
+
+```
+
+We will select the first and fourth colors for our plot
+
+```{r}
+ v_colors =  viridis(6)[c(1,4)]
 plot2 <- nyts_data %>%
     group_by(year,
              Sex) %>%
@@ -961,11 +979,10 @@ plot2 <- nyts_data %>%
     mutate(User = case_when(Category == "E-cigarettes, Ever" ~ "Ever",
                                Category == "E-cigarettes, Current" ~ "Current")) %>%
     ggplot(aes(x=year,y=`Percentage of students`, color= Sex, linetype=User)) +
-    geom_line(size=2) + 
-    geom_point(show.legend = FALSE, size = 5, color = "black")+
+    geom_line() + 
   geom_point(show.legend = FALSE, size = 4) +
   scale_linetype_manual(values = c(2,1)) +
-  scale_color_viridis(discrete = TRUE)+
+    scale_color_manual(values =v_colors)+
     theme_minimal() +
     theme(legend.position = "bottom",
           axis.text.x = element_text(angle = 90),
