@@ -746,7 +746,7 @@ Reminder: Current users are a subset of ever users.
 
 
 
-### variable table
+### Variable Table
 <details><summary> Click here to see a table about the variables </summary>
 
 value 1 = yes, value 2 = no
@@ -799,8 +799,6 @@ Variable   | Details
 ## **Data Visualization**
 *** 
 
-
-
 Recall that our main questions were:
 
 1) How has tobacco/nicotine use by American youths changed since 2015? 
@@ -808,7 +806,7 @@ Recall that our main questions were:
 3) What vaping brands and flavors appear to be used the most frequently?  
 We will base this on the following survey questions:   
 > "During the past 30 days, what brand of e-cigarettes did you usually use?"   
->"What flavors of tobacco products have you used in the past
+>" What flavors of tobacco products have you used in the past
 30 days?"  
 
 4) Have vaping rates possibly influenced tobacco/nicotine use?
@@ -948,8 +946,7 @@ plot1 <- nyts_data %>%
     theme_minimal() +
     theme(legend.position = "bottom",
           axis.title.x = element_blank()) +
-    labs(title = "How does nicotine use vary over the years?",
-         subtitle = "Current and ever users of nicotine products",
+    labs(title = "How has nicotine use varied over the years?",
          y = "% of students")
 
 plot1 
@@ -1009,7 +1006,7 @@ plot3 <- nyts_data %>%
            Percent = n*100/total) %>%
     mutate(brand_ecig = fct_reorder(brand_ecig, desc(Percent))) %>%
     ggplot(aes(x=brand_ecig,y=Percent, fill=brand_ecig)) +
-    geom_bar(stat="identity") +
+    geom_bar(stat="identity", color = "black") +
     theme_minimal() +
     theme(legend.position = "none",
           axis.text.x = element_text(size=10),
@@ -1036,16 +1033,21 @@ plot4 <- nyts_data %>%
               `Alcoholic Drink`=(sum(alcoholic_drink, na.rm = TRUE)*100)/
                 sum(!is.na(alcoholic_drink)),
               `Candy/Desserts/Sweets`=(sum(candy_dessert_sweets, na.rm = TRUE)*100)/sum(!is.na(candy_dessert_sweets))) %>%
-  pivot_longer(cols = -year, names_to = "Percentage of students", values_to = "Flavor") %>%
+  pivot_longer(cols = -year, names_to = "Flavor", values_to = "Percentage of students") %>%
 
-  ggplot(aes(x=year, y=`Percentage of students`, color=Flavor)) +
-  geom_line() +
-  geom_point(show.legend = FALSE) +
+ ggplot(aes(y = `Percentage of students`, x = year, fill = reorder(Flavor, `Percentage of students`)))+
+ geom_bar(stat = "identity", position = "dodge", color = "black")+
+  scale_fill_viridis(discrete=TRUE)+
+  
+  # ggplot(aes(x=year, y=`Percentage of students`, color=Flavor)) +
+  # geom_line() +
+  # geom_point(show.legend = FALSE) +
   theme_minimal() +
-  theme(legend.position = "bottom",
-          axis.text.x = element_text(angle = 90),
-          axis.title.x = element_blank()) + 
-  labs(title = "What flavors appear to be used the most frequently in nicotine products?",
+  # theme(legend.position = "bottom",
+  #         axis.text.x = element_text(angle = 90),
+  #         axis.title.x = element_blank()) + 
+  guides(fill=guide_legend("Flavor"))+
+  labs(title = "What flavors appear to be used the most frequently?",
        subtitle = "Flavors of tobacco products used in the past 30 days")
 
 plot4 
@@ -1189,7 +1191,6 @@ plot7 <- nyts_data %>%
     theme(legend.position = "bottom",
           axis.title.x = element_blank()) +
     labs(title = "How does e-cigarette ever use compare to ever use of other products over the years?",
-         subtitle = "E-cigarette and non-e-cigarette use",
          y = "% of students")
 
 plot7
@@ -1223,8 +1224,7 @@ plot8 <- nyts_data %>%
     theme_minimal() +
     theme(legend.position = "bottom",
           axis.title.x = element_blank()) +
-    labs(title = "How does e-cigarette use compare to use of other products over the years?",
-         subtitle = "E-cigarette and non-e-cigarette use",
+    labs(title = "How has e-cigarette use compared to the use of other tobacco products?",
          y = "% of students")
 
 plot8
@@ -1272,7 +1272,7 @@ plotsBC_uw <- plot_grid(plotB_uw,
                         plotC_uw,
                         rel_widths = c(1,1))
 
-legend_uw <- get_legend(plotB_uw +
+legend_uw <- get_legend(plot8 +
                        theme(legend.position = "bottom",
                              legend.direction = "horizontal"))
 
@@ -1422,7 +1422,7 @@ plotsBC_w <- plot_grid(plotB_w,
                      align = "v",
                      axis = "bt")
 
-legend_w <- get_legend(plotB_w +
+legend_w <- get_legend(plot8 +
                        theme(legend.position = "bottom",
                              legend.direction = "horizontal"))
 
@@ -1598,7 +1598,7 @@ plotsBC_w_8 <- plot_grid(plotB_w_8,
                          rel_widths = c(1,1),
                          axis = "bt")
 
-legend_w_8 <- get_legend(plotB_w_8 +
+legend_w_8 <- get_legend(plot8 +
                        theme(legend.position = "bottom",
                              legend.direction = "horizontal"))
 
@@ -1622,7 +1622,7 @@ figure_w_8
 ```{r}
 title_final <- ggdraw() +
   draw_label(
-    expression("Have vaping rates possibly influenced tobacco/nicotine use?"),
+    expression("What is the relationship between vaping rates and tobacco/nicotine use?"),
     fontface = 'bold',
     size=16,
     x = 0.5) +
@@ -1712,7 +1712,7 @@ plotsC_final <- plot_grid(plotC_uw + theme(plot.title = element_blank()),
                           align = "v",
                           axis = "bt")
 
-legend_final <- get_legend(plotB_w +
+legend_final <- get_legend(plot8 +
                              theme(legend.position = "bottom",
                              legend.direction = "horizontal"))
 
@@ -1744,7 +1744,7 @@ final_plot
 ```
 
 ```{r, echo=FALSE, include=FALSE}
-ggsave("final_plot.png")
+ggsave(here::here("img", "final_plot.png"))
 ```
 
 ## **Suggested Homework**
