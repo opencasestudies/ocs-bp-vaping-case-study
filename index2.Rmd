@@ -805,7 +805,8 @@ Variable   | Details
 
 Recall that our main questions were:
 
-1) How has tobacco/nicotine use by American youths changed since 2015? 
+1) How has tobacco/nicotine use by American youths changed since 2015?
+2) How have vaping rates changed since 2015?
 2) How do vaping rates compare between males and females?
 3) What vaping brands and flavors appear to be used the most frequently?  
 We will base this on the following survey questions:   
@@ -1140,24 +1141,6 @@ plot4
 
 ```{r}
 plot5 <- nyts_data %>%
-  mutate(ecig_only_ever = case_when(ecig_ever == TRUE &
-                                      non_ecig_ever ==FALSE ~ TRUE,
-                                    TRUE ~ FALSE),
-           ecig_only_current = case_when(ecig_current == TRUE &
-                                           non_ecig_ever ==FALSE ~ TRUE,
-                                    TRUE ~ FALSE),
-           non_ecig_only_ever = case_when(non_ecig_ever == TRUE &
-                                            ecig_ever ==FALSE ~ TRUE,
-                                    TRUE ~ FALSE),
-           non_ecig_only_current = case_when(non_ecig_current == TRUE &
-                                               ecig_ever ==FALSE ~ TRUE,
-                                    TRUE ~ FALSE)) %>%
-  mutate(Group = case_when(ecig_only_ever==TRUE |
-                             ecig_only_current==TRUE ~ "Only e-cigarettes",
-                         non_ecig_only_ever==TRUE |
-                           non_ecig_only_current==TRUE ~ "Only other products",
-                                    TRUE ~ "Both")) %>%
-  
   filter(year!=2015) %>%
   filter(menthol==TRUE|
            clove_spice==TRUE|
@@ -1529,14 +1512,14 @@ plotA_w_8 <- nyts_data %>%
          (Grade == "11" & year == 2018) |
           (Grade == "12" & year == 2019) 
          ) %>%
-    mutate(tobacco_sum_ever = select(., starts_with("E", ignore.case = FALSE)) %>%
-               apply(1, sum, na.rm=TRUE),
-           tobacco_sum_current = select(., starts_with("C", ignore.case = FALSE)) %>%
-               apply(1, sum, na.rm=TRUE)) %>%
-    mutate(tobacco_ever = case_when(tobacco_sum_ever > 0 ~ TRUE,
-                                    tobacco_sum_ever ==0 ~ FALSE),
-           tobacco_current = case_when(tobacco_sum_current > 0 ~ TRUE,
-                                    tobacco_sum_current ==0 ~ FALSE)) %>%
+    # mutate(tobacco_sum_ever = select(., starts_with("E", ignore.case = FALSE)) %>%
+    #            apply(1, sum, na.rm=TRUE),
+    #        tobacco_sum_current = select(., starts_with("C", ignore.case = FALSE)) %>%
+    #            apply(1, sum, na.rm=TRUE)) %>%
+    # mutate(tobacco_ever = case_when(tobacco_sum_ever > 0 ~ TRUE,
+    #                                 tobacco_sum_ever ==0 ~ FALSE),
+    #        tobacco_current = case_when(tobacco_sum_current > 0 ~ TRUE,
+    #                                 tobacco_sum_current ==0 ~ FALSE)) %>%
   as_survey_design(strata = stratum, ids = psu, weight  = finwgt) %>%
     group_by(year) %>%
 summarize(tobacco_ever_year = survey_mean(tobacco_ever, vartype = "ci", na.rm=TRUE),
