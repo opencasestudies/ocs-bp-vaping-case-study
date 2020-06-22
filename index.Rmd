@@ -1,0 +1,233 @@
+---
+title: "Open Case Studies : Title "
+css: style.css
+output:
+  html_document:
+    self_contained: yes
+    code_download: yes
+    highlight: tango
+    number_sections: no
+    theme: cosmo
+    toc: yes
+    toc_float: yes
+  pdf_document:
+    toc: yes
+  word_document:
+    toc: yes
+
+---
+<style>
+#TOC {
+  background: url("https://opencasestudies.github.io/img/logo.jpg");
+  background-size: contain;
+  padding-top: 240px !important;
+  background-repeat: no-repeat;
+}
+</style>
+
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(include = TRUE, comment = NA, echo = TRUE,
+                      message = FALSE, warning = FALSE, cache = FALSE,
+                      fig.align = "center", out.width = '90%')
+library(here)
+library(knitr)
+```
+
+
+#### {.outline }
+```{r, echo = FALSE, out.width = "800 px"}
+knitr::include_graphics(here::here("img", "mainplot.png"))
+```
+
+####
+
+## {.disclaimer_block}
+
+**Disclaimer**: The purpose of the [Open Case Studies](https://opencasestudies.github.io){target="_blank"} project is **to demonstrate the use of various data science methods, tools, and software in the context of messy, real-world data**. A given case study does not cover all aspects of the research process, is not claiming to be the most appropriate way to analyze a given data set, and should not be used in the context of making policy decisions without external consultation from scientific experts. 
+
+## **Motivation**
+*** 
+
+
+### **Content Header**
+*** 
+
+Content content
+
+> Content for quotes
+
+
+```{r, echo = FALSE, out.width="800px"}
+knitr::include_graphics(here::here("img","content_image.png"))
+```
+for large images from the web... might do this instead:
+
+<p align="center">
+  <img width="500" src="https://www.frontiersin.org/files/Articles/505570/fpubh-08-00014-HTML/image_m/fpubh-08-00014-t002.jpg">
+</p>
+
+##### [[source](https://www.frontiersin.org/articles/10.3389/fpubh.2020.00014/full)]
+
+<u>To underline something:</u>  
+**Bold**  
+*Italics*  
+<u>**underline and bold** </u>  
+<u>***underline and bold and italics*** </u>  
+
+List:  
+1)makesure there are two spaces    
+2)after each item to create new line  
+
+
+#### {.reference_block}
+
+Yanosky, J. D. et al. Spatio-temporal modeling of particulate air pollution in the conterminous United States using geographic and meteorological predictors. *Environ Health* 13, 63 (2014).
+
+####
+
+
+## **Main Questions**
+*** 
+
+#### {.main_question_block}
+<b><u> Our main question: </u></b>
+
+1) Question 1  
+2) Question 2 etc.
+
+####
+
+## **Learning Objectives** 
+*** 
+
+In this case study, we will CONTENT... We will especially focus on using packages and functions from the [`Tidyverse`](https://www.tidyverse.org/){target="_blank"}, such as `package_name`, `package_name`. The tidyverse is a library of packages created by RStudio. While some students may be familiar with previous R programming packages, these packages make data science in R especially efficient.
+
+
+```{r, out.width = "20%", echo = FALSE, fig.align ="center"}
+include_graphics("https://tidyverse.tidyverse.org/logo.png")
+```
+
+
+*** 
+
+
+We will begin by loading the packages that we will need:
+
+```{r}
+library(here)
+library(readr)
+library(dplyr)
+```
+
+
+ Package   | Use                                                                         
+---------- |-------------
+[here](https://github.com/jennybc/here_here){target="_blank"}       | to easily load and save data
+[readr](https://readr.tidyverse.org/){target="_blank"}      | to import the CSV file data
+
+
+The first time we use a function, we will use the `::` to indicate which package we are using. Unless we have overlapping function names, this is not necessary, but we will include it here to be informative about where the functions we will use come from.
+
+
+## **Context**
+*** 
+
+## **Limitations**
+*** 
+There are some important considerations regarding this data analysis to keep in mind: 
+
+1) Limitation 1  
+
+2) Limitaiton 2  
+
+
+## **What are the data?**
+*** 
+
+If you want to make a table about variable info:
+
+Variable   | Details                                                                        
+---------- |-------------
+**variable1**  | Variable info  <br> -- more details <br> -- more detials <br>  **Example**: Content content  
+**variable2**  | Variable info  <br> -- more details <br> -- more detials <br>  **Example**: Content content
+
+## **Data Import**
+*** 
+
+Put files in docs directory and use `here` package.
+
+```{r}
+pm <-readr::read_csv(here("docs", "pm25_data.csv"))
+```
+
+## **Data Exploration and Wrangling**
+*** 
+
+We will also use the `%>%` pipe which can be used to define the input for later sequential steps. This will make more sense when we have multiple sequential steps using the same data object. To use the pipe notation we need to install and load dplyr as well.
+
+Scrollable content:
+
+#### {.scrollable }
+```{r}
+# Scroll through the output!
+pm %>% 
+  distinct(state) %>%
+  print(n = 1e3)
+```
+####
+
+
+## **Data Analysis**
+*** 
+
+### **content header**
+*** 
+
+## **Data Visualization**
+*** 
+
+## **Summary**
+*** 
+
+## **Suggested Homework**
+*** 
+
+## **Helpful Links**
+*** 
+
+review of [tidymodels](https://rviews.rstudio.com/2019/06/19/a-gentle-intro-to-tidymodels/){target="_blank"} 
+
+guide for [preprocessing with recipes](http://www.rebeccabarter.com/blog/2019-06-06_pre_processing/)
+
+[guide](https://briatte.github.io/ggcorr/) for using GGally to create correlation plots
+[guide](https://www.tidyverse.org/blog/2018/11/parsnip-0-0-1/) for using parsnip to try different algorithms or engines
+[recipe functions](https://tidymodels.github.io/recipes/reference/index.html)
+
+<u>Terms and concepts covered:</u>  
+
+[Tidyverse](https://www.tidyverse.org/){target="_blank"}  
+[RStudio cheatsheets](https://rstudio.com/resources/cheatsheets/){target="_blank"}  
+[Inference](https://www.britannica.com/science/inference-statistics){target="_blank"}  
+[Regression](https://lindeloev.github.io/tests-as-linear/){target="_blank"}  
+[Different types of regression](https://www.analyticsvidhya.com/blog/2015/08/comprehensive-guide-regression/){target="_blank"}  
+[Ordinary least squares method](http://setosa.io/ev/ordinary-least-squares-regression/){target="_blank"}  
+[Residual](https://www.statisticshowto.datasciencecentral.com/residual/){target="_blank"}  
+
+<u>Packages used in this case study: </u>
+
+ Package   | Use                                                                         
+---------- |-------------
+[here](https://github.com/jennybc/here_here){target="_blank"}       | to easily load and save data  
+[readr](https://readr.tidyverse.org/){target="_blank"}      | to import the CSV file data  
+[dplyr](https://dplyr.tidyverse.org/){target="_blank"}      | to arrange/filter/select/compare specific subsets of the data  
+[skimr](https://cran.r-project.org/web/packages/skimr/index.html){target="_blank"}      | to get an overview of data   
+[summarytools](https://cran.r-project.org/web/packages/skimr/index.html){target="_blank"}      | to get an overview of data in a different style   
+[pdftools](https://cran.r-project.org/web/packages/pdftools/pdftools.pdf){target="_blank"}   | to read a PDF into R   
+[magrittr](https://magrittr.tidyverse.org/articles/magrittr.html){target="_blank"}   | to use the `%<>%` pipping operator  
+[purrr](https://purrr.tidyverse.org/){target="_blank"}      | to perform functions on all columns of a tibble   
+[tibble](https://tibble.tidyverse.org/){target="_blank"}     | to create data objects that we can manipulate with  dplyr/stringr/tidyr/purrr  
+[tidyr](https://tidyr.tidyverse.org/){target="_blank"}      | to separate data within a column into multiple columns 
+[ggplot2](https://ggplot2.tidyverse.org/){target="_blank"}    | to make visualizations with multiple layers  
