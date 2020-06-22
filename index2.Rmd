@@ -1078,20 +1078,17 @@ To evaluate this we will calculate the precentage of students using each flavor 
 plot4 <- nyts_data %>%
   filter(year!=2015) %>%
   group_by(year) %>%
-summarize(Menthol=(sum(menthol, na.rm = TRUE)*100)/
-                sum(!is.na(menthol)),
-              `Clove or Spice`=(sum(clove_spice, na.rm = TRUE)*100)/
-                sum(!is.na(clove_spice)),
-              `Fruit`=(sum(fruit, na.rm = TRUE)*100)/
-                sum(!is.na(fruit)),
-              `Chocolate`=(sum(chocolate, na.rm = TRUE)*100)/
-                sum(!is.na(chocolate)),
-              `Alcoholic Drink`=(sum(alcoholic_drink, na.rm = TRUE)*100)/
-                sum(!is.na(alcoholic_drink)),
-              `Candy/Desserts/Sweets`=(sum(candy_dessert_sweets, na.rm = TRUE)*100)/sum(!is.na(candy_dessert_sweets))) %>%
+summarize(Menthol=(mean(menthol, na.rm = TRUE)*100),
+         `Clove or Spice`=(mean(clove_spice, na.rm = TRUE)*100),
+              `Fruit`=(mean(fruit, na.rm = TRUE)*100),
+              `Chocolate`=(mean(chocolate, na.rm = TRUE)*100),
+              `Alcoholic Drink`=(mean(alcoholic_drink, na.rm = TRUE)*100),
+              `Candy/Desserts/Sweets`=(mean(candy_dessert_sweets, na.rm = TRUE)*100)) %>%
   pivot_longer(cols = -year, names_to = "Flavor", values_to = "Percentage of students") %>%
 
- ggplot(aes(y = `Percentage of students`, x = year, fill = reorder(Flavor, `Percentage of students`)))+
+ ggplot(aes(y = `Percentage of students`, 
+            x = year, 
+            fill = reorder(Flavor, `Percentage of students`)))+
  geom_bar(stat = "identity", position = "dodge", color = "black")+
   scale_fill_viridis(discrete=TRUE)+
   
