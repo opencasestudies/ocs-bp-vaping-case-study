@@ -916,21 +916,17 @@ glimpse(nyts_data)
 
 We are interested in investing how vaping product use has compared with other tobacco use. First we want to get a sense of how tobacco use has changed in general since 2015. 
 
-To create a visualiztion about how tobacco usage has changed over time, we will first convert the usage data to a mean value for each year. To do this we will use the `group_by()` and summari
+To create a visualiztion about how tobacco usage has changed over time, we will first convert the usage data to a mean value for each year. To do this we will use the `group_by()` and `summarize` function of the `dplyr` package. This will create new variables which we will name `Ever` and `Current` based on the mean of the percentages of `tobacco_ever` and `tobacco_current` for each year.
 
 ```{r}
 plot1 <- nyts_data %>%
     dplyr::group_by(year) %>%
-  summarize(tobacco_ever_year=(sum(tobacco_ever, na.rm = TRUE)*100)/
-                sum(!is.na(tobacco_ever)),
-              tobacco_current_year=(sum(tobacco_current, na.rm = TRUE)*100)/
-                sum(!is.na(tobacco_current))) %>%
-    rename("Ever"=tobacco_ever_year,
-           "Current"=tobacco_current_year) %>%
+    dplyr::summarize(Ever=(mean(tobacco_ever, na.rm = TRUE)*100),
+                     Current=(mean(tobacco_current, na.rm = TRUE)*100))%>%
   pivot_longer(cols = -year, names_to = "User", values_to = "Percentage of students")%>%
     ggplot(aes(x=year,y=`Percentage of students`, linetype=User)) +
     geom_line() + 
-  geom_point(show.legend = FALSE) +
+  geom_point(show.legend = FALSE, size = 3) +
   scale_linetype_manual(values = c(2,1)) +
     scale_y_continuous(breaks = seq(0,70,by=10),
                        labels = seq(0,70,by=10),
@@ -938,7 +934,7 @@ plot1 <- nyts_data %>%
     theme_minimal() +
     theme(legend.position = "bottom",
           axis.title.x = element_blank()) +
-    labs(title = "How has nicotine use varied over the years?",
+    labs(title = "How has tobacco use varied over the years?",
          y = "% of students")
 
 plot1 
@@ -980,7 +976,7 @@ plot2 <- nyts_data %>%
                                Category == "E-cigarettes, Current" ~ "Current")) %>%
     ggplot(aes(x=year,y=`Percentage of students`, color= Sex, linetype=User)) +
     geom_line() + 
-  geom_point(show.legend = FALSE, size = 4) +
+  geom_point(show.legend = FALSE, size = 3) +
   scale_linetype_manual(values = c(2,1)) +
     scale_color_manual(values =v_colors)+
     theme_minimal() +
