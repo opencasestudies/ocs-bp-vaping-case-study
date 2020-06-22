@@ -961,7 +961,7 @@ plot2 <- nyts_data %>%
     mutate(User = case_when(Category == "E-cigarettes, Ever" ~ "Ever",
                                Category == "E-cigarettes, Current" ~ "Current")) %>%
     ggplot(aes(x=year,y=`Percentage of students`, color= Sex, linetype=User)) +
-    geom_line() + 
+    geom_line(size=2) + 
     geom_point(show.legend = FALSE, size = 5, color = "black")+
   geom_point(show.legend = FALSE, size = 4) +
   scale_linetype_manual(values = c(2,1)) +
