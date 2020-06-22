@@ -147,6 +147,7 @@ library(dplyr)
 library(readr)
 library(tidyr)
 library(ggplot2)
+library(viridis)
 library(forcats)
 library(srvyr)
 library(cowplot)
@@ -161,7 +162,8 @@ library(cowplot)
 [dplyr](https://dplyr.tidyverse.org/){target="_blank"}      | to arrange/filter/select/compare specific subsets of the data  
 [readr](https://readr.tidyverse.org/){target="_blank"}      | to import the CSV file data
 [tidyr](https://tidyr.tidyverse.org/){target="_blank"}      | to rearrange data in wide and long formats 
-[ggplot2](https://ggplot2.tidyverse.org/){target="_blank"}    | to make visualizations with multiple layers  
+[ggplot2](https://ggplot2.tidyverse.org/){target="_blank"}    | to make visualizations with multiple layers 
+[viridis](https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html){target="_blank"}    | to make plots with a color palette that is compatible with color blindness
 [forcats](https://forcats.tidyverse.org/){target="_blank"}    | to allow for reordering of factors in plots
 [syrvr](https://cran.r-project.org/web/packages/srvyr/srvyr.pdf){target="_blank"} | to use survey weights
 [cowplot](https://cran.r-project.org/web/packages/cowplot/vignettes/introduction.html){target="_blank"} | to allow plots to be combined 
@@ -877,8 +879,7 @@ glimpse(nyts_data)
 ```
 ####
 
-
-We are also interested in e-cigarette usage compared to other tobacco products, so we will create some variables related to the sum of all e-cigarette usage question variables and the sum of all tobacco usage question variables excluding those that are about e-cigarettes. There is only one varaible about e-cigarette usage ever (EELCIGT) and one about current usage (CELCIGT).
+We are also interested in e-cigarette usage compared to other tobacco products, so we will create some variables related to the sum of all e-cigarette usage question variables and the sum of all tobacco usage question variables excluding those that are about e-cigarettes. There is only one variable about e-cigarette usage ever (EELCIGT) and one about current usage (CELCIGT).
 
 ```{r}
    nyts_data <-nyts_data %>% mutate(ecig_sum_ever = select(., EELCIGT) %>%
@@ -913,23 +914,12 @@ glimpse(nyts_data)
 
 We are interested in investing how vaping product use has compared with other tobacco use. First we want to get a sense of how tobacco use has changed in general since 2015. 
 
-
-For lots of pivot_longer() that are the same... can use pivot_longer_spec()
-
-spec <- relig_income %>% build_longer_spec(
-  cols = -religion,
-  names_to = "income",
-  values_to = "count"
-)
-pivot_longer_spec(relig_income, spec)
-
-
-To create a visualiztion about how tobacco usage has changed over time, we will first convert the usage data to a mean value for each year. 
+To create a visualiztion about how tobacco usage has changed over time, we will first convert the usage data to a mean value for each year. To do this we will use the `group_by()` and summari
 
 ```{r}
 plot1 <- nyts_data %>%
-    group_by(year) %>%
-    summarise(tobacco_ever_year=(sum(tobacco_ever, na.rm = TRUE)*100)/
+    dplyr::group_by(year) %>%
+  summarize(tobacco_ever_year=(sum(tobacco_ever, na.rm = TRUE)*100)/
                 sum(!is.na(tobacco_ever)),
               tobacco_current_year=(sum(tobacco_current, na.rm = TRUE)*100)/
                 sum(!is.na(tobacco_current))) %>%
@@ -959,7 +949,7 @@ plot1
 plot2 <- nyts_data %>%
     group_by(year,
              Sex) %>%
-    summarise(EELCIGT_year=(sum(EELCIGT, na.rm = TRUE)*100)/
+  summarize(EELCIGT_year=(sum(EELCIGT, na.rm = TRUE)*100)/
                 sum(!is.na(EELCIGT)),
               CELCIGT_year=(sum(CELCIGT, na.rm = TRUE)*100)/
                 sum(!is.na(CELCIGT))) %>% 
@@ -1001,7 +991,7 @@ plot3 <- nyts_data %>%
     filter(year==2019) %>%
     group_by(brand_ecig) %>%
     filter(!is.na(brand_ecig)) %>%
-    summarise(n = n()) %>%
+  summarize(n = n()) %>%
     mutate(total = sum(n),
            Percent = n*100/total) %>%
     mutate(brand_ecig = fct_reorder(brand_ecig, desc(Percent))) %>%
@@ -1022,7 +1012,7 @@ plot3
 plot4 <- nyts_data %>%
   filter(year!=2015) %>%
   group_by(year) %>%
-  summarise(Menthol=(sum(menthol, na.rm = TRUE)*100)/
+summarize(Menthol=(sum(menthol, na.rm = TRUE)*100)/
                 sum(!is.na(menthol)),
               `Clove or Spice`=(sum(clove_spice, na.rm = TRUE)*100)/
                 sum(!is.na(clove_spice)),
@@ -1055,14 +1045,6 @@ plot4
 
 ```{r}
 plot5 <- nyts_data %>%
-  filter(year!=2015) %>%
-  filter(menthol==TRUE|
-           clove_spice==TRUE|
-           fruit==TRUE|
-           chocolate==TRUE|
-           alcoholic_drink==TRUE|
-           candy_dessert_sweets==TRUE|
-           other==TRUE) %>%
   mutate(ecig_only_ever = case_when(ecig_ever == TRUE &
                                       non_ecig_ever ==FALSE ~ TRUE,
                                     TRUE ~ FALSE),
@@ -1080,9 +1062,35 @@ plot5 <- nyts_data %>%
                          non_ecig_only_ever==TRUE |
                            non_ecig_only_current==TRUE ~ "Only other products",
                                     TRUE ~ "Both")) %>%
+  
+  filter(year!=2015) %>%
+  filter(menthol==TRUE|
+           clove_spice==TRUE|
+           fruit==TRUE|
+           chocolate==TRUE|
+           alcoholic_drink==TRUE|
+           candy_dessert_sweets==TRUE|
+           other==TRUE) %>%
+  # mutate(ecig_only_ever = case_when(ecig_ever == TRUE &
+  #                                     non_ecig_ever ==FALSE ~ TRUE,
+  #                                   TRUE ~ FALSE),
+  #          ecig_only_current = case_when(ecig_current == TRUE &
+  #                                          non_ecig_ever ==FALSE ~ TRUE,
+  #                                   TRUE ~ FALSE),
+  #          non_ecig_only_ever = case_when(non_ecig_ever == TRUE &
+  #                                           ecig_ever ==FALSE ~ TRUE,
+  #                                   TRUE ~ FALSE),
+  #          non_ecig_only_current = case_when(non_ecig_current == TRUE &
+  #                                              ecig_ever ==FALSE ~ TRUE,
+  #                                   TRUE ~ FALSE)) %>%
+  # mutate(Group = case_when(ecig_only_ever==TRUE |
+  #                            ecig_only_current==TRUE ~ "Only e-cigarettes",
+  #                        non_ecig_only_ever==TRUE |
+  #                          non_ecig_only_current==TRUE ~ "Only other products",
+  #                                   TRUE ~ "Both")) %>%
   filter(Group!="Both") %>%
   group_by(year, Group) %>%
-  summarise(`Menthol`=(sum(menthol, na.rm = TRUE)*100)/
+summarize(`Menthol`=(sum(menthol, na.rm = TRUE)*100)/
               sum(!is.na(menthol)),
               `Clove or Spice`=(sum(clove_spice, na.rm = TRUE)*100)/
               sum(!is.na(clove_spice)),
@@ -1127,7 +1135,7 @@ Have vaping rates possibly influenced tobacco/nicotine use?
 ```{r}
 plot6 <- nyts_data %>%
     group_by(year) %>%
-    summarise(ECIGT_year=(sum(ECIGT, na.rm = TRUE)*100)/
+  summarize(ECIGT_year=(sum(ECIGT, na.rm = TRUE)*100)/
                 sum(!is.na(ECIGT)),
               EELCIGT_year=(sum(EELCIGT, na.rm = TRUE)*100)/
                 sum(!is.na(EELCIGT)),
@@ -1165,7 +1173,7 @@ plot6
 ```{r}
 plot7 <- nyts_data %>%
     group_by(year) %>%
-    summarise(ecig_ever_year=(sum(ecig_ever, na.rm = TRUE)*100)/
+  summarize(ecig_ever_year=(sum(ecig_ever, na.rm = TRUE)*100)/
                 sum(!is.na(ecig_ever)),
               ecig_current_year=(sum(ecig_current, na.rm = TRUE)*100)/
                 sum(!is.na(ecig_current)),
@@ -1199,7 +1207,7 @@ plot7
 ```{r}
 plot8 <- nyts_data %>%
     group_by(year) %>%
-    summarise(ecig_ever_year=(sum(ecig_ever, na.rm = TRUE)*100)/
+  summarize(ecig_ever_year=(sum(ecig_ever, na.rm = TRUE)*100)/
                 sum(!is.na(ecig_ever)),
               ecig_current_year=(sum(ecig_current, na.rm = TRUE)*100)/
                 sum(!is.na(ecig_current)),
@@ -1295,7 +1303,7 @@ figure_uw
 plotA_w <- nyts_data %>%
   as_survey_design(strata = stratum, ids = psu, weight  = finwgt, nest=TRUE) %>%
     group_by(year) %>%
-  summarise(tobacco_ever_year = survey_mean(tobacco_ever, vartype = "ci", na.rm=TRUE),
+summarize(tobacco_ever_year = survey_mean(tobacco_ever, vartype = "ci", na.rm=TRUE),
             tobacco_current_year = survey_mean(tobacco_current, vartype = "ci", na.rm=TRUE))  %>%
   mutate_at(vars(-year), "*", 100) %>%
     pivot_longer(cols = -year, names_to = "Type", values_to = "Percentage of students") %>%
@@ -1324,7 +1332,7 @@ plotA_w <- nyts_data %>%
 plotB_w <- nyts_data %>%
   as_survey_design(strata = stratum, ids = psu, weight  = finwgt, nest=TRUE) %>%
     group_by(year) %>%
-    summarise(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
+  summarize(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
             ecig_current_year = survey_mean(ecig_current, vartype = "ci", na.rm=TRUE),
             non_ecig_ever_year = survey_mean(non_ecig_ever, vartype = "ci", na.rm=TRUE),
             non_ecig_current_year = survey_mean(non_ecig_current, vartype = "ci", na.rm=TRUE)) %>%
@@ -1366,7 +1374,7 @@ plotB_w <- nyts_data %>%
 plotC_w <- nyts_data %>%
   as_survey_design(strata = stratum, ids = psu, weight  = finwgt, nest=TRUE) %>%
     group_by(year) %>%
-  summarise(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
+summarize(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
             ecig_current_year = survey_mean(ecig_current, vartype = "ci", na.rm=TRUE),
             non_ecig_ever_year = survey_mean(non_ecig_ever, vartype = "ci", na.rm=TRUE),
             non_ecig_current_year = survey_mean(non_ecig_current, vartype = "ci", na.rm=TRUE)) %>%
@@ -1459,7 +1467,7 @@ plotA_w_8 <- nyts_data %>%
                                     tobacco_sum_current ==0 ~ FALSE)) %>%
   as_survey_design(strata = stratum, ids = psu, weight  = finwgt) %>%
     group_by(year) %>%
-  summarise(tobacco_ever_year = survey_mean(tobacco_ever, vartype = "ci", na.rm=TRUE),
+summarize(tobacco_ever_year = survey_mean(tobacco_ever, vartype = "ci", na.rm=TRUE),
             tobacco_current_year = survey_mean(tobacco_current, vartype = "ci", na.rm=TRUE))  %>%
   mutate_at(vars(-year), "*", 100) %>%
     pivot_longer(cols = -year, names_to = "Type", values_to = "Percentage of students")%>%
@@ -1495,7 +1503,7 @@ plotB_w_8 <- nyts_data %>%
          ) %>%
   as_survey_design(strata = stratum, ids = psu, weight  = finwgt) %>%
     group_by(year) %>%
-    summarise(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
+  summarize(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
             ecig_current_year = survey_mean(ecig_current, vartype = "ci", na.rm=TRUE),
             non_ecig_ever_year = survey_mean(non_ecig_ever, vartype = "ci", na.rm=TRUE),
             non_ecig_current_year = survey_mean(non_ecig_current, vartype = "ci", na.rm=TRUE)) %>%
@@ -1542,7 +1550,7 @@ plotC_w_8 <- nyts_data %>%
          ) %>%
   as_survey_design(strata = stratum, ids = psu, weight  = finwgt) %>%
     group_by(year) %>%
-  summarise(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
+summarize(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
             ecig_current_year = survey_mean(ecig_current, vartype = "ci", na.rm=TRUE),
             non_ecig_ever_year = survey_mean(non_ecig_ever, vartype = "ci", na.rm=TRUE),
             non_ecig_current_year = survey_mean(non_ecig_current, vartype = "ci", na.rm=TRUE)) %>%
