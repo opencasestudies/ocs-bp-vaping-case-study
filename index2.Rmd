@@ -927,35 +927,115 @@ Finally, we are also interested in students that only use e-cigarettes and those
 We will again use the case_when function to accomplish creating new variables. 
 
 Here is a toy example of what we will do with the larger dataset:
+
+Recall that current users are a subset of ever users, thus students would typically answer yes to having tried vaping products if they had used them one or more days in the past 30 days.
+
+First we will make a small toy dataset:
 ```{r}
-test <- tibble(ecig_ever = c("TRUE", "TRUE","FALSE", "FALSE"), 
-               non_ecig_ever = c("TRUE", "FALSE","TRUE", "FALSE"))
-test <- test %>% mutate(ecig_only_ever = case_when(ecig_ever == TRUE &
-                                  non_ecig_ever == FALSE ~ TRUE,
-                                                    TRUE ~ FALSE))
+test <- tibble(ecig_ever = c("TRUE", "TRUE", "TRUE", "TRUE", "FALSE", "FALSE", "TRUE", "FALSE", "FALSE"),
+               non_ecig_ever = c("TRUE", "FALSE","FALSE","FALSE", "FALSE", "FALSE", "TRUE", "TRUE", "TRUE"),
+               ecig_current = c("TRUE", "FALSE","FALSE", "TRUE", "TRUE", "FALSE", "FALSE", "FALSE", "FALSE"),
+               non_ecig_current = c("TRUE", "FALSE","TRUE", "FALSE", "TRUE", "FALSE", "FALSE", "FALSE", "TRUE"))
 
 test
 ```
 
+Now, let's look at identifying sutents who have only ever tried e-cigarettes, but are not current users, nor have they tried or currently use other tobacco products.
+
 ```{r}
-nyts_data %<>%
-    mutate(ecig_only_ever = case_when(ecig_ever == TRUE &
-                                  non_ecig_ever == FALSE ~ TRUE,
-                                                    TRUE ~ FALSE),
-           ecig_only_current = case_when(ecig_current == TRUE &
-                                        non_ecig_ever == FALSE ~ TRUE,
-                                                          TRUE ~ FALSE),
-           non_ecig_only_ever = case_when(non_ecig_ever == TRUE &
-                                              ecig_ever == FALSE ~ TRUE,
-                                                            TRUE ~ FALSE),
-           non_ecig_only_current = case_when(non_ecig_current == TRUE &
-                                                    ecig_ever == FALSE ~ TRUE,
-                                                                  TRUE ~ FALSE)) %>%
+
+test <- test %>% mutate(ecig_only_ever = case_when(ecig_ever == TRUE & 
+                                               non_ecig_ever == FALSE & 
+                                                ecig_current == FALSE &
+                                            non_ecig_current == FALSE ~ TRUE,
+              #if any of the last three lines are TRUE than the ecig_only_ever value should be false
+                                                    TRUE ~ FALSE))
+test
+```
+
+We can see from the fourth row, that even though the student reported yes to ever trying e-cigarettes, they also reported yes to currently using e-cigarettes, thus the value for only ever trying e-cigarettes is `FALSE`. Additionally we can see from the seventh row that similarly even though the student reported yest to ever trying e0cigarettes, they also reported yes to ever trying other products, and the value for only ever trying e-cigarettes is `FALSE`. Importantly, we can see from the 6th row, that if all responses are negative than the value is `FALSE`.
+
+Now we will expand this to the other possible categories. Notice since, current users are a subset of ever users, it doesn't matter if a user reports yes to ever trying  e-cigarettes, they can still be a current user.
+
+```{r}
+test <-test %>% mutate(ecig_only_ever = case_when(ecig_ever == TRUE & 
+                                              non_ecig_ever == FALSE & 
+                                               ecig_current == FALSE &
+                                           non_ecig_current == FALSE ~ TRUE,
+              #if any of the last three lines are TRUE than the ecig_only_ever value should be false
+                                                       TRUE ~ FALSE),
+                 ecig_only_current = case_when(ecig_current == TRUE &
+                                              non_ecig_ever == FALSE &
+                                           non_ecig_current == FALSE ~ TRUE,
+                                                       TRUE ~ FALSE),
+               non_ecig_only_ever = case_when(non_ecig_ever == TRUE &
+                                                  ecig_ever == FALSE &
+                                               ecig_current == FALSE &
+                                           non_ecig_current == FALSE ~ TRUE, 
+                                                        TRUE ~ FALSE),
+         non_ecig_only_current = case_when(non_ecig_current == TRUE &
+                                                  ecig_ever == FALSE &
+                                               ecig_current == FALSE ~ TRUE,
+                                                        TRUE ~ FALSE),
+                           no_use = case_when(non_ecig_ever == FALSE &
+                                                  ecig_ever == FALSE &
+                                               ecig_current == FALSE &
+                                           non_ecig_current == FALSE ~TRUE,
+                                                        TRUE ~ FALSE)) 
+
+test
+```
+
+Take a minute to check that the values are what we would expect.
+
+Ok, now we are going to make a `Group` variable based on the new variables we just made. If a student has only ever tried or currently uses e-cigarettes, the value will be `Only e-cigarettes`. The same will be true for other tobacco products. If a student has tried either they will be called `Both`.
+
+```{R}
+
+test <- test %>% 
   mutate(Group = case_when(ecig_only_ever == TRUE |
                         ecig_only_current == TRUE ~ "Only e-cigarettes",
                        non_ecig_only_ever == TRUE |
                     non_ecig_only_current == TRUE ~ "Only other products",
-                                    TRUE ~ "Both"))
+                                   no_use == TRUE ~ "Neither",
+                                     TRUE ~ "Both"))
+
+test
+
+```
+
+```{r}
+nyts_data %<>%
+    mutate(ecig_only_ever = case_when(ecig_ever == TRUE & 
+                                              non_ecig_ever == FALSE & 
+                                               ecig_current == FALSE &
+                                           non_ecig_current == FALSE ~ TRUE,
+              #if any of the last three lines are TRUE than the ecig_only_ever value should be false
+                                                       TRUE ~ FALSE),
+                 ecig_only_current = case_when(ecig_current == TRUE &
+                                              non_ecig_ever == FALSE &
+                                           non_ecig_current == FALSE ~ TRUE,
+                                                       TRUE ~ FALSE),
+               non_ecig_only_ever = case_when(non_ecig_ever == TRUE &
+                                                  ecig_ever == FALSE &
+                                               ecig_current == FALSE &
+                                           non_ecig_current == FALSE ~ TRUE, 
+                                                        TRUE ~ FALSE),
+         non_ecig_only_current = case_when(non_ecig_current == TRUE &
+                                                  ecig_ever == FALSE &
+                                               ecig_current == FALSE ~ TRUE,
+                                                        TRUE ~ FALSE),
+                           no_use = case_when(non_ecig_ever == FALSE &
+                                                  ecig_ever == FALSE &
+                                               ecig_current == FALSE &
+                                           non_ecig_current == FALSE ~TRUE,
+                                                        TRUE ~ FALSE)) %>%
+                    mutate(Group = case_when(ecig_only_ever == TRUE |
+                                          ecig_only_current == TRUE ~ "Only e-cigarettes",
+                                         non_ecig_only_ever == TRUE |
+                                      non_ecig_only_current == TRUE ~ "Only other products",
+                                                     no_use == TRUE ~ "Neither",
+                                                        TRUE ~ "Both"))
 ```
 
 #### {.scrollable}
@@ -1139,8 +1219,9 @@ nyts_data %>%
 
 
 nyts_data %>%
-    count(Group, year)
-
+    count(Group, year) %>%
+  ggplot(aes(x = year, y = n, fill = Group)) +
+  geom_bar(stat = "identity", position = "dodge")
 
 
 
