@@ -108,13 +108,13 @@ Gentzke, Andrea S., Melisa Creamer, Karen A. Cullen, Bridget K. Ambrose, Gordon 
 #### {.main_question_block}
 <b><u> Our main question: </u></b>
 
-1) How has tobacco/nicotine use by American youths changed since 2015? 
+1) How has tobacco/nicotine and e-cigarette use by American youths changed since 2015?
 2) How do vaping rates compare between males and females?
 3) What vaping brands and flavors appear to be used the most frequently?  
 We will base this on the following survey questions:   
 > "During the past 30 days, what brand of e-cigarettes did you usually use?"   
->"What flavors of tobacco products have you used in the past
-30 days?"  
+>" What flavors of tobacco products have you used in the past
+30 days?" 
 
 4) Have vaping rates possibly influenced tobacco/nicotine use?
 
@@ -817,14 +817,13 @@ Variable   | Details
 
 Recall that our main questions were:
 
-1) How has tobacco/nicotine use by American youths changed since 2015?
-2) How have vaping rates changed since 2015?
+1) How has tobacco/nicotine and e-cigarette use by American youths changed since 2015?
 2) How do vaping rates compare between males and females?
 3) What vaping brands and flavors appear to be used the most frequently?  
 We will base this on the following survey questions:   
 > "During the past 30 days, what brand of e-cigarettes did you usually use?"   
 >" What flavors of tobacco products have you used in the past
-30 days?"  
+30 days?" 
 
 4) Have vaping rates possibly influenced tobacco/nicotine use?
 
@@ -1008,9 +1007,9 @@ plot1 <- nyts_data %>%
   # this allows us to choose what type of line we want for each line
   scale_linetype_manual(values = c(2,1)) +
   # this allows us to specify how the y-axis should appear
-  scale_y_continuous(breaks = seq(0,70,by=10),
-                       labels = seq(0,70,by=10),
-                       limits = c(0,70)) +
+  scale_y_continuous(breaks = seq(0,60,by=10),
+                       labels = seq(0,60,by=10),
+                       limits = c(0,60)) +
   #this adjusts the background style of the plot
     theme_minimal() +
   # this moves the legend to the bottom of the plot and removes the x axis title
@@ -1024,13 +1023,47 @@ plot1
 
 Nice! Now we can see how overall tobacco usage has changed since 2017. It appears that usage has increased a bit since 2017, and has surpassed the levels in 2015.
 
+What about e-cigarette use? How has e-cigarette usage changed over time?
 
-Now we want to look how e-cigarette smoking rates compare between males and females across time. 
+```{r}
+plot1a <- nyts_data %>%
+    dplyr::group_by(year) %>%
+    dplyr::summarize(Ever=(mean(ecig_ever, na.rm = TRUE)*100),
+                     Current=(mean(ecig_current, na.rm = TRUE)*100))%>%
+  pivot_longer(cols = -year, names_to = "User", values_to = "Percentage of students")%>%
+    ggplot(aes(x=year,y=`Percentage of students`)) +
+    geom_line(aes(linetype=User)) + 
+  geom_point(show.legend = FALSE, size = 3) +
+  # this allows us to choose what type of line we want for each line
+  scale_linetype_manual(values = c(2,1)) +
+  # this allows us to specify how the y-axis should appear
+  scale_y_continuous(breaks = seq(0,60,by=10),
+                       labels = seq(0,60,by=10),
+                       limits = c(0,60)) +
+  #this adjusts the background style of the plot
+    theme_minimal() +
+  # this moves the legend to the bottom of the plot and removes the x axis title
+    theme(legend.position = "bottom",
+          axis.title.x = element_blank()) +
+    labs(title = "How has e-cigarette use varied over the years?",
+         y = "% of students")
 
-In this plot we will add color. To select colors that will be distinguisible by indiviudals with color-blinness we will use the viridis color palette of the `viridis` package. We can choose which colors we want to use by using the `show_col()` function of the `scales` package.
+plot1a 
 
 
-### Question 2
+
+```
+It looks like the shape of the plot is very similar to tobacco usage overall. We see a downward trend until 2017 when the rate of both current and ever users increased. Recall that this is in agreement with the articles that we referenced earlier. We can see that the slope looks steeper for e-cigarette usage as compared to all tobacco products (including e-cigarettes).
+
+Now let's plot e-cigarette usage and tobacco products usage (besides e-cigarettes) together on the same plot. In this case we will look at students who have only smoked either of e-cigarettes or only other tobacco products besides e-cigarettes.
+
+In this case we will have four groups (only e-cigarette ever users, only e-cigarette current users, only non-e-cigarette ever tobbaco users, and only non-e-cigarette current tobacco users) to plot, therefore, it would be useful to add color to our plot.
+
+One important thing to keep in mind when creating plots, is that individuals with color blindness may have a difficult time distinguishing groups when certian color chocies are used. 
+
+One great option is to use the `viridis` package, which offers color palattes with colors that are still distinguishable  by individuals with most forms of color blindness. 
+
+ We can choose which colors we want to use by using the `show_col()` function of the `scales` package.
 
 Here are some color options:
 ```{r}
@@ -1039,9 +1072,62 @@ scales:: show_col(viridis_pal()(6))
 v_colors =  viridis(6)[c(1,4)]
 ```
 
-We will select the first and fourth colors for our plot. 
+We will select the first and fourth colors for our plot. To add these specific colors we will use the `scale_color_manual()` function of the `ggplot2` package.
 
-We will calculate the mean e-cigarette ever and current percentages for each year and sex category again using the `group_by()` function and the `summarize()` function. We will again use the `pivot_longer` function to convert our data to long format.
+We will calculate the mean ever and current usage percentages for students who had only used e-cigarette or other tobacco products (besides e-cigarettes) for each year again using the `group_by()` function and the `summarize()` function. We will again use the `pivot_longer` function to convert our data to long format. We will also use the `separate()` function of the `tidyr` package to create two variables from one of variables. This is done by separating by, in this case, a space. 
+
+```{r}
+
+nyts_data %>%
+    dplyr::group_by(year) %>%
+    dplyr::summarize("Ever e-cig"=(mean(ecig_only_ever, na.rm = TRUE)*100),
+                     "Current e-cig"=(mean(ecig_only_current, na.rm = TRUE)*100),
+                     "Ever non-e-cig" =(mean(non_ecig_only_ever, na.rm = TRUE)*100),
+                     "Current non-e-cig"=(mean(non_ecig_only_current, na.rm = TRUE)*100)) %>%
+  pivot_longer(cols = -year, names_to = "User", values_to = "Percentage of students") %>%
+  tidyr::separate(User, into = c("User", "Product"), sep = " ") %>%
+  head()
+
+plot1c <- nyts_data %>%
+    dplyr::group_by(year) %>%
+    dplyr::summarize("Ever e-cig"=(mean(ecig_only_ever, na.rm = TRUE)*100),
+                     "Current e-cig"=(mean(ecig_only_current, na.rm = TRUE)*100),
+                     "Ever non-e-cig" =(mean(non_ecig_only_ever, na.rm = TRUE)*100),
+                     "Current non-e-cig"=(mean(non_ecig_only_current, na.rm = TRUE)*100))%>%
+  pivot_longer(cols = -year, names_to = "User", values_to = "Percentage of students")%>%
+  separate(User, into = c("User", "Product"), sep = " ") %>%
+    ggplot(aes(x=year,y=`Percentage of students`, color = Product)) +
+    geom_line(aes(linetype=User)) + 
+  geom_point(show.legend = FALSE, size = 3) +
+  # this allows us to choose what type of line we want for each line
+  scale_linetype_manual(values = c(2,1)) +
+  # this allows us to specify how the y-axis should appear
+  scale_y_continuous(breaks = seq(0,30,by=10),
+                       labels = seq(0,30,by=10),
+                       limits = c(0,30)) +
+  scale_color_manual(values = v_colors)+
+  #this adjusts the background style of the plot
+    theme_minimal() +
+  # this moves the legend to the bottom of the plot and removes the x axis title
+    theme(legend.position = "bottom",
+          axis.title.x = element_blank()) +
+    labs(title = "How has e-cigarette use and tobacco use (besides e-cigarettes) varied over time?",
+         y = "% of students")
+
+plot1c
+
+```
+
+We can see from this plot that the percentage of students who had only ever tried (or currently used) e-cigarettes was greatly increasing since 2017, while in contrast the percentage of students who had only ever tried non-e-cigarette tobacco products was  diminishing over time.
+
+
+
+### Question 2
+
+Now we want to look how e-cigarette smoking rates compare between males and females across time. 
+
+
+We will calculate the mean e-cigarette ever and current percentages for each year and sex category again using the `group_by()` function and the `summarize()` function. Notice, that in this case we are grouping by two variables. We will again use the `pivot_longer` function to convert our data to long format.
 
 ```{r}
 
@@ -1049,7 +1135,7 @@ nyts_data %>%
      group_by(year, Sex) %>%
      summarize(Ever=(mean(EELCIGT, na.rm = TRUE)*100),
                Current=(mean(CELCIGT, na.rm = TRUE)*100))%>%
-     filter(!is.na(Sex)) %>%
+     #filter(!is.na(Sex)) %>%
      pivot_longer(cols = Ever:Current, 
                names_to = "User", 
                values_to = "Percentage of students") %>%
@@ -1059,7 +1145,7 @@ plot2 <- nyts_data %>%
      group_by(year, Sex) %>%
      summarize(Ever=(mean(EELCIGT, na.rm = TRUE)*100),
                Current=(mean(CELCIGT, na.rm = TRUE)*100))%>%
-     filter(!is.na(Sex)) %>%
+    # filter(!is.na(Sex)) %>%
      pivot_longer(cols = Ever:Current, 
                names_to = "User", 
                values_to = "Percentage of students") %>%
@@ -1073,11 +1159,14 @@ plot2 <- nyts_data %>%
           axis.text.x = element_text(angle = 90),
           axis.title.x = element_blank()) +
     labs(title = "How do vaping rates compare between males and females?",
-         subtitle = "Current and ever users by gender",
+         subtitle = "Current and ever users by sex",
          y = "% of students")
 
 plot2
 ```
+
+It looks like the rates are fairly similar between the sexes, however the rate for males appears to be consistently higher across time.
+
 
 ### Question 3
 
@@ -1524,14 +1613,6 @@ plotA_w_8 <- nyts_data %>%
          (Grade == "11" & year == 2018) |
           (Grade == "12" & year == 2019) 
          ) %>%
-    # mutate(tobacco_sum_ever = select(., starts_with("E", ignore.case = FALSE)) %>%
-    #            apply(1, sum, na.rm=TRUE),
-    #        tobacco_sum_current = select(., starts_with("C", ignore.case = FALSE)) %>%
-    #            apply(1, sum, na.rm=TRUE)) %>%
-    # mutate(tobacco_ever = case_when(tobacco_sum_ever > 0 ~ TRUE,
-    #                                 tobacco_sum_ever ==0 ~ FALSE),
-    #        tobacco_current = case_when(tobacco_sum_current > 0 ~ TRUE,
-    #                                 tobacco_sum_current ==0 ~ FALSE)) %>%
   as_survey_design(strata = stratum, ids = psu, weight  = finwgt) %>%
     group_by(year) %>%
 summarize(tobacco_ever_year = survey_mean(tobacco_ever, vartype = "ci", na.rm=TRUE),
