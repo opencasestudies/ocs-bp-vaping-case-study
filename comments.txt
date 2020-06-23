@@ -4,5 +4,37 @@ For title of main figure: Would something like "What is the relationship between
 
 I don't see a legend indicating the distinction between the dashed and solid lines in the main figure; am I missing it?
 
+## In section on reading in excel files and writing to csv files ##
+Would it be simpler to do
+tbl_names <- excel_files %>%
+   str_extract("nyts201[5-9]")
+I think all the square brackets could be confusing.
+
+What is the distinction between a tibble and a data.frame? I'm not sure that this distinction is useful to go into, but it is something that kind of bugs me, in case you do want to elaborate on it.
+
+For writing the csv files, shouldn't you just use map rather than introducing mapply? You also include an example using map, and it seems like it would be more in keeping with the tidyverse environment.
+##
 
 
+Curious what the system time code is doing -- is it just left over from something before? It is not run or included in the markdown output.
+
+Same comment as above for:
+nyts_data_names <- list.files(recursive = TRUE,
+                         pattern = "*.csv")%>%
+  str_extract("nyts[2][0][1][5-9]")
+Potentially replace last line with
+  str_extract("nyts201[5-9]")
+
+I added a link to the r4ds chapter on functions; are there other places in the case studies that we discuss functions? Or additional links or resources you want to add?
+
+For the Sex variable, how did you determine "It's a bit difficult to tell if the encoding was the same across years" -- I don't see documentation of this (i.e., is this missing from the codebook somehow?), so it might be helpful to let the reader know how you figured this out.
+
+I think a little more illustration of the pre-data cleaning data would be helpful for understanding things like:
+mutate_all(~ replace(., . %in% c(".N",".S",".Z"), NA))
+What is the purpose of this line? How did you figure out these things needed to be replaced?
+
+I am somewhat confused about the fact that the data sets for each year have a different number of columns prior to calling bind_rows. I had no idea that this would actually work, honestly; but in any case, I think it would be good to either explicitly discuss what happens when there are some columsn in one data set but not the other, or be consistent about creating and populating variables with NAs as you have done in some cases already.
+
+I'm not sure why this reminder is where it is:
+Reminder: Current users are a subset of ever users. 
+I have added a bit of text just before it that I think gives it more context at least. But I'm still not sure it should stay there.

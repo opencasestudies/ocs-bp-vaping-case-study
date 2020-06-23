@@ -233,7 +233,7 @@ Each year includes documentation, such as a [codebook](https://www.icpsr.umich.e
 
 knitr::include_graphics(here::here("img", "data.png"))
 ```
-Therefore, since we are using data from **2015-2019**, the data we are interested in are located in 5 different excel files, one for each year, each with their own [codebook](https://www.icpsr.umich.edu/icpsrweb/content/shared/ICPSR/faqs/what-is-a-codebook.html).
+Therefore, since we are using data from **2015-2019**, the data we are interested in are located in 5 different excel files, one for each year, each with its own [codebook](https://www.icpsr.umich.edu/icpsrweb/content/shared/ICPSR/faqs/what-is-a-codebook.html).
 
 The [codebook](https://www.icpsr.umich.edu/icpsrweb/content/shared/ICPSR/faqs/what-is-a-codebook.html) contains information describing the data within the excel file. 
 
@@ -262,7 +262,7 @@ We will explain more later about what the values on the right indicate.
 The reason that there are codebooks for each year is because the questions asked each year varied slightly.
 
 
-The data in this survey are what is called pooled cross-sectional data. In other words, different subsets of students are surveyed each year and it is not clear which, if any, individuals participate more than once from one year to the next.
+The data in this survey are pooled cross-sectional data. In this study design, different subsets of students are surveyed each year and it is not clear which, if any, individuals participate more than once from one year to the next.
 
 ## **Data Import**
 *** 
@@ -271,9 +271,9 @@ The data in this survey are what is called pooled cross-sectional data. In other
 ***
 Since these excel files are so large (each has roughly 20,000 rows), it takes a bit of time for the data to load. To make the process faster, we previously imported these files, selected only the columns relevant to our questions of interest, and saved these data subsets as comma-separated (.csv) files. 
 
-<details><summary> Click here for details on how the data was originally imported </summary>
+<details><summary> Click here for details on how the data were originally imported </summary>
 
-First we created a list of file names of all the different excel files. Using the `here()` function of the `here` package, we looked in all the directories of the project.
+First we created a vector of file names of all the different excel files. Using the `here()` function of the `here` package, we looked in all the directories of the project.
 The `list.files()` function looked for all files with .xlsx within these sub-directories.
 ```{r}
 excel_files<-list.files(here::here(), recursive = TRUE,
@@ -281,9 +281,9 @@ excel_files<-list.files(here::here(), recursive = TRUE,
 excel_files
 ```
 
-All the files were read using `read_excel()` of the `readxl` package. Using the `map()` function of the `purrr` package this was done efficiently for all of the excel files in the list using one command. The `.` is used to indicate that we want to apply the `read_excel()` function to the data that we just piped into the `map()` function.
+All the files were read using `read_excel()` of the `readxl` package. Using the `map()` function of the `purrr` package this was done efficiently for all of the excel files in the vector using one command. The `.` is used to indicate that we want to apply the `read_excel()` function to each element of the data that we just piped into the `map()` function.
 
-Here will also used the `%>%` pipe which can be used to define the input for later sequential steps. 
+Here we also used the `%>%` pipe which can be used to pass the input from one function to another for later sequential steps. 
 
 This created a single list of tibbles (one for each file). 
 ```{r, eval = FALSE}
@@ -291,7 +291,7 @@ tbl_files <- excel_files %>%
        map(~readxl::read_excel(.))
 ```
 
-Each excel file name was extracted using the `str_extract()` function of the `stringr` package. Here we are keeping occurrences of the character string "nyts201" followed by a "5","6","7","8", or "9".
+The elements of this list are in the same order as the elements of the `excel_files` vector, so we can extract the data for a particular file (year) by selecting a certain element of the list. However, it is safer to be able to select the data from this list for a specific year using a name based on the original vector of file names. We extracted a name from each Excel file name using the `str_extract()` function of the `stringr` package. Here we are keeping occurrences of the character string "nyts201" followed by a "5","6","7","8", or "9".
 ```{r}
 tbl_names <- excel_files %>%
   str_extract("nyts[2][0][1][5-9]")
@@ -305,8 +305,8 @@ names(tbl_files) <- tbl_names
 ```
 
 
-Specific columns were selected using the `select()` function of `dplyr` from each of the tibbles using the variable name, as identified in the codebook for being of interest.
-In some cases functions like `starts_with()` of the `dplyr` package were used to select several variables. Most of the survey questions about tobacco use start with an `"E"` or a `"C"` according to the codebooks. 
+Specific columns were selected using the `select()` function of `dplyr` from each of the tibbles using the variable name, as identified in the codebook as being of interest for our analysis.
+In some cases functions like `starts_with()` of the `dplyr` package were used to select several variables at once. Most of the survey questions about tobacco use start with an `"E"` or a `"C"` according to the codebooks. 
 
 ```{r, eval = FALSE}
 
@@ -410,9 +410,9 @@ tbl_files[["nyts2019"]] <- tbl_files[["nyts2019"]] %>%
 
 ```
 
-A directory was created using the base `dir.create()` function called `data_reduced` for the csv files. 
-New csv files were created for each of the tbls in the list using the `write_csv()` function of the `readr` package.
-This was done all at once using the base `mappy()` function.
+A directory called `data_reduced` was created for the new .csv files using the base `dir.create()` function. 
+A csv file was created for each of the tibbles in the list using the `write_csv()` function of the `readr` package.
+This was done all at once using the base `mapply()` function.
 
 ```{r, eval = FALSE}
 # 
@@ -425,11 +425,11 @@ mapply(write_csv, tbl_files, path=here(paste0("docs/data_reduced/",
 
 #trying to use map...
 tbl_files %>%
-map(~write_csv(. , path=paste0("docs/data_reduced2/nyts", pull(year)[[1]], ",csv")))
+map(~write_csv(. , path=paste0("docs/data_reduced2/nyts", pull(year)[[1]], ".csv")))
 
 
     tbl_files %>%
-map(~write_csv(. , path=paste0("docs/data_reduced2/nyts", names(.), ",csv")))
+map(~write_csv(. , path=paste0("docs/data_reduced2/nyts", names(.), ".csv")))
 
    
 ```
@@ -438,7 +438,7 @@ map(~write_csv(. , path=paste0("docs/data_reduced2/nyts", names(.), ",csv")))
 
 
 
-Now we will show how to read in the data from the five csv files that were created from the five different excel files.
+Now we will show how to read in the data from the five csv files that were created from the five different Excel files.
 
 ### Reading in the CSV files
 ***
@@ -474,7 +474,9 @@ names(nyts_data) <- nyts_data_names
 ## **Data Exploration and Wrangling**
 *** 
 
-So let's take a look at our data. We can get a good sense of it using the `glimpse()` function of the `dplyr` package.
+Our goal in this section is to adjust or "wrangle" the data from each year into a common format so that we can combine the data sets across years for our analysis, and so that we have values in our variables that are correct and easy to interpret. We will need to understand what is the same and what is different across the data from different years, rename and recode the variables (e.g., by replacing the numbers 1 and 2 with the values "Male" and "Female" for the `Sex` variable), and combine the data. We will walk through these steps below. 
+
+First, let's take a look at our data. We can get a good sense of it using the `glimpse()` function of the `dplyr` package.
 
 #### {.scrollable }
 
@@ -483,14 +485,15 @@ dplyr::glimpse(nyts_data[["nyts2015"]])
 ```
 ####
 
-### Updating variables  
+### Updating the set of variables and their names
 *** 
 
-Currently, it isn't very clear what most of the variables indicate.
+The easiest way of making it so that the data from the different years can be combined is by making sure the different data sets all contain the same variables that share the same names. In addition, giving the columns informative names will help make our code more readable. Currently, it isn't very clear what most of the variables indicate since the variable names are uninformative on their own, without the code book.
 
 We want to rename variables like `Qn1` to something more meaningful like `Age`.
 
-To do this we will use the `rename()` function of the `dplyr` package. The new name is always listed first before the `=`.
+To do this we will use the `rename()` function of the `dplyr` package. The new name is always listed first before the `=`. This function will replace the old variable names with the new ones, i.e., after running the code below, there will no longer be a `Qn1` variable in the data set, but there will be an `Age` variable instead. We will start working with the 2015 data, and then move on to the other years down below.
+
 ```{r}
 
 nyts_data[["nyts2015"]] <- nyts_data[["nyts2015"]] %>%
@@ -500,27 +503,9 @@ nyts_data[["nyts2015"]] <- nyts_data[["nyts2015"]] %>%
 ```
 
 
-We also want to update the values for age and grade, so that they are more understandable. 
+We also need to add new variables about usage of brands and specific flavors of e-cigarettes, because although later years have questions about this, this year unfortunately only has broad questions about flavors. Eventually we want to put the data from each year together, so we need the same variables for each year. Thus we need to add variables for brand and flavor to the 2015 data set that just contain missing values (`NA`).
 
-Recall from the codebook for this year, that age isn't listed in the way one might expect:
-
-```{r, echo = FALSE, fig.align ="center", out.width = "600 px"}
-
-knitr::include_graphics(here::here("img", "qn1.png"))
-```
-
-The same is true for grade:
-
-```{r, echo = FALSE, fig.align ="center", out.width = "600 px"}
-
-knitr::include_graphics(here::here("img", "grade.png"))
-```
-
-**This is why it is so important to always check the codebook!!**
-
-We also need to add new variables about usage of brands and specific flavors of e-cigarettes, because although later years have questions about this, this year unfortunately only has broad questions about flavors. Eventually we want to put the data from each year together, so we need the same variables for each year. Thus we need to add variables that just say `NA` for the brand and flavor data for this year.
-
-To change the existing variables and create new variables, we will use the `mutate` function of the `dplyr` package.
+To create these new variables, we will use the `mutate` function of the `dplyr` package. The `mutate` function can also be used to change the existing variables and create new variables from the old ones.
 
 ```{r}
 nyts_data[["nyts2015"]] <- nyts_data[["nyts2015"]] %>%
@@ -546,7 +531,11 @@ glimpse(nyts_data[["nyts2015"]])
 ####
 
 
-For the next years, we do have flavor questions, but not a brand question. We can replace these vague question names like `Q50A` with values like `menthol`.  The next 3 years have the same structure for these questions. For each of these years, we also want create a brand variable that is just `NA` values.  We can do this efficiently if we create a function to do all of these steps at once. Then we can use the `map_at()` function of the `purrr` package to apply the function we created (for renaming variables etc.) to the all of the data except for the data from 2015. By using `vars()` inside of the `map_at()` function we can specify what tibbles within our `nyts_data` list that we want to include or exclude.
+The data for 2016-2018 have many common attributes, so we will want to write code that can be applied to all three data sets. To do this, we will use a `function` in R, which is basically a piece of code that can be applied to similar but different objects in R (e.g., the data tibbles from each of these three years). For more information on functions, see for example [here](https://r4ds.had.co.nz/functions.html){target="_blank"}.
+
+These next 3 years have the same structure for many of the questions we are interested in. For example, they all have flavor questions, but not a brand question. Moreover, their variable names are consistent across the years; for each year, we want to replace the vague question name `Q50A` with the value `menthol` in all three data sets, and the same is true for the other flavor variables.  For each of these years, we also want to create a variable `brand_ecig` that just contains `NA` values.  
+
+Since we want to perform the same modifications on the data from all three years, rather than repeating the same somewhat messy piece of code three times, we can do this more efficiently if we create a function to do all of these steps at once. Then we can use the `map_at()` function of the `purrr` package to apply the function we created (for renaming variables etc.) to the data from 2016-2018. By using `vars()` inside of the `map_at()` function we can specify what tibbles within our `nyts_data` list we want to include or exclude.
 
 ```{r}
 
@@ -571,7 +560,7 @@ Update_survey <- function(x) { x %>%
 nyts_data <-nyts_data %>% map_at(vars(-nyts2015, -nyts2019), Update_survey)
 ```
 
-The final year has a slightly different data structure - It actually has a brand_ecig variable.
+The final year, 2019, has a slightly different data structure compared to these earlier data sets. For example, it actually has a `brand_ecig` variable already, but does not contain a `no_use` variable. So we can't use the same function for this data set, but have to write an individual code chunk.
 
 ```{r}
 nyts_data[["nyts2019"]] <- nyts_data[["nyts2019"]] %>%
@@ -590,7 +579,7 @@ nyts_data[["nyts2019"]] <- nyts_data[["nyts2019"]] %>%
 ```
 
 
-Now let's take a look at the variables for each of the years:
+Now let's take a look at the variable names for each of the years using the `map` function from `purrr`.
 
 #### {.scrollable }
 
@@ -599,14 +588,35 @@ map(nyts_data, names)
 ```
 ####
 
-It's looking better!
+It's looking better! There are still some differences in the set of variables in the different years, but things are much closer.
 
 ### Updating Values
+
+Now that we have made some progress on the selection and names of the variables themselves, we will work on the values contained in the different variables.
+
+We can start with updating the values for `Age` and `Grade`, so that they are more understandable. 
+
+Recall from the codebook for this year's data set that `Age` isn't listed in the way one might expect, i.e., it is not just a number of years, but a numerically valued categorical variable.
+
+```{r, echo = FALSE, fig.align ="center", out.width = "600 px"}
+
+knitr::include_graphics(here::here("img", "qn1.png"))
+```
+
+The same is true for `Grade`:
+
+```{r, echo = FALSE, fig.align ="center", out.width = "600 px"}
+
+knitr::include_graphics(here::here("img", "grade.png"))
+```
+
+**This is why it is so important to always check the codebook!!**
 
 We also  want to replace the value of `19` for `Age` to be `">18"` and the value of `13` for `Grade` to be replaced with `"Ungraded/Other"` Also according to the codebooks, numeric values of `1` indicate a survey answer of `FALSE`, while a value of `2` indicates `TRUE`. `Sex` needs to be recoded, but it is a bit unclear if it is encoded slightly differently across years.
 
 
-Let's create a function to make all these updates except for `Sex`:
+Let's create a function to make all these updates except for `Sex`. We will use the `mutate` function again, as well as `mutate_all` and `recode` to replace specific values of certain variables.
+
 ```{r}
 Update_values <- function(x) { x %>%
       mutate(Age=as.numeric(Age)+8,
@@ -679,7 +689,7 @@ Looks good!
 
 
 
-The years (2016-2019) that have flavors also need the flavor data to be logical (meaning true or false):
+The years (2016-2019) that have flavors also need the flavor data to be logical (meaning TRUE or FALSE):
 
 ```{r}
 Update_flavors <- function(x){x %>%
@@ -721,7 +731,7 @@ nyts_data <- nyts_data %>%
 glimpse(nyts_data)
 ```
 
-Looks like we just need to remove `"nyts"` from the year variable that we created from the names of the tibbles in our list.
+We will want to do some of our analysis split by year, so we would like to be sure we have one variable that has the correct value for year. It looks like we just need to remove `"nyts"` from the year variable that we created from the names of the tibbles in our list and we should be all set.
 
 ```{r}
 nyts_data <- nyts_data %>%
@@ -736,6 +746,8 @@ Here is our clean and wrangled data:
 glimpse(nyts_data)
 
 ```
+
+Note that there are several variables where there are similar names, but with a `C` compared to an `E` in the variable name. Those starting with `C` are related to questions about current usage (last 30 days), while those with an `E` are related to usage across the subjects whole life ("ever" usage).
 
 ####
 
@@ -757,7 +769,7 @@ value 1 = yes, value 2 = no
 
 Variable   | Details                                                                        
 ---------- |-------------
-**year**  | the year that the survey results from a particular student was acquired  
+**year**  | the year that the survey results from a particular student were acquired  
 **psu** | the primary sampling unit for the survey weighting  
 **finwgt** | the final analysis weight for the survey weighting  
 **stratum** | the stratum used for variance estimation for the survey weighting  
@@ -769,9 +781,9 @@ Variable   | Details
 **ESLT** | student reported having ever tried chewing tobacco, snuff, or dip  
 **EELCIGT** | student reported having ever tried e-cigarettes  
 **EROLLCIGTS** | student reported having ever tried roll-your-own cigarettes  
-**EFLAVCIGTS** |  (2015 only) based on answer to"Which of the following tobacco products that you used in the past 30 days were flavored?"  
+**EFLAVCIGTS** |  (2015 only) based on answer to "Which of the following tobacco products that you used in the past 30 days were flavored?"  
 **EBIDIS** | student reported having ever tried bidis (small brown cigarettes wrapped in a leaf)  
-**EFLAVCIGAR** | student reported having ever tried a flavor cigar (2015-2016)
+**EFLAVCIGAR** | student reported having ever tried a flavored cigar (2015-2016)
 **EHOOKAH** | student reported having ever smoked tobacco from a hookah or a waterpipe  
 **EPIPE** | student reported having ever smoked tobacco from a pipe (not hookah)  
 **ESNUS** | student reported having ever used snus, such as Camel or Malboro Snus  
@@ -779,9 +791,9 @@ Variable   | Details
 **CCIGT** | student reported they smoked cigarettes on >= 1 of the past 30 days  
 **CCIGAR** | student reported they smoked cigars on >= 1 of the past 30 days  
 **CSLT** | student reported they used chewing tobacco, snuff, or dip on >= 1 of the past 30 days  
-**CELCIGT** | student reported they have used electronic cigarettes or e-cigarettes one or more days in the past 30
-**CROLLCIGTS** | student reported they have smoked roll-your-own cigarettes during the past 30 days  
-**CFLAVCIGTS**| (2015 only) based on answer to"Which of the following tobacco products that you used in the past 30 days were flavored?" 
+**CELCIGT** | student reported they used electronic cigarettes or e-cigarettes one or more days in the past 30
+**CROLLCIGTS** | student reported they smoked roll-your-own cigarettes during the past 30 days  
+**CFLAVCIGTS**| (2015 only) based on answer to "Which of the following tobacco products that you used in the past 30 days were flavored?" 
 **CBIDIS** | student reported they smoked bidis during the past 30 days  
 **CHOOKAH** | student reported they smoked tobacco in a hookah on >= 1 of the past 30 days  
 **CPIPE** | student reported they smoked tobacco in a pipe (not hookah) during the past 30 days  
