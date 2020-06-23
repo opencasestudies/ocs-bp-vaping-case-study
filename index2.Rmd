@@ -1122,6 +1122,30 @@ We can see from this plot that the percentage of students who had only ever trie
 
 We will explore the relaitonship between e-cigarette usage and other tobacco products a bit later in the case study.
 
+
+Recall that we made a variable called `Group` that identified students who used either just e-cigarette products, just other tobacco products (besides e-cigarettes), or students who used both e-cigarettes and some other type of tobacco product.
+
+```{r}
+nyts_data %>%
+  count(Group)
+```
+
+We will now make a plot over time of each of these groups.
+
+```{r}
+nyts_data %>%
+    count(Group, year) %>%
+    head()
+
+
+nyts_data %>%
+    count(Group, year)
+
+
+
+
+```
+
 ### Question 2
 
 Now we want to look how e-cigarette smoking rates compare between males and females across time. 
@@ -1243,7 +1267,15 @@ plot4
 From this plot, we can see that fruit flavors are the most widely used products, followed by menthol or mint flavored products. 
 
 We will now look specificially at the usage of flavored e-cigarette products vs other flavored tobacco products. 
-hmmm not sure what I want to do about this...
+
+Recall that we made a variable called `Group` that identified students who used either just e-cigarette products, just other tobacco products (besides e-cigarettes), or students who used both e-cigarettes and some other type of tobacco product.
+
+```{r}
+count(nyts_data, Group)
+```
+
+The majority of the students that use tobacco use both e-cigarettes and other products.
+
 ```{r}
 plot5 <- nyts_data %>%
   filter(year != 2015) %>%
