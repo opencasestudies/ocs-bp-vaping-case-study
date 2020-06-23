@@ -37,4 +37,6 @@ I am somewhat confused about the fact that the data sets for each year have a di
 
 I'm not sure why this reminder is where it is:
 Reminder: Current users are a subset of ever users. 
-I have added a bit of text just before it that I think gives it more context at least. But I'm still not sure it should stay there.
+I have added a bit of text just before it that I think gives it more context at least. But I think it should be removed from this spot and potentially moved to another location or just dropped. You make the same point below in the data wrangling section.
+
+Note to self: Maybe we can be more consistent about how we refer to students, subjects, respondents

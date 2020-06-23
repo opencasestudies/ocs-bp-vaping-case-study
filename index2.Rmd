@@ -741,15 +741,17 @@ nyts_data <- nyts_data %>%
 
 Here is our clean and wrangled data:
 
-#### .{scrollable}
+#### {.scrollable}
 ```{r}
 glimpse(nyts_data)
 
 ```
 
-Note that there are several variables where there are similar names, but with a `C` compared to an `E` in the variable name. Those starting with `C` are related to questions about current usage (last 30 days), while those with an `E` are related to usage across the subjects whole life ("ever" usage).
-
 ####
+
+
+Note that there are several variables where there are similar names, but with a `C` compared to an `E` in the variable name. Those starting with `C` are related to questions about current usage (last 30 days), while those with an `E` are related to usage across the subjects whole life ("ever" usage). We will discuss these groups further below.
+
 
 <style>
 div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
@@ -763,7 +765,7 @@ Reminder: Current users are a subset of ever users.
 
 
 ### Variable Table
-<details><summary> Click here to see a table about the variables </summary>
+<details><summary> Click here to see a table about the final variables in our data set. </summary>
 
 value 1 = yes, value 2 = no
 
@@ -828,18 +830,18 @@ We will base this on the following survey questions:
 4) Have vaping rates possibly influenced tobacco/nicotine use?
 
 
-We are now going to create visualizations to explore each of these questions.
+We are now going to create data visualizations to explore each of these questions.
 
-For many of these questions we will be interested in both **current** and **ever** users:
+For many of these questions we will be interested in both **current** and **ever** users, so we will want to create a variable for labeling individuals who are current users of any tobacco product (or not, i.e., who do not currently use a tobacco product) and a variable for labeling individuals who are "ever users" of any tobacco product (or not, i.e., who have never used a tobacco product).
 
-We define these two groups based on the survey questions:
+We define these two groups as follows:
 
-1) **current** = students who used the product for >=1 day in the past 30 days  
+1) **current** = students who used a product for >=1 day in the past 30 days  
 2) **ever** =  students who report having used or tried a product at any point in time
 
 All **current** users are therefore **ever** users but not all **ever** users are **current** users. Thus, **current** users are a subset of **ever** users.
 
-To add these groups to our data we will do a bit more wrangling. Using the `mutate()` function again of the `dplyr` package, we will first create two new variables that are the sum of the values for questions that relate to the use of any tobacco product surveyed about ever (questions that start with the letter "E"), and questions that relate to the current use of any tobacco products surveyed about (questions that start with the letter "C").
+To add these grouping variables to our data we will do a bit more wrangling using the `mutate()` function again of the `dplyr` package. As discused above, our data set contains a set of questions that relate to whether the student has ever used the particular tobacco product (questions that start with the letter "E"), and questions that relate to whether the student currently uses the particular tobacco product (questions that start with the letter "C"). 
 
 Here are some examples for these data entries:  
 
