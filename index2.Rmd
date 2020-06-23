@@ -960,6 +960,20 @@ We can see from the fourth row, that even though the student reported yes to eve
 Now we will expand this to the other possible categories. Notice since, current users are a subset of ever users, it doesn't matter if a user reports yes to ever trying  e-cigarettes, they can still be a current user.
 
 ```{r}
+test <- test %>% mutate(ever_or_current_both = case_when(non_ecig_ever == TRUE &
+                                                      non_ecig_current == TRUE |
+                                                          ecig_current == TRUE |
+                                                             ecig_ever == TRUE |
+                                                      non_ecig_current == TRUE &
+                                                          ecig_current == TRUE |
+                                                             ecig_ever == TRUE |
+                                                          ecig_current == TRUE &
+                                                             ecig_ever == TRUE, 
+                                                                  FALSE ~ TRUE))
+
+```
+
+```{r}
 test <-test %>% mutate(ecig_only_ever = case_when(ecig_ever == TRUE & 
                                               non_ecig_ever == FALSE & 
                                                ecig_current == FALSE &
@@ -1000,10 +1014,16 @@ test <- test %>%
                        non_ecig_only_ever == TRUE |
                     non_ecig_only_current == TRUE ~ "Only other products",
                                    no_use == TRUE ~ "Neither",
-                                     TRUE ~ "Both"))
+                           ecig_only_ever == FALSE &
+                        ecig_only_current == FALSE &
+                       non_ecig_only_ever == FALSE &
+                    non_ecig_only_current == FALSE &
+                           no_use == FALSE ~ "Combination of products"))
+
+
+test %>% count(Group)
 
 test
-
 ```
 
 ```{r}
@@ -1037,7 +1057,19 @@ nyts_data %<>%
                                          non_ecig_only_ever == TRUE |
                                       non_ecig_only_current == TRUE ~ "Only other products",
                                                      no_use == TRUE ~ "Neither",
-                                                        TRUE ~ "Both"))
+                                             ecig_only_ever == FALSE &
+                                          ecig_only_current == FALSE &
+                                         non_ecig_only_ever == FALSE &
+                                      non_ecig_only_current == FALSE &
+                                                     no_use == FALSE ~ "Combination of products"))
+```
+
+
+Lastly, it can be very helpful to have the total number of students surveyed each year. We can easily add a variable for this by using the `add_count()` function of the `dplyr` package. This will create a variable called `n` which will show the total counts based on the variable `year`.
+
+```{r}
+nyts_data %<>% add_count(year)
+
 ```
 
 #### {.scrollable}
@@ -1212,20 +1244,27 @@ nyts_data %>%
   count(Group)
 ```
 
-We will now make a plot over time of each of these groups.
+We will now make a plot over time of each of these groups. Since we will have 4 total groups, we will use 4 of the viridis colors.
 
 ```{r}
-nyts_data %>%
-    count(Group, year) %>%
-    head()
-
 
 nyts_data %>%
-    count(Group, year) %>%
-  ggplot(aes(x = year, y = n, fill = Group)) +
-  geom_bar(stat = "identity", position = "dodge")
+  group_by(Group, year, n) %>%
+  summarise(group_count = n()) %>%
+  mutate("Percentage of students" = group_count /n*100) %>%
+  head()
 
+v_colors =  viridis(4)
 
+nyts_data %>%
+  group_by(Group, year, n) %>%
+  summarise(group_count = n()) %>%
+  mutate("Percentage of students" = group_count /n*100) %>%
+  ggplot(aes(x = year, y = `Percentage of students`, color = Group))+
+  geom_point()+
+  geom_line() +
+  scale_color_manual(values = v_colors)
+  #geom_bar(stat = "identity", position = "dodge")
 
 ```
 
