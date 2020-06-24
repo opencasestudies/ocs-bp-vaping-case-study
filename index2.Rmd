@@ -847,7 +847,7 @@ We define these two groups as follows:
 
 All **current** users are therefore **ever** users but not all **ever** users are **current** users. Thus, **current** users are a subset of **ever** users.
 
-To add these grouping variables to our data we will do a bit more wrangling using the `mutate()` function again of the `dplyr` package. As discused above, our data set contains a set of questions that relate to whether the student has ever used the particular tobacco product (questions that start with the letter "E"), and questions that relate to whether the student currently uses the particular tobacco product (questions that start with the letter "C"). 
+To add these grouping variables to our data we will do a bit more wrangling using the `mutate()` function again of the `dplyr` package. As discussed above, our data set contains a set of questions that relate to whether the student has ever used the particular tobacco product (questions that start with the letter "E"), and questions that relate to whether the student currently uses the particular tobacco product (questions that start with the letter "C"). 
 
 Here are some examples for these data entries:  
 
@@ -996,7 +996,7 @@ test
 
 Take a minute to check that the values are what we would expect.
 
-Ok, now we are going to make a `Group` variable based on the new variables we just made. In this case we will have a particular value based on one condition **or** another. This **or** conditionality is specified by the `|` symbol. Only one of the conditions needs to exist for that particular value, where as when we used the `&` symbol, all of the conditions had to be met. If a student has only ever tried or currently uses e-cigarettes, the value will be `Only e-cigarettes`. If a student has only ever tried or is a current user of other tobacco products the value will be `Only other products`. If the value of the no_use varaible is simply `TRUE`, then the `Group` variable value will be `Neither`. Finally, if a student has tried or currently uses both e-cigarettes or other tobacco products the `Group` variable value will be `Combination of products`. Therefore the values for the usage of the variables based on only using e-cigarettes or only other products will all be `FALSE`. Of course the student will also have had to answer yes to any of the use-based questions, thus the no_use variable would also need to be `FALSE`.
+OK, now we are going to make a `Group` variable based on the new variables we just made. In this case we will have a particular value based on one condition **or** another. This **or** conditional is specified by the `|` symbol. Only one of the conditions needs to exist for that particular value, where as when we used the `&` symbol, all of the conditions had to be met. If a student has only ever tried or currently uses e-cigarettes, the value will be `Only e-cigarettes`. If a student has only ever tried or is a current user of other tobacco products the value will be `Only other products`. If the value of the no_use variable is simply `TRUE`, then the `Group` variable value will be `Neither`. Finally, if a student has tried or currently uses both e-cigarettes or other tobacco products the `Group` variable value will be `Combination of products`. Therefore the values for the usage of the variables based on only using e-cigarettes or only other products will all be `FALSE`. Of course the student will also have had to answer yes to any of the use-based questions, thus the no_use variable would also need to be `FALSE`.
 
 ```{R}
 
@@ -1018,7 +1018,7 @@ test %>% count(Group)
 test
 ```
 
-Ok, now that we have seen how this works with our toy dataset, we will apply our code to our `nyts_data`.
+OK, now that we have seen how this works with our toy dataset, we will apply our code to our `nyts_data`.
 
 ```{r}
     nyts_data %<>%
@@ -1074,7 +1074,7 @@ glimpse(nyts_data)
 
 We are interested in investing how vaping product use has compared with other tobacco use. First we want to get a sense of how tobacco use has changed in general since 2015. 
 
-To create a visualiztion about how tobacco usage has changed over time, we will first convert the usage data to a percent value for each year. To do this we will use the `group_by()` and `summarize` function of the `dplyr` package. This will create new variables which we will name `Ever` and `Current` based on the  percentages of `tobacco_ever` and `tobacco_current` for each year. In this case the `mean()` function is used to calculate the percentages based on using a value of `TRUE` as a count of of one and a value of `FALSE` as a count of zero. This function also automatically creates a total to divide by based on the total number of `TRUE` or `FALSE` values in the variable. NA values do not contibute to the total count. 
+To create a visualization about how tobacco usage has changed over time, we will first convert the usage data to a percent value for each year. To do this we will use the `group_by()` and `summarize` function of the `dplyr` package. This will create new variables which we will name `Ever` and `Current` based on the  percentages of `tobacco_ever` and `tobacco_current` for each year. In this case the `mean()` function is used to calculate the percentages based on using a value of `TRUE` as a count of of one and a value of `FALSE` as a count of zero. This function also automatically creates a total to divide by based on the total number of `TRUE` or `FALSE` values in the variable. NA values do not contribute to the total count. 
 
 <details> <summary> Click here to see a toy example:</summary>
 ```{r}
@@ -1104,7 +1104,7 @@ nyts_data %>%
 
 ```
 
-We will use the `pivot_longer` function to take all collumns except year (in this case the `Ever` and `Current` columns), to create a column called `User` that will contain the current column name information and a column called `Percentage of students` which will contain the mean percentage values that we just calculated. This converts our data into a format called long format.
+We will use the `pivot_longer` function to take all columns except year (in this case the `Ever` and `Current` columns), to create a column called `User` that will contain the current column name information and a column called `Percentage of students` which will contain the mean percentage values that we just calculated. This converts our data into a format called long format.
 
 ```{r}
 
@@ -1138,7 +1138,7 @@ plot1 <- nyts_data %>%
                        labels = seq(0,70,by=10),
                        limits = c(0,70)) +
   #this adjusts the background style of the plot
-    theme_minimal() +
+    theme_linedraw() +
   # this moves the legend to the bottom of the plot and removes the x axis title
     theme(legend.position = "bottom",
           axis.title.x = element_blank()) +
@@ -1168,7 +1168,7 @@ plot1a <- nyts_data %>%
   #                      labels = seq(0,60,by=10),
   #                      limits = c(0,60)) +
   #this adjusts the background style of the plot
-    theme_minimal() +
+    theme_linedraw() +
   # this moves the legend to the bottom of the plot and removes the x axis title
     theme(legend.position = "bottom",
           axis.title.x = element_blank()) +
@@ -1185,11 +1185,11 @@ It looks like the shape of the plot is very similar to tobacco usage overall. We
 
 Now let's plot this data together on the same plot.
 
-Thus, we will have four groups (e-cigarette ever users, e-cigarette current users,  ever tobbaco users, and current tobacco users) to plot, therefore, it would be useful to add color to our plot. Keep in mind that e-cigarette users are a subset of any tobbaco product users.
+Thus, we will have four groups (e-cigarette ever users, e-cigarette current users,  ever tobacco users, and current tobacco users) to plot, therefore, it would be useful to add color to our plot. Keep in mind that e-cigarette users are a subset of any tobacco product users.
 
-One important thing to keep in mind when creating plots, is that individuals with color blindness may have a difficult time distinguishing groups when certian color chocies are used. 
+One important thing to keep in mind when creating plots, is that individuals with color blindness may have a difficult time distinguishing groups when certain color choices are used. 
 
-One great option is to use the `viridis` package, which offers color palattes with colors that are still distinguishable  by individuals with most forms of color blindness. 
+One great option is to use the `viridis` package, which offers color palettes with colors that are still distinguishable  by individuals with most forms of color blindness. 
 
 We can choose which colors we want to use by using the `show_col()` function of the `scales` package.
 
@@ -1224,7 +1224,7 @@ plot1t <- nyts_data %>%
   #                      labels = seq(0,60,by=10),
   #                      limits = c(0,60)) +
   #this adjusts the background style of the plot
-    theme_minimal() +
+    theme_linedraw() +
   # this moves the legend to the bottom of the plot and removes the x axis title
     theme(legend.position = "bottom",
           axis.title.x = element_blank()) +
@@ -1239,7 +1239,7 @@ We can see from this plot that the percentage of students who had only ever trie
 
 Now let's plot students who only reported using either e-cigarettes or other tobacco products (besides e-cigarettes), but not both.  together on the same plot. In this case we will look at students who have only smoked either only e-cigarettes or only other tobacco products besides e-cigarettes.
 
-Thus, we will have four groups (only e-cigarette ever users, only e-cigarette current users, only non-e-cigarette ever tobbaco users, and only non-e-cigarette current tobacco users) to plot.
+Thus, we will have four groups (only e-cigarette ever users, only e-cigarette current users, only non-e-cigarette ever tobacco users, and only non-e-cigarette current tobacco users) to plot.
 
 We will calculate the mean ever and current usage percentages for students who had only used e-cigarette or other tobacco products (besides e-cigarettes) for each year again using the `group_by()` function and the `summarize()` function. We will again use the `pivot_longer` function to convert our data to long format. We will also again use the `separate()` function of the `tidyr` package to create two variables from one of variables. This is done by separating by, in this case, a space. 
 
@@ -1274,7 +1274,7 @@ plot1c <- nyts_data %>%
   #                      limits = c(0,30)) +
   scale_color_manual(values = v_colors)+
   #this adjusts the background style of the plot
-    theme_minimal() +
+    theme_linedraw() +
   # this moves the legend to the bottom of the plot and removes the x axis title
     theme(legend.position = "bottom",
           axis.title.x = element_blank()) +
@@ -1285,7 +1285,7 @@ plot1c
 
 ```
 
-Very intersting! We can see from this plot that the percentage of students who had only currently used (or ever tried) e-cigarettes  greatly increased since 2017, while in contrast the percentage of students who had only ever tried non-e-cigarette tobacco products actually diminished over time. In fact, we can see that in 2019 the percentage of students who were current e-cigarette users surpassed the percentage that had tried a non-e-cigarette product even just once. 
+Very interesting! We can see from this plot that the percentage of students who had only currently used (or ever tried) e-cigarettes  greatly increased since 2017, while in contrast the percentage of students who had only ever tried non-e-cigarette tobacco products actually diminished over time. In fact, we can see that in 2019 the percentage of students who were current e-cigarette users surpassed the percentage that had tried a non-e-cigarette product even just once. 
 
 
 Recall that we made a variable called `Group` that identified students who used either just e-cigarette products, just other tobacco products (besides e-cigarettes), or students who used both e-cigarettes and some other type of tobacco product.
@@ -1296,7 +1296,7 @@ nyts_data %>%
 ```
 
 We will now make a plot over time of each of these groups. Since we will have 4 total groups, we will use 4 of the viridis colors.
-Notice, that in this case we are grouping by three variables by simply speparating the variables that we want to group by with a comma in our `group_by()` function like this: `group_by(Group, year, n)`. We will aslo rename the `year` variable to be upper case using the `rename()` function of the `tidyr` package.
+Notice, that in this case we are grouping by three variables by simply separating the variables that we want to group by with a comma in our `group_by()` function like this: `group_by(Group, year, n)`. We will also rename the `year` variable to be upper case using the `rename()` function of the `tidyr` package.
 
 ```{r}
 
@@ -1317,13 +1317,13 @@ nyts_data %>%
   geom_point(size = 2)+
   geom_line() +
   scale_color_manual(values = v_colors)+
-  theme_minimal() 
+  theme_linedraw() 
 
 ```
 
-We can see that luckily the majority of students did not report using any tobacco prodcuts. Of the students that did report using tobacco products, the majority of the students used both e-cigarettes and some other tobacco product. Again, a much larger percentage reported using only e-cigarettes rather than only other tobacco products in 2019.
+We can see that luckily the majority of students did not report using any tobacco products. Of the students that did report using tobacco products, the majority of the students used both e-cigarettes and some other tobacco product. Again, a much larger percentage reported using only e-cigarettes rather than only other tobacco products in 2019.
 
-We will explore the relaitonship between e-cigarette usage and other tobacco products a bit later in the case study.
+We will explore the relationship between e-cigarette usage and other tobacco products a bit later in the case study.
 
 
 ### Question 2
@@ -1360,7 +1360,7 @@ plot2 <- nyts_data %>%
     geom_point(show.legend = FALSE, size = 2) +
     scale_linetype_manual(values = c(2,1)) +
     scale_color_manual(values =v_colors)+
-    theme_minimal() +
+    theme_linedraw() +
     theme(legend.position = "bottom",
 #          axis.text.x = element_text(angle = 90),
           axis.title.x = element_blank()) +
@@ -1378,7 +1378,7 @@ It looks like the rates are fairly similar between the sexes, however the rate f
 
 We are also interested in what vaping brands and flavors appear to be used the most frequently. Only the 2019 data has this information. Therefore, we will filter for just this year using the `filter()` function of  the `dplyr` package. We will use the `summarize()` function slightly differently this time, to calculate the total number of students using each brand `n` using the `n()` function and the `sum()` function to calculate the percent for each brand based on the counts. 
 
-We will make a bar plot this time by using `geom_bar`. Importantly we assign the `stat` argument to `identity`, so that we are using the percentages that we calculated not the counts which is what is used by default. When color in specified outsied of the `aes()` argument, this determines the border color of the bars, which in this case will be black.
+We will make a bar plot this time by using `geom_bar`. Importantly we assign the `stat` argument to `identity`, so that we are using the percentages that we calculated not the counts which is what is used by default. When color in specified outside of the `aes()` argument, this determines the border color of the bars, which in this case will be black.
 
 
 ```{r}
@@ -1403,7 +1403,7 @@ plot3 <- nyts_data %>%
     mutate(brand_ecig = fct_reorder(brand_ecig, desc(Percent))) %>%
     ggplot(aes(x=brand_ecig,y=Percent, fill=brand_ecig)) +
     geom_bar(stat="identity", color = "black") +
-    theme_minimal() +
+    theme_linedraw() +
     theme(legend.position = "none",
           axis.text.x = element_text(size=10),
           axis.title.x = element_blank()) +
@@ -1423,7 +1423,7 @@ knitr::include_graphics(here::here("img", "HuangJ_DuanZ_KwokJ_et_al_TobaccoContr
 We are also interested in how the usage of different flavors has changed over the years. 
 
 
-To evaluate this we will calculate the precentage of students using each flavor each year - this includes usage of any type of flavored tobacco product. We will exclude 2015 data, as no specific flavor questions were yet asked at that time.
+To evaluate this we will calculate the percentage of students using each flavor each year - this includes usage of any type of flavored tobacco product. We will exclude 2015 data, as no specific flavor questions were yet asked at that time.
 
 Recall that `NA` values are not included in calculating the total count for our percentages. However all of these flavor questions had complete reporting and did not have `NA` values. Therefore, these values reflect the percentage of students reporting using a particular favor out of all students surveyed (including those that did not use any tobacco products). Also students were allowed to select more than one flavor. You can look at if these variables had complete reporting by checking the `NA` values by using the base `summary` function. Alternatively you can create a visual representation using the `vis_miss()` function of the `naniar` package.
 
@@ -1466,7 +1466,7 @@ plot4 <- nyts_data %>%
          fill = reorder(Flavor, `Percentage of students`)))+
 geom_bar(stat = "identity", position = "dodge", color = "black")+
   scale_fill_viridis(discrete=TRUE)+
-  theme_minimal() +
+  theme_linedraw() +
   guides(fill=guide_legend("Flavor"))+
   labs(title = "What flavors appear to be used the most frequently?",
        subtitle = "Flavors of tobacco products used in the past 30 days")
@@ -1476,7 +1476,7 @@ plot4
 
 From this plot, we can see that fruit flavors are the most widely used products, followed by menthol or mint flavored products. We can also see that there was a general increase in the usage of flavored products over time.
 
-We will now look specificially at the usage of flavored e-cigarette products vs other flavored tobacco products. 
+We will now look specifically at the usage of flavored e-cigarette products vs other flavored tobacco products. 
 
 Recall that we made a variable called `Group` that identified students who used either just e-cigarette products, just other tobacco products (besides e-cigarettes), or students who used both e-cigarettes and some other type of tobacco product. We will compare the usage of these flavors for these different groups.
 
@@ -1509,20 +1509,21 @@ plot5 <- nyts_data %>%
   geom_line() + 
   geom_point(show.legend = FALSE, size = 2) + 
   scale_color_manual(values = v_colors) +
-  theme_minimal() +
+  theme_linedraw() +
   theme(legend.position = "bottom",
           axis.title.x = element_blank(),
-        axis.text.x = element_text(angle = 90)) + 
+        axis.text.x = element_text(angle = 90),
+          strip.text.x = element_text(size = 10, face = "bold")) + 
   labs(title = "Among different product users, what flavors are most frequently used?")
 
 plot5
 ```
 
-We can see from this plot that there has been an increase in the number of students reporting using flavored tabbaco products. Users who use both e-cigarettes and other tobacco products appear to report using flavored products the most, followed by users who only use e-cigarettes.
+We can see from this plot that there has been an increase in the number of students reporting using flavored tobacco products. Users who use both e-cigarettes and other tobacco products appear to report using flavored products the most, followed by users who only use e-cigarettes.
 
 ### Question 4
 
-Have vaping rates possibly influenced tobacco use? Now we will investigate the usage of e-cigarrettes compared to other tobacco products in greater depth. 
+Have vaping rates possibly influenced tobacco use? Now we will investigate the usage of e-cigarettes compared to other tobacco products in greater depth. 
 
 First let's take a look at how e-cigarette usage and cigarette usage compare. We will select the data that specifically has to do with these products.
 
@@ -1555,7 +1556,7 @@ plot6 <- nyts_data %>%
   geom_point(show.legend = FALSE, size = 2) +
   scale_linetype_manual(values = c(2,1)) +
   scale_color_manual(values = v_colors) +
-    theme_minimal() +
+    theme_linedraw() +
     theme(legend.position = "bottom",
           axis.title.x = element_blank()) +
     labs(title = "How does e-cigarette use compare to cigarette use?",
@@ -1565,10 +1566,10 @@ plot6 <- nyts_data %>%
 plot6
 ```
 
-Interesting! we can see that in 2019 the percentage of students that reported currently using e-cigarettes had surpased those that ever tried (even just once) a cigarette. Overall cigarrette usage appears to be declining over time. This is not the case for e-cigarettes.
+Interesting! we can see that in 2019 the percentage of students that reported currently using e-cigarettes had surpassed those that ever tried (even just once) a cigarette. Overall cigarette usage appears to be declining over time. This is not the case for e-cigarettes.
 
 
-Now we will look at students who reported that they had ever tried e-cigarettes or non-ecigarette products. In this case we will not separate out users who specifically only used one or the other. Therefore, the students included in this plot who reported as having ever tried e-cigarettes might also be  current users of non-e-cigarette products or may have at least tried non-e-cigaerette products.
+Now we will look at students who reported that they had ever tried e-cigarettes or non-cigarette products. In this case we will not separate out users who specifically only used one or the other. Therefore, the students included in this plot who reported as having ever tried e-cigarettes might also be  current users of non-e-cigarette products or may have at least tried non-e-cigarette products.
 
 
 ```{r}
@@ -1586,7 +1587,7 @@ plot7 <- nyts_data %>%
   geom_point(show.legend = FALSE, size = 2) +
   scale_color_manual(values = v_colors) +
   scale_y_continuous(breaks = seq(0, 60, by = 10), limits = c(0,60)) +
-    theme_minimal() +
+    theme_linedraw() +
     theme(legend.position = "bottom",
           axis.title.x = element_blank()) +
     labs(title = "How does the rate of ever trying e-cigarettes \ncompare to ever trying other products over time?",
@@ -1614,7 +1615,7 @@ plot8 <- nyts_data %>%
   scale_color_manual(values = v_colors) +
   scale_linetype_manual(values = c(1)) +
   scale_y_continuous(breaks = seq(0, 60, by = 10), limits = c(0,60)) +
-    theme_minimal() +
+    theme_linedraw() +
     theme(legend.position = "bottom",
           axis.title.x = element_blank()) +
     labs(title = "How does the rate of currently using e-cigarettes \ncompare to currently using other products over time",
@@ -1687,57 +1688,62 @@ figure_uw <- plot_grid(title_uw,
 figure_uw
 ```
 
+
+### Survey Weighting
+
 Now we will use [survey weighting](http://www.applied-survey-methods.com/weight.html){target="_blank"} to see if this changes the general trends that we see in our data. This is a common technique used in survey data analysis because often the individuals that take a survey are not necessarily representative of the population that we are trying to gather information about.
 
-For example, we may have more females that respond to the survey than males because perhaps female students were more willing to participate. In this case, the proportion of data values in our data will be smaller for the males than the proportion of actual male students and larger for the females than the true proportion of actual female students. To get a better estimate of overall e-cigarette smoking rates, the data from the males can be weighted based on the true proportion of male students to amplify the contribution of the responses from the males that did participate. Converesly, the female data can be weighted to diminish the contribution if their responses to the overall picture.
+For example, we may have more females that respond to the survey than males because perhaps female students were more willing to participate. In this case, the proportion of data values in our data will be smaller for the males than the proportion of actual male students and larger for the females than the true proportion of actual female students. To get a better estimate of overall e-cigarette smoking rates, the data from the males can be weighted based on the true proportion of male students to amplify the contribution of the responses from the males that did participate. Conversely, the female data can be weighted to diminish the contribution if their responses to the overall picture.
 
-This involves making a weight based on the ratio of the proportion of survey responders of particular group and the actual proportion of of that group in the population.
+This involves making a weight based on the ratio of the proportion of survey respondents of particular group and the actual proportion of of that group in the population.
 
-For example, let's say that females account for 50% of the population and males account for 50 % of the population. Let's also say that 75% of the responders for the survey were female and only 25% were males. 
+For example, let's say that females account for 50% of the population and males account for 50 % of the population. Let's also say that 75% of the respondents for the survey were female and only 25% were males. 
 
 Then we could calculate survey weights using this formula:
 
-$ \frac{\text{actual proportion of group in the population}}{\text{ proportion of group in the responders}}$  
+$$ \frac{\text{actual proportion of group in the population}}{\text{ proportion of group in the respondents}}$$  
 
 Thus the weight for the females would be calculated as:
 
-$ \frac{.5}{.75} = .67$  
+$$ \frac{.5}{.75} = .67$$  
 
 The weight for the males would be calculated as:
 
-$ \frac{.5}{.25} = 2$
+$$ \frac{.5}{.25} = 2$$
 
 Therefore each male response value would be multiplied by a factor of 2 and would have twice the contribution, while the female response values would have only about 70% of the contribution that they would have had otherwise.
 
-Note that survey weights are in reality corrected for other aspects - for example the reponse rate to individual questions.
+Note that survey weights are in reality corrected for other aspects - for example the response rate to individual questions.
 
-We do not need to caculate survey weights for our data as they were already supplied in the codebooks. 
+We do not need to calculate survey weights for our data as they were already supplied in the codebooks. 
 
-We will now use the `srvyr` package to evaluate our data based on the survey weights that were provided in the respective codebooks for the data for each year.
+#### `srvyr` package and survey design 
 
-Within the data you will see that we have variables called  `psu`, `finwgt`, and `stratum`.
+***
 
-Surveys like the one used to create the data we are using often sample people based on strata. This is done to ensure that the responses are representative of the population of interest. Thus, often people first think about ensuring that surveys are conducted in a variety of greographical areas. 
-this is often called the **primary sampling unit** or **psu**. In [this survey](https://web.sph.harvard.edu/mch-data-connect/results/national-youth-tobacco-survey-nyts/){target="_blank"}, the county where the student's school was located was used as the psu. 
+We will now use the `srvyr` package to evaluate our data using survey weights that were provided in the respective codebooks for the data for each year.
 
-The `stratum` variable is a subset of the data that includes responders from different *PSUs*. Estimates for the values for repsonses are calculated using different strata allowing for improved percision of the response estimates.
+Within the data you will see that we have variables called  `psu`, `finwgt`, and `stratum:
 
-The `finwgt` is the survey weight which was calulated based on a variety of factors.
+1) `PSU` - Surveys like the one used to create the data we are using often sample people based on strata. This is done to ensure that the responses are representative of the population of interest. Thus, often people first think about ensuring that surveys are conducted in a variety of geographical areas. This is often called the **primary sampling unit** or **psu**. In [this survey](https://web.sph.harvard.edu/mch-data-connect/results/national-youth-tobacco-survey-nyts/){target="_blank"}, the county where the student's school was located was used as the psu. 
+
+2) The `stratum` variable is a subset of the data that includes respondents from different *PSUs*. Estimates for the values for responses are calculated using different strata allowing for improved precision of the response estimates.
+
+3) The `finwgt` is the survey weight which was calculated based on a variety of factors.
 
 This [link](https://web.sph.harvard.edu/mch-data-connect/results/national-youth-tobacco-survey-nyts/){target="_blank"} and this [link](https://osf.io/n7r32){target="_blank"} have more information about the study design of the data that we are using.
 
-For detailed information on such survey designs in genearl see [here](http://www.asasrms.org/Proceedings/y2008/Files/301835.pdf
+For detailed information on such survey designs in general see [here](http://www.asasrms.org/Proceedings/y2008/Files/301835.pdf
 http://ocw.jhsph.edu/courses/StatMethodsForSampleSurveys/PDFs/Lecture5.pdf){target="_blank"}.
 
 We will use the `as_survey_desing()` function of the `srvyr`package to create a survey object with a specified survey design, in other words it includes information about how the survey was conducted.
 
-The `strata` argument of the is used to specify the variables that defined strata in the data.
+There are several arguments to pay attention to:
 
-The `ids` argument is used to define cluster ids within the data - in this case we will use the `psu`.
-
-The `weight` argument is the  used to define which variable(s) are the survey weights.
-
-The `nest = TRUE` argument, forces cluster ids (in this case the psu) to be nested within the strata.
+1) The `strata` argument of the is used to specify the variables that defined strata in the data.
+2) The `ids` argument is used to define cluster ids within the data - in this case we will use the `psu`.
+3) The `weight` argument is the  used to define which variable(s) are the survey weights.
+4) The `nest = TRUE` argument, forces cluster ids (in this case the psu) to be nested within the strata.
 
 We can then use the `survey_mean()` function to calculate means of students who report using tobacco for each year while accounting for the survey design and weights. We will specify that we want [confidence interval](https://en.wikipedia.org/wiki/Confidence_interval) estimates by using the `vartype = "ci"` argument. The confidence intervals in our case give a range of possible values for the true population mean based on the data observed in the survey. We will multiply these values by 100 to get percentages.
 
@@ -1772,7 +1778,7 @@ nyts_data %>%
 ```
 
 
-We will now make a plot using this dat. The confidence intervals are included using the `geom_linerange()` function of the `ggplot2` package.
+We will now make a plot using this data. The confidence intervals are included using the `geom_linerange()` function of the `ggplot2` package.
 
 ```{r}
 
@@ -1809,16 +1815,17 @@ plotA_w <- nyts_data %>%
   scale_y_continuous(breaks = seq(0,70,by=10),
                        labels = seq(0,70,by=10),
                        limits = c(0,70)) +
-    theme_minimal() +
+    theme_linedraw() +
     theme(legend.position = "none",
           axis.title.x = element_blank()) +
     labs(title = "Tobacco product users more prevalent after 2017",
          y = "% of students")
 plotA_w
 ```
+
 Now we can see that we have confidence interval ranges plotted for each value. 
 
-Now we will make a similar plot but this time we will look at students who reported ever trying or who currently use e-cigarettes as opposed to tobacco in general.
+We will make a similar plot for students who reported ever trying or who currently use e-cigarettes as opposed to tobacco in general.
 
 ```{r}
 
@@ -1826,7 +1833,7 @@ Now we will make a similar plot but this time we will look at students who repor
 nyts_data %>%
   as_survey_design(strata = stratum, ids = psu, weight  = finwgt, nest=TRUE) %>%
     group_by(year) %>%
-summarize(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
+      summarize(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
             non_ecig_ever_year = survey_mean(non_ecig_ever, vartype = "ci", na.rm=TRUE)) %>%  mutate_at(vars(-year), "*", 100) %>%
   pivot_longer(cols = -year, 
            names_to = "Category", 
@@ -1866,10 +1873,10 @@ summarize(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
   geom_linerange(aes(ymin = Lower, ymax = Upper), size = 1, show.legend = FALSE) +
   scale_linetype_manual(values = c(2,1)) +
   scale_color_manual(values = v_colors) +
-  scale_y_continuous(breaks = seq(0,50,by=10),
-                       labels = seq(0,50,by=10),
-                       limits = c(0,50)) +
-    theme_minimal() +
+  scale_y_continuous(breaks = seq(0,60,by=10),
+                       labels = seq(0,60,by=10),
+                       limits = c(0,60)) +
+    theme_linedraw() +
     theme(legend.position = "none",
           axis.title.x = element_blank()) +
     labs(title = "% Ever trying e-cigarettes increases &\n% Ever trying other products decreases",
@@ -1885,11 +1892,13 @@ Now we will do the same but for current users:
 plotC_w <- nyts_data %>%
   as_survey_design(strata = stratum, ids = psu, weight  = finwgt, nest=TRUE) %>%
     group_by(year) %>%
-      summarize(ecig_current_year = survey_mean(ecig_current, vartype = "ci", na.rm=TRUE),
+       summarize(ecig_current_year = survey_mean(ecig_current, vartype = "ci", na.rm=TRUE),
             non_ecig_current_year = survey_mean(non_ecig_current, vartype = "ci", na.rm=TRUE)) %>%
-  mutate_at(vars(-year), "*", 100) %>%
-  pivot_longer(cols = -year, names_to = "Category", values_to = "Percentage of students") %>%
-    mutate(Estimate = case_when(grepl("_low", Category) ~ "Lower",
+       mutate_at(vars(-year), "*", 100) %>%
+       pivot_longer(cols = -year,
+                    names_to = "Category", 
+                    values_to = "Percentage of students") %>%
+       mutate(Estimate = case_when(grepl("_low", Category) ~ "Lower",
                           grepl("_upp", Category) ~ "Upper",
                           TRUE ~ "Mean"),
          User = case_when(grepl("ever", Category) ~ "Ever",
@@ -1903,9 +1912,9 @@ plotC_w <- nyts_data %>%
   geom_line(aes(linetype="dashed")) +
   geom_linerange(aes(ymin = Lower, ymax = Upper), size = 1,  show.legend = FALSE) +
   scale_linetype_manual(values = c(2,1)) +
-  scale_y_continuous(breaks = seq(0, 50, by = 10), limits = c(0,50)) +
+  scale_y_continuous(breaks = seq(0, 60, by = 10), limits = c(0,60)) +
   scale_color_manual(values = v_colors) +
-    theme_minimal() +
+    theme_linedraw() +
     theme(legend.position = "none",
           axis.title.x = element_blank()) +
     labs(title = "% Currently using e-cigarettes increases &\n% Currently using other products decreases",
@@ -1961,91 +1970,7 @@ Now we are interested in looking at how tobacco usage changed for students of th
 
 ### Hypothetical Cohort
 ```{r}
-plotA_w_8 <- nyts_data %>%
-  filter((Grade == "8" & year == 2015) |
-         (Grade == "9" & year == 2016) |
-         (Grade == "10" & year == 2017) |
-         (Grade == "11" & year == 2018) |
-          (Grade == "12" & year == 2019) 
-         ) %>%
-  as_survey_design(strata = stratum, ids = psu, weight  = finwgt) %>%
-    group_by(year) %>%
-summarize(tobacco_ever_year = survey_mean(tobacco_ever, vartype = "ci", na.rm=TRUE),
-            tobacco_current_year = survey_mean(tobacco_current, vartype = "ci", na.rm=TRUE))  %>%
-  mutate_at(vars(-year), "*", 100) %>%
-    pivot_longer(cols = -year, names_to = "Type", values_to = "Percentage of students")%>%
-  mutate(Estimate = case_when(grepl("_low", Type) ~ "Lower",
-                          grepl("_upp", Type) ~ "Upper",
-                          TRUE ~ "Mean"),
-         User = case_when(grepl("ever", Type) ~ "Ever",
-                          grepl("current", Type) ~ "Current",
-                          TRUE ~ "Mean")) %>%
-  dplyr::select(-Type) %>%
-  pivot_wider(names_from = Estimate, 
-              values_from = `Percentage of students`) %>%
-  ggplot(aes(x=year,y=Mean)) +
-  geom_line(aes(linetype=User)) +
-  geom_linerange(aes(ymin = Lower, ymax = Upper), size = 1) + 
-  scale_linetype_manual(values = c(2,1)) +
-    scale_y_continuous(breaks = seq(0,70,by=10),
-                       labels = seq(0,70,by=10),
-                       limits = c(0,70)) +
-  scale_color_manual(values = v_colors) +
-    theme_minimal() +
-    theme(legend.position = "none",
-          axis.title.x = element_blank()) +
-    labs(title = "Tobacco product use became increasingly prevalent",
-         y = "% of students")
-
-plotB_w_8 <- nyts_data %>%
-  filter((Grade == "8" & year == 2015) |
-         (Grade == "9" & year == 2016) |
-         (Grade == "10" & year == 2017) |
-         (Grade == "11" & year == 2018) |
-          (Grade == "12" & year == 2019) 
-         ) %>%
-  as_survey_design(strata = stratum, ids = psu, weight  = finwgt) %>%
-    group_by(year) %>%
-  summarize(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
-            ecig_current_year = survey_mean(ecig_current, vartype = "ci", na.rm=TRUE),
-            non_ecig_ever_year = survey_mean(non_ecig_ever, vartype = "ci", na.rm=TRUE),
-            non_ecig_current_year = survey_mean(non_ecig_current, vartype = "ci", na.rm=TRUE)) %>%
-  mutate_at(vars(-year), "*", 100) %>%
-  dplyr::select(year,
-                ecig_ever_year,
-                ecig_current_year,
-                non_ecig_ever_year,
-                non_ecig_current_year,
-                contains("low"),
-                contains("upp")) %>%
-   pivot_longer(cols = -year, names_to = "Category", values_to = "Percentage of students")%>%
-  mutate(Estimate = case_when(grepl("_low", Category) ~ "Lower",
-                          grepl("_upp", Category) ~ "Upper",
-                          TRUE ~ "Mean"),
-         User = case_when(grepl("current", Category) ~ "Current",
-                          TRUE ~ "Ever",),
-         Product = case_when(grepl("non_ecig", Category) ~ "Other products",
-                          TRUE ~ "E-cigarettes")) %>%
-  dplyr::select(-Category) %>%
-  pivot_wider(names_from = Estimate, 
-              values_from = `Percentage of students`) %>%
-  filter(User=="Ever") %>%
-  dplyr::rename("Lower_temp" = Upper,
-                "Upper_temp" = Lower) %>%
-  dplyr::rename("Lower"=Lower_temp,
-                "Upper"=Upper_temp) %>%
-  ggplot(aes(x=year,y=Mean, color=Product)) +
-  geom_line(linetype=1) +
-  geom_linerange(aes(ymin = Lower, ymax = Upper), size = 1) + 
-  scale_y_continuous(breaks = seq(10, 60, by = 10), limits = c(10,60)) +
-  scale_color_manual(values = v_colors) +
-    theme_minimal() +
-    theme(legend.position = "none",
-          axis.title.x = element_blank()) +
-    labs(title = "% ever trying tobacco products increases",
-         y = "% of students")
-
-plotC_w_8 <- nyts_data %>%
+Cohort_data <-nyts_data %>%
   filter((Grade == "8" & year == 2015) |
          (Grade == "9" & year == 2016) |
          (Grade == "10" & year == 2017) |
@@ -2057,15 +1982,10 @@ plotC_w_8 <- nyts_data %>%
 summarize(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
             ecig_current_year = survey_mean(ecig_current, vartype = "ci", na.rm=TRUE),
             non_ecig_ever_year = survey_mean(non_ecig_ever, vartype = "ci", na.rm=TRUE),
-            non_ecig_current_year = survey_mean(non_ecig_current, vartype = "ci", na.rm=TRUE)) %>%
+            non_ecig_current_year = survey_mean(non_ecig_current, vartype = "ci", na.rm=TRUE),
+          tobacco_ever_year = survey_mean(tobacco_ever, vartype = "ci", na.rm=TRUE),
+            tobacco_current_year = survey_mean(tobacco_current, vartype = "ci", na.rm=TRUE))%>%
   mutate_at(vars(-year), "*", 100) %>%
-  dplyr::select(year,
-                ecig_ever_year,
-                ecig_current_year,
-                non_ecig_ever_year,
-                non_ecig_current_year,
-                contains("low"),
-                contains("upp")) %>%
   pivot_longer(cols = -year, names_to = "Category", values_to = "Percentage of students")%>%
     mutate(Estimate = case_when(grepl("_low", Category) ~ "Lower",
                           grepl("_upp", Category) ~ "Upper",
@@ -2073,17 +1993,56 @@ summarize(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
          User = case_when(grepl("ever", Category) ~ "Ever",
                           grepl("current", Category) ~ "Current"),
          Product = case_when(grepl("non_ecig", Category) ~ "Other products",
+                             grepl("tobacco", Category) ~ "Any tobacco product",
                           TRUE ~ "E-cigarettes")) %>%
   dplyr::select(-Category) %>%
   pivot_wider(names_from = Estimate, 
-              values_from = `Percentage of students`) %>%
+              values_from = `Percentage of students`)
+
+head(Cohort_data)
+```
+
+We will now make similar plots for this subset of the data:
+
+```{r}
+plotA_w_8 <-Cohort_data %>%
+  filter(Product == "Any tobacco product") %>%
+  ggplot(aes(x=year,y=Mean)) +
+  geom_line(aes(linetype=User)) +
+  geom_linerange(aes(ymin = Lower, ymax = Upper), size = 1) + 
+  scale_linetype_manual(values = c(2,1)) +
+    scale_y_continuous(breaks = seq(0,70,by=10),
+                       labels = seq(0,70,by=10),
+                       limits = c(0,70)) +
+  scale_color_manual(values = v_colors) +
+    theme_linedraw() +
+    theme(legend.position = "none",
+          axis.title.x = element_blank()) +
+    labs(title = "Tobacco product use became increasingly prevalent",
+         y = "% of students")
+
+plotB_w_8 <-Cohort_data %>%
+  filter(Product != "Any tobacco product", User == "Ever") %>%
+  ggplot(aes(x=year,y=Mean, color=Product)) +
+  geom_line(linetype=1) +
+  geom_linerange(aes(ymin = Lower, ymax = Upper), size = 1) + 
+  scale_y_continuous(breaks = seq(10, 60, by = 10), limits = c(10,60)) +
+  scale_color_manual(values = v_colors) +
+    theme_linedraw() +
+    theme(legend.position = "none",
+          axis.title.x = element_blank()) +
+    labs(title = "% ever trying tobacco products increases",
+         y = "% of students")
+
+plotC_w_8 <-Cohort_data %>%
+  filter(Product != "Any tobacco product", User == "Current") %>%
     ggplot(aes(x=year,y=Mean, color=Product)) +
   geom_line(aes(linetype=User)) +
   geom_linerange(aes(ymin = Lower, ymax = Upper), size = 1) + 
   scale_linetype_manual(values = c(2,1)) +
   scale_y_continuous(breaks = seq(0, 60, by = 10), limits = c(0,60)) +
   scale_color_manual(values = v_colors) +
-    theme_minimal() +
+    theme_linedraw() +
     theme(legend.position = "none",
           axis.title.x = element_blank()) +
     labs(title = "E-cigarette use surpasses use of other products",
@@ -2091,8 +2050,7 @@ summarize(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
 
 title_w_8 <- ggdraw() + 
   draw_label(
-    expression("Among students who were in"~8^th~"grade in 2015, 
-               have vaping rates possibly influenced tobacco use?"),
+    expression("Among students expected to be in the graduating class of 2019, have vaping rates possibly influenced tobacco use?"),
     fontface = 'bold',
     size=14,
     x = 0,
@@ -2112,7 +2070,7 @@ plotsBC_w_8 <- plot_grid(plotB_w_8,
                          rel_widths = c(1,1),
                          axis = "bt")
 
-legend_w_8 <- get_legend(plot8 +
+legend_w_8 <- get_legend(plot1c +
                        theme(legend.position = "bottom",
                              legend.direction = "horizontal"))
 
@@ -2132,6 +2090,8 @@ figure_w_8
 ```
 
 ### Final Figure
+
+Finally we will put our plots together to create a plot that describes the relationship between e-cigarette usage and overall tobacco use.
 
 ```{r}
 title_final <- ggdraw() +
@@ -2180,7 +2140,7 @@ subtitle_final <- plot_grid(subtitle_uw_final,
 
 plotsA_title_final <- ggdraw() + 
   draw_label(
-    expression("Prevalence of e-cigarette use by user type"),
+    expression("Prevalence of any tobacco product use by user type"),
     size=14,
     x = 0.5) +
   theme(
@@ -2196,7 +2156,7 @@ plotsA_final <- plot_grid(plotA_uw + theme(plot.title = element_blank()),
 
 plotsB_title_final <- ggdraw() + 
   draw_label(
-    expression("Prevalence of ever use by product type"),
+    expression("Prevalence of ever trying by product type"),
     size=14,
     x = 0.5) +
   theme(
@@ -2212,7 +2172,7 @@ plotsB_final <- plot_grid(plotB_uw + theme(plot.title = element_blank()),
 
 plotsC_title_final <- ggdraw() + 
   draw_label(
-    expression("Prevalence of tobacco product use by product & user type"),
+    expression("Prevalence of current use by product type"),
     size=14,
     x = 0.5) +
   theme(
@@ -2276,52 +2236,17 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 
 </div>
 
-### Notes
-
-Ever and current variables are limited to those shared by all years of data included in this case study.
-
-```{r, echo=FALSE}
-knit_time_end <- Sys.time()
-```
-
-```{r, echo=FALSE}
-knit_time <- knit_time_end - knit_time_start
-knit_time_message <- paste("Knit time:",
-      round(as.numeric(knit_time) ,3),
-      units(knit_time)
-      )
-```
-
-<p style="color:red">New code: `r knit_time_message`. Previous code: ~ 3 m. </p>
-
-### Problems
-
-I had difficulty producing a plot that succinctly presented a trend. It's very easy to produce plots that are very useful once one is familiar with the data. Some plots, however, cannot stand alone and need additional context to be clear for those without prior knowledge of the data. When I first shared a plot I had been working on with others, it became clear that in my effort to present a complicated idea briefly I had left out information that would make the trend easily interpretable. To solve this issue, I began to present visualizations of the data alongside my original plot. The final figure I created contained several additional plots, each presenting the same trend at a different level than my initial plot.
-
-My "centerpiece" plot is the middle plot in `final_plot`. The 8 plots around it help provide a very clear picture of what is going on in the US with regards to e-cigarette use and tobacco product use at large. On its own, it's difficult to understand the trends in the US and how important the weighting scheme is for inference. Once you add the left and right columns, it's clear what is going on. 
-
-
 
 ## **Data Analysis**
 *** 
-
-### **content header**
-*** 
-
-
 
 ## **Summary**
 *** 
  cool visualization that summarizes everything... could add this somewhere: https://www.fda.gov/tobacco-products/youth-and-tobacco/youth-tobacco-use-results-national-youth-tobacco-survey
 
 
-
 ## **Helpful Links**
 *** 
-
-review of [tidymodels](https://rviews.rstudio.com/2019/06/19/a-gentle-intro-to-tidymodels/){target="_blank"} 
-
-guide for [preprocessing with recipes](http://www.rebeccabarter.com/blog/2019-06-06_pre_processing/)
 
 
 ## **Session info**
