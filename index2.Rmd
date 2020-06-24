@@ -151,6 +151,7 @@ library(ggplot2)
 library(scales)
 library(viridis)
 library(forcats)
+library(naniar)
 library(srvyr)
 library(cowplot)
 ```
@@ -169,6 +170,7 @@ library(cowplot)
 [scales](https://cran.r-project.org/web/packages/scales/scales.pdf){target="_blank"}    | to allow us to look at the colors within the viridis package
 [viridis](https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html){target="_blank"}    | to make plots with a color palette that is compatible with color blindness
 [forcats](https://forcats.tidyverse.org/){target="_blank"}    | to allow for reordering of factors in plots
+[naniar](https://cran.r-project.org/web/packages/naniar/vignettes/getting-started-w-naniar.html){target="_blank"}  | to make a visualization of missing data
 [syrvr](https://cran.r-project.org/web/packages/srvyr/srvyr.pdf){target="_blank"} | to use survey weights
 [cowplot](https://cran.r-project.org/web/packages/cowplot/vignettes/introduction.html){target="_blank"} | to allow plots to be combined 
 
@@ -1203,10 +1205,10 @@ We will select the first and fourth colors for our plot. To add these specific c
 We will calculate the mean ever and current usage percentages for students who used e-cigarette or any tobacco products (including e-cigarettes) for each year again using the `group_by()` function and the `summarize()` function. We will again use the `pivot_longer` function to convert our data to long format. We will also use the `separate()` function of the `tidyr` package to create two variables from one of variables. This is done by separating by, in this case, an underscore. 
 
 ```{r}
-plot1 <- nyts_data %>%
+plot1t <- nyts_data %>%
     dplyr::group_by(year) %>%
-    dplyr::summarize("Ever_Any Tobacco Product"=(mean(tobacco_ever, na.rm = TRUE)*100),
-                     "Current_Any Tobacco Product"=(mean(tobacco_current, na.rm = TRUE)*100),
+    dplyr::summarize("Ever_Any Tobacco Product \n (including e-cigarettes)"=(mean(tobacco_ever, na.rm = TRUE)*100),
+                     "Current_Any Tobacco Product \n (including e-cigarettes)"=(mean(tobacco_current, na.rm = TRUE)*100),
                      "Ever_E-cigarettes"=(mean(ecig_ever, na.rm = TRUE)*100),
                      "Current_E-cigarettes"=(mean(ecig_current, na.rm = TRUE)*100))%>%
   pivot_longer(cols = -year, names_to = "User", values_to = "Percentage of students")%>%
@@ -1216,7 +1218,7 @@ plot1 <- nyts_data %>%
   geom_point(show.legend = FALSE, size = 3) +
   # this allows us to choose what type of line we want for each line
   scale_linetype_manual(values = c(2,1)) +
-  scale_color_manual(values = v_colors)
+  scale_color_manual(values = v_colors)+
   # this allows us to specify how the y-axis should appear
   # scale_y_continuous(breaks = seq(0,60,by=10),
   #                      labels = seq(0,60,by=10),
@@ -1229,7 +1231,7 @@ plot1 <- nyts_data %>%
     labs(title = "How has tobacco use varied over the years?",
          y = "% of students")
 
-plot1 
+plot1t 
 
 ```
 
@@ -1245,20 +1247,20 @@ We will calculate the mean ever and current usage percentages for students who h
 
 nyts_data %>%
     dplyr::group_by(year) %>%
-    dplyr::summarize("Ever e-cig"=(mean(ecig_only_ever, na.rm = TRUE)*100),
-                     "Current e-cig"=(mean(ecig_only_current, na.rm = TRUE)*100),
-                     "Ever non-e-cig" =(mean(non_ecig_only_ever, na.rm = TRUE)*100),
-                     "Current non-e-cig"=(mean(non_ecig_only_current, na.rm = TRUE)*100)) %>%
+    dplyr::summarize("Ever E-cigarette"=(mean(ecig_only_ever, na.rm = TRUE)*100),
+                     "Current E-cigarette"=(mean(ecig_only_current, na.rm = TRUE)*100),
+                     "Ever Non-e-cigarette" =(mean(non_ecig_only_ever, na.rm = TRUE)*100),
+                     "Current Non-e-cigarette"=(mean(non_ecig_only_current, na.rm = TRUE)*100)) %>%
   pivot_longer(cols = -year, names_to = "User", values_to = "Percentage of students") %>%
   tidyr::separate(User, into = c("User", "Product"), sep = " ") %>%
   head()
 
 plot1c <- nyts_data %>%
     dplyr::group_by(year) %>%
-    dplyr::summarize("Ever e-cig"=(mean(ecig_only_ever, na.rm = TRUE)*100),
-                     "Current e-cig"=(mean(ecig_only_current, na.rm = TRUE)*100),
-                     "Ever non-e-cig" =(mean(non_ecig_only_ever, na.rm = TRUE)*100),
-                     "Current non-e-cig"=(mean(non_ecig_only_current, na.rm = TRUE)*100))%>%
+    dplyr::summarize("Ever E-cigarette"=(mean(ecig_only_ever, na.rm = TRUE)*100),
+                     "Current E-cigarette"=(mean(ecig_only_current, na.rm = TRUE)*100),
+                     "Ever Non-e-cigarette" =(mean(non_ecig_only_ever, na.rm = TRUE)*100),
+                     "Current Non-e-cigarette"=(mean(non_ecig_only_current, na.rm = TRUE)*100))%>%
   pivot_longer(cols = -year, names_to = "User", values_to = "Percentage of students")%>%
   separate(User, into = c("User", "Product"), sep = " ") %>%
     ggplot(aes(x=year,y=`Percentage of students`, color = Product)) +
@@ -1276,7 +1278,7 @@ plot1c <- nyts_data %>%
   # this moves the legend to the bottom of the plot and removes the x axis title
     theme(legend.position = "bottom",
           axis.title.x = element_blank()) +
-    labs(title = "How has e-cigarette use and tobacco use (besides e-cigarettes) varied over time?",
+    labs(title = "How has use of only e-cigarettes and and \n only tobacco products besides e-cigarettes varied over time?",
          y = "% of students")
 
 plot1c
@@ -1284,8 +1286,6 @@ plot1c
 ```
 
 Very intersting! We can see from this plot that the percentage of students who had only currently used (or ever tried) e-cigarettes  greatly increased since 2017, while in contrast the percentage of students who had only ever tried non-e-cigarette tobacco products actually diminished over time. In fact, we can see that in 2019 the percentage of students who were current e-cigarette users surpassed the percentage that had tried a non-e-cigarette product even just once. 
-
-We will explore the relaitonship between e-cigarette usage and other tobacco products a bit later in the case study.
 
 
 Recall that we made a variable called `Group` that identified students who used either just e-cigarette products, just other tobacco products (besides e-cigarettes), or students who used both e-cigarettes and some other type of tobacco product.
@@ -1296,7 +1296,7 @@ nyts_data %>%
 ```
 
 We will now make a plot over time of each of these groups. Since we will have 4 total groups, we will use 4 of the viridis colors.
-Notice, that in this case we are grouping by three variables by simply speparating the variables that we want to group by with a comma in our `group_by()` function like this: `group_by(Group, year, n)`.
+Notice, that in this case we are grouping by three variables by simply speparating the variables that we want to group by with a comma in our `group_by()` function like this: `group_by(Group, year, n)`. We will aslo rename the `year` variable to be upper case using the `rename()` function of the `tidyr` package.
 
 ```{r}
 
@@ -1312,15 +1312,19 @@ nyts_data %>%
   group_by(Group, year, n) %>%
   summarise(group_count = n()) %>%
   mutate("Percentage of students" = group_count /n*100) %>%
-  ggplot(aes(x = year, y = `Percentage of students`, color = Group))+
-  geom_point()+
+  rename(Year = year) %>%
+  ggplot(aes(x = Year, y = `Percentage of students`, color = Group))+
+  geom_point(size = 3)+
   geom_line() +
-  scale_color_manual(values = v_colors)
-  #geom_bar(stat = "identity", position = "dodge")
+  scale_color_manual(values = v_colors)+
+  theme_minimal() 
 
 ```
 
 We can see that luckily the majority of students did not report using any tobacco prodcuts. Of the students that did report using tobacco products, the majority of the students used both e-cigarettes and some other tobacco product. Again, a much larger percentage reported using only e-cigarettes rather than only other tobacco products in 2019.
+
+We will explore the relaitonship between e-cigarette usage and other tobacco products a bit later in the case study.
+
 
 ### Question 2
 
@@ -1358,7 +1362,7 @@ plot2 <- nyts_data %>%
     scale_color_manual(values =v_colors)+
     theme_minimal() +
     theme(legend.position = "bottom",
-          axis.text.x = element_text(angle = 90),
+#          axis.text.x = element_text(angle = 90),
           axis.title.x = element_blank()) +
     labs(title = "How do vaping rates compare between males and females?",
          subtitle = "Current and ever users by sex",
@@ -1418,26 +1422,49 @@ knitr::include_graphics(here::here("img", "HuangJ_DuanZ_KwokJ_et_al_TobaccoContr
 
 We are also interested in how the usage of different flavors has changed over the years. 
 
-START HERE
 
-To evaluate this we will calculate the precentage of students using each flavor each year - this includes usage of any type of flavored tobacco product. Recall that NA values are not included in calculating the total count for our percentages. Therefore, these values reflect the percentage of each flavor for students reporting using favored products (I think... kinda confused). Also students were allowed to select more than one flavor.
+To evaluate this we will calculate the precentage of students using each flavor each year - this includes usage of any type of flavored tobacco product. We will exclude 2015 data, as no specific flavor questions were yet asked at that time.
+
+Recall that `NA` values are not included in calculating the total count for our percentages. However all of these flavor questions had complete reporting and did not have `NA` values. Therefore, these values reflect the percentage of students reporting using a particular favor out of all students surveyed (including those that did not use any tobacco products). Also students were allowed to select more than one flavor. You can look at if these variables had complete reporting by checking the `NA` values by using the base `summary` function. Alternatively you can create a visual representation using the `vis_miss()` function of the `naniar` package.
+
+#### {.scrollable}
+```{r}
+# Scroll through the output!
+nyts_data %>% 
+  filter(year!=2015) %>% 
+  summary()
+
+```
+####
+
+```{r}
+nyts_data %>%
+  filter(year!=2015) %>%
+  select(menthol:alcoholic_drink)%>%
+  vis_miss()
+
+```
+
+We can confirm with this plot that these variables have no `NA` values.
 
 ```{r}
 plot4 <- nyts_data %>%
   filter(year!=2015) %>%
   group_by(year) %>%
-summarize(Menthol=(mean(menthol, na.rm = TRUE)*100),
-         `Clove or Spice`=(mean(clove_spice, na.rm = TRUE)*100),
-              Fruit=(mean(fruit, na.rm = TRUE)*100),
-              Chocolate=(mean(chocolate, na.rm = TRUE)*100),
-              `Alcoholic Drink`=(mean(alcoholic_drink, na.rm = TRUE)*100),
-              `Candy/Desserts/Sweets`=(mean(candy_dessert_sweets, na.rm = TRUE)*100)) %>%
-  pivot_longer(cols = -year, names_to = "Flavor", values_to = "Percentage of students") %>%
+      summarize(Menthol = (mean(menthol)*100),
+       `Clove or Spice` = (mean(clove_spice)*100),
+                  Fruit = (mean(fruit)*100),
+              Chocolate = (mean(chocolate)*100),
+      `Alcoholic Drink` = (mean(alcoholic_drink)*100),
+`Candy/Desserts/Sweets` = (mean(candy_dessert_sweets)*100),
+                  Other = (mean(other)*100)) %>%
+      pivot_longer(cols = - year, names_to = "Flavor", values_to = "Percentage of students") %>%
+  rename(Year = year) %>%
 
  ggplot(aes(y = `Percentage of students`, 
-            x = year, 
-            fill = reorder(Flavor, `Percentage of students`)))+
- geom_bar(stat = "identity", position = "dodge", color = "black")+
+            x = Year, 
+         fill = reorder(Flavor, `Percentage of students`)))+
+geom_bar(stat = "identity", position = "dodge", color = "black")+
   scale_fill_viridis(discrete=TRUE)+
   theme_minimal() +
   guides(fill=guide_legend("Flavor"))+
@@ -1455,29 +1482,22 @@ Recall that we made a variable called `Group` that identified students who used 
 
 
 ```{r}
+
+v_colors =  viridis(5)[1:4]
+
 plot5 <- nyts_data %>%
   filter(year != 2015) %>%
-  # filter(menthol == TRUE|
-  #          clove_spice == TRUE|
-  #          fruit == TRUE|
-  #          chocolate == TRUE|
-  #          alcoholic_drink == TRUE|
-  #          candy_dessert_sweets == TRUE|
-  #          other == TRUE) %>%
-# we want to remove students that used both e-cigarette and other tobacco products
   group_by(year, Group) %>%
-summarize(Menthol=(mean(menthol, na.rm = TRUE)*100),
-         `Clove or Spice`=(mean(clove_spice, na.rm = TRUE)*100),
-          Fruit=(mean(fruit, na.rm = TRUE)*100),
-          Chocolate=(mean(chocolate, na.rm = TRUE)*100),
-          `Alcoholic Drink`=(mean(alcoholic_drink, na.rm = TRUE)*100),
-          `Candy/Desserts/Sweets`=(mean(candy_dessert_sweets, na.rm = TRUE)*100),
-          Other = (mean(other, na.rm = TRUE)*100),
-          Respondents=n()) %>%
+        summarize(Menthol = (mean(menthol)*100),
+         `Clove or Spice` = (mean(clove_spice)*100),
+                    Fruit = (mean(fruit)*100),
+                Chocolate = (mean(chocolate)*100),
+        `Alcoholic Drink` = (mean(alcoholic_drink)*100),
+  `Candy/Desserts/\nSweets` = (mean(candy_dessert_sweets)*100),
+                    Other = (mean(other)*100),
+              Respondents = n()) %>%
   #converting all columns between and including Menthol and Other to one column called Flavor
   pivot_longer(cols = Menthol:Other, names_to = "Flavor", values_to = "Percentage of students") %>%
-  filter(!is.na(`Percentage of students`),
-         Flavor!="Other") %>%
   group_by(Flavor) %>%
   mutate(affirmative=(Respondents * `Percentage of students`)/100) %>%
   mutate(flavor_mean = sum(affirmative)/sum(Respondents)) %>%
@@ -1485,51 +1505,56 @@ summarize(Menthol=(mean(menthol, na.rm = TRUE)*100),
   mutate(flavor_mean_rank = dense_rank(flavor_mean),
          Flavor = fct_reorder(Flavor, flavor_mean_rank)) %>%
   ggplot(aes(x=year, y=`Percentage of students`, color=Group)) +
-  facet_wrap(.~Flavor,ncol=3) +
+  facet_grid(~Flavor)+
   geom_line() + 
-  geom_point(show.legend = FALSE) + 
+  geom_point(show.legend = FALSE, size = 3) + 
+  scale_color_manual(values = v_colors) +
   theme_minimal() +
   theme(legend.position = "bottom",
           axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90)) + 
-  labs(title = "Among users of only one type of product, what vaping flavors appear to be used the most frequently?",
-       subtitle = "Percent reporting only e-cigarette use vs only other nicotine product use")
+  labs(title = "Among different product users, what flavors are most frequently used?")
 
 plot5
 ```
 
+We can see from this plot that there has been an increase in the number of students reporting using flavored tabbaco products. Users who use both e-cigarettes and other tobacco products appear to report using flavored products the most, followed by users who only use e-cigarettes.
+
 ### Question 4
 
-Have vaping rates possibly influenced tobacco/nicotine use?
+Have vaping rates possibly influenced tobacco use? Now we will investigate the usage of e-cigarrettes compared to other tobacco products in greater depth. 
+
+First let's take a look at how e-cigarette usage and cigarette usage compare. We will select the data that specifically has to do with these products.
 
 ```{r}
+
+
+v_colors =  viridis(6)[c(1,4)]
+
+nyts_data %>%
+    group_by(year) %>%
+    summarize("Cigarettes, Ever" = (mean(ECIGT, na.rm = TRUE)*100),
+            "E-cigarettes, Ever" = (mean(EELCIGT, na.rm = TRUE)*100),
+           "Cigarettes, Current" = (mean(CCIGT, na.rm = TRUE)*100),
+         "E-cigarettes, Current" = (mean(CELCIGT, na.rm = TRUE)*100)) %>%
+    pivot_longer(cols= -year, names_to = "Category", values_to = "Percentage of students") %>%
+    separate( Category, into= c("Product", "User"), sep = ", ") %>%
+    head()
+
+
 plot6 <- nyts_data %>%
     group_by(year) %>%
-  summarize(ECIGT_year=(sum(ECIGT, na.rm = TRUE)*100)/
-                sum(!is.na(ECIGT)),
-              EELCIGT_year=(sum(EELCIGT, na.rm = TRUE)*100)/
-                sum(!is.na(EELCIGT)),
-              CCIGT_year=(sum(CCIGT, na.rm = TRUE)*100)/
-                sum(!is.na(CCIGT)),
-              CELCIGT_year=(sum(CELCIGT, na.rm = TRUE)*100)/
-                sum(!is.na(CELCIGT))) %>%
-    rename("Cigarettes, Ever"=ECIGT_year,
-           "E-cigarettes, Ever"=EELCIGT_year,
-           "Cigarettes, Current"=CCIGT_year,
-           "E-cigarettes, Current"=CELCIGT_year) %>%
-  pivot_longer(cols= -year, names_to = "Category", values_to = "Percentage of students")%>%
-    mutate(User = case_when(Category == "Cigarettes, Ever" ~ "Ever",
-                               Category == "E-cigarettes, Ever" ~ "Ever",
-                               Category == "Cigarettes, Current" ~ "Current",
-                               Category == "E-cigarettes, Current" ~ "Current")) %>%
-    mutate(Product = case_when(Category == "Cigarettes, Ever" ~ "Cigarettes",
-                               Category == "E-cigarettes, Ever" ~ "E-cigarettes",
-                               Category == "Cigarettes, Current" ~ "Cigarettes",
-                               Category == "E-cigarettes, Current" ~ "E-cigarettes")) %>%
-    ggplot(aes(x=year,y=`Percentage of students`, color=Product, linetype=User)) +
+    summarize("Cigarettes, Ever" = (mean(ECIGT, na.rm = TRUE)*100),
+            "E-cigarettes, Ever" = (mean(EELCIGT, na.rm = TRUE)*100),
+           "Cigarettes, Current" = (mean(CCIGT, na.rm = TRUE)*100),
+         "E-cigarettes, Current" = (mean(CELCIGT, na.rm = TRUE)*100)) %>%
+    pivot_longer(cols= -year, names_to = "Category", values_to = "Percentage of students")%>%
+    separate( Category, into= c("Product", "User"), sep = ", ") %>%
+    ggplot(aes(x=year,y=`Percentage of students`, color = Product, linetype = User)) +
     geom_line() + 
-  geom_point(show.legend = FALSE) +
+  geom_point(show.legend = FALSE, size = 3) +
   scale_linetype_manual(values = c(2,1)) +
+  scale_color_manual(values = v_colors) +
     theme_minimal() +
     theme(legend.position = "bottom",
           axis.title.x = element_blank()) +
@@ -1540,69 +1565,59 @@ plot6 <- nyts_data %>%
 plot6
 ```
 
+Interesting! we can see that in 2019 the percentage of students that reported currently using e-cigarettes had surpased those that ever tried (even just once) a cigarette. Overall cigarrette usage appears to be declining over time. This is not the case for e-cigarettes.
+
+
+I think we should remove this plot...
+
 ```{r}
+
+v_colors =  viridis(6)[c(1,4)]
+
 plot7 <- nyts_data %>%
     group_by(year) %>%
-  summarize(ecig_ever_year=(sum(ecig_ever, na.rm = TRUE)*100)/
-                sum(!is.na(ecig_ever)),
-              ecig_current_year=(sum(ecig_current, na.rm = TRUE)*100)/
-                sum(!is.na(ecig_current)),
-              non_ecig_ever_year=(sum(non_ecig_ever, na.rm = TRUE)*100)/
-                sum(!is.na(non_ecig_ever)),
-              non_ecig_current_year=(sum(non_ecig_current, na.rm = TRUE)*100)/
-                sum(!is.na(non_ecig_current))) %>%
+      summarize(`e-cigarette_ever`= (mean(ecig_ever, na.rm = TRUE)*100),
+            `non-e-cigarette_ever`= (mean(non_ecig_ever, na.rm = TRUE)*100)) %>%
     pivot_longer(cols = -year, names_to = "Category", values_to = "Percentage of students") %>%
-    mutate(User = case_when(Category =="ecig_ever_year" ~ "Ever",
-                           Category =="non_ecig_ever_year" ~ "Ever",
-                           Category =="ecig_current_year" ~ "Current",
-                           Category =="non_ecig_current_year" ~ "Current")) %>%
-    mutate(Product = case_when(Category =="ecig_ever_year" ~ "E-cigarettes",
-                           Category =="non_ecig_ever_year" ~ "Other products",
-                           Category =="ecig_current_year" ~ "E-cigarettes",
-                           Category =="non_ecig_current_year" ~ "Other products")) %>%
-    filter(User=="Ever") %>%
+    separate(Category, into = c("Product", "User"), sep = "_") %>%
     ggplot(aes(x=year,y=`Percentage of students`, color=Product)) +
-    geom_line(linetype=1) + # geom_bar(stat="identity", position = "dodge", color="black") +
-  geom_point(show.legend = FALSE) +
-  scale_y_continuous(breaks = seq(10, 60, by = 10), limits = c(10,60)) +
+    geom_line() +
+  geom_point(show.legend = FALSE, size = 3) +
+  scale_color_manual(values = v_colors) +
+  scale_y_continuous(breaks = seq(0, 60, by = 10), limits = c(0,60)) +
     theme_minimal() +
     theme(legend.position = "bottom",
           axis.title.x = element_blank()) +
-    labs(title = "How does e-cigarette ever use compare to ever use of other products over the years?",
+    labs(title = "How does the rate of ever trying e-cigarettes \ncompare to ever trying other products over time?",
          y = "% of students")
 
 plot7
 ```
 
+
+Should we remove this too and go with one of the earlier plots? plot1c?
+
+Now we will take a look a students who reported trying or using e-cigarettes or non-e-cigarette products. In this case we will not separate out users who specifically only used one or the other. Therefore, the percentage of students included in this plot as being a current user of e-cigarettes might also be a current user of non-ecigarette products.
+
 ```{r}
+v_colors =  viridis(6)[c(1,4)]
+
 plot8 <- nyts_data %>%
     group_by(year) %>%
-  summarize(ecig_ever_year=(sum(ecig_ever, na.rm = TRUE)*100)/
-                sum(!is.na(ecig_ever)),
-              ecig_current_year=(sum(ecig_current, na.rm = TRUE)*100)/
-                sum(!is.na(ecig_current)),
-              non_ecig_ever_year=(sum(non_ecig_ever, na.rm = TRUE)*100)/
-                sum(!is.na(non_ecig_ever)),
-              non_ecig_current_year=(sum(non_ecig_current, na.rm = TRUE)*100)/
-                sum(!is.na(non_ecig_current))) %>%
+      summarize(`e-cigarette_current`= (mean(ecig_current, na.rm = TRUE)*100),
+            `non-e-cigarette_current`= (mean(non_ecig_current, na.rm = TRUE)*100)) %>%
     pivot_longer(cols = -year, names_to = "Category", values_to = "Percentage of students") %>%
-    mutate(User = case_when(Category =="ecig_ever_year" ~ "Ever",
-                           Category =="non_ecig_ever_year" ~ "Ever",
-                           Category =="ecig_current_year" ~ "Current",
-                           Category =="non_ecig_current_year" ~ "Current")) %>%
-    mutate(Product = case_when(Category =="ecig_ever_year" ~ "E-cigarettes",
-                           Category =="non_ecig_ever_year" ~ "Other products",
-                           Category =="ecig_current_year" ~ "E-cigarettes",
-                           Category =="non_ecig_current_year" ~ "Other products")) %>%
-    ggplot(aes(x=year,y=`Percentage of students`, color=Product, linetype=User)) +
-    geom_line() +
-  geom_point(show.legend = FALSE) +
-  scale_linetype_manual(values = c(2,1)) +
+    separate(Category, into = c("Product", "User"), sep = "_") %>%
+    ggplot(aes(x=year, y=`Percentage of students`, color=Product)) +
+    geom_line(linetype = "dashed") +
+  geom_point(show.legend = FALSE, size = 3) +
+  scale_color_manual(values = v_colors) +
+  scale_linetype_manual(values = c(1)) +
   scale_y_continuous(breaks = seq(0, 60, by = 10), limits = c(0,60)) +
     theme_minimal() +
     theme(legend.position = "bottom",
           axis.title.x = element_blank()) +
-    labs(title = "How has e-cigarette use compared to the use of other tobacco products?",
+    labs(title = "How does the rate of currently using e-cigarettes \ncompare to currently using other products over time",
          y = "% of students")
 
 plot8
@@ -1614,27 +1629,27 @@ plot8
 plotA_uw <- plot1 +
   theme(axis.title.x = element_blank(),
         legend.position = "none") +
-    labs(title = "Nicotine product users more prevalent after 2017",
+    labs(title = "Tobacco product users more prevalent after 2017",
          subtitle = NULL,
          y = "% of students")
 
-plotB_uw <- plot7 + 
+plotB_uw <- plot7 +
   theme(axis.title.x = element_blank(),
         legend.position = "none") +
-    labs(title = "% Ever trying e-cigarettes increases &\n% ever trying other products decreases",
+    labs(title = "% Ever trying e-cigarettes increases &\n% Ever trying other products decreases",
          subtitle = NULL,
          y = "% of students")
 
 plotC_uw <- plot8 + 
   theme(axis.title.x = element_blank(),
         legend.position = "none") +
-    labs(title = "% Using e-cigarettes increases &\n% using Other products decreases",
+    labs(title = "% Currently using e-cigarettes increases &\n% Currently using other products decreases",
          subtitle = NULL,
          y = "% of students")
 
 title_uw <- ggdraw() + 
   draw_label(
-    "Have vaping rates possibly influenced tobacco/nicotine use?",
+    "Have e-cigarette rates possibly influenced tobacco use?",
     fontface = 'bold',
     size=14,
     x = 0,
@@ -1650,7 +1665,7 @@ plotsBC_uw <- plot_grid(plotB_uw,
                         plotC_uw,
                         rel_widths = c(1,1))
 
-legend_uw <- get_legend(plot8 +
+legend_uw <- get_legend(plot1c +
                        theme(legend.position = "bottom",
                              legend.direction = "horizontal"))
 
@@ -1671,10 +1686,10 @@ figure_uw
 ### Weighted Sample
 ```{r}
 plotA_w <- nyts_data %>%
-  as_survey_design(strata = stratum, ids = psu, weight  = finwgt, nest=TRUE) %>%
+  as_survey_design(strata = stratum, ids = psu, weight  = finwgt, nest = TRUE) %>%
     group_by(year) %>%
-summarize(tobacco_ever_year = survey_mean(tobacco_ever, vartype = "ci", na.rm=TRUE),
-            tobacco_current_year = survey_mean(tobacco_current, vartype = "ci", na.rm=TRUE))  %>%
+summarize(tobacco_ever_year = survey_mean(tobacco_ever, vartype = "ci", na.rm = TRUE),
+            tobacco_current_year = survey_mean(tobacco_current, vartype = "ci", na.rm = TRUE))  %>%
   mutate_at(vars(-year), "*", 100) %>%
     pivot_longer(cols = -year, names_to = "Type", values_to = "Percentage of students") %>%
   mutate(Estimate = case_when(grepl("_low", Type) ~ "Lower",
@@ -1690,13 +1705,14 @@ summarize(tobacco_ever_year = survey_mean(tobacco_ever, vartype = "ci", na.rm=TR
   geom_line(aes(linetype=User)) +
   geom_linerange(aes(ymin = Lower, ymax = Upper), show.legend = FALSE) +
   scale_linetype_manual(values = c(2,1)) +
+  scale_color_manual(values = v_colors) +
     scale_y_continuous(breaks = seq(0,70,by=10),
                        labels = seq(0,70,by=10),
                        limits = c(0,70)) +
     theme_minimal() +
     theme(legend.position = "none",
           axis.title.x = element_blank()) +
-    labs(title = "Nicotine product users more prevalent after 2017",
+    labs(title = "Tobacco product users more prevalent after 2017",
          y = "% of students")
 
 plotB_w <- nyts_data %>%
@@ -1734,10 +1750,11 @@ plotB_w <- nyts_data %>%
   geom_line(linetype=1) +
   geom_linerange(aes(ymin = Lower, ymax = Upper), show.legend = FALSE) +
   scale_y_continuous(breaks = seq(10, 60, by = 10), limits = c(10,60)) +
+  scale_color_manual(values = v_colors) +
     theme_minimal() +
     theme(legend.position = "none",
           axis.title.x = element_blank()) +
-    labs(title = "% ever trying e-cigarettes increases &\n% ever trying other products decreases",
+    labs(title = "% Ever trying e-cigarettes increases &\n% Ever trying other products decreases",
          y = "% of students")
 
 #### the wrangling looks the same as the above plot...
@@ -1772,15 +1789,16 @@ summarize(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
   geom_linerange(aes(ymin = Lower, ymax = Upper), show.legend = FALSE) +
   scale_linetype_manual(values = c(2,1)) +
   scale_y_continuous(breaks = seq(0, 60, by = 10), limits = c(0,60)) +
+  scale_color_manual(values = v_colors) +
     theme_minimal() +
     theme(legend.position = "none",
           axis.title.x = element_blank()) +
-    labs(title = "% Using e-cigarettes increases &\n% using Other products decreases",
+    labs(title = "% Currently using e-cigarettes increases &\n% Currently using other products decreases",
          y = "% of students")
 
 title_w <- ggdraw() + 
   draw_label(
-    expression("Have vaping rates possibly influenced tobacco/nicotine use?"),
+    expression("Have e-cigarette rates possibly influenced tobacco use?"),
     fontface = 'bold',
     size=14,
     x = 0,
@@ -1800,7 +1818,7 @@ plotsBC_w <- plot_grid(plotB_w,
                      align = "v",
                      axis = "bt")
 
-legend_w <- get_legend(plot8 +
+legend_w <- get_legend(plot1c +
                        theme(legend.position = "bottom",
                              legend.direction = "horizontal"))
 
@@ -1850,6 +1868,7 @@ summarize(tobacco_ever_year = survey_mean(tobacco_ever, vartype = "ci", na.rm=TR
     scale_y_continuous(breaks = seq(0,70,by=10),
                        labels = seq(0,70,by=10),
                        limits = c(0,70)) +
+  scale_color_manual(values = v_colors) +
     theme_minimal() +
     theme(legend.position = "none",
           axis.title.x = element_blank()) +
@@ -1897,6 +1916,7 @@ plotB_w_8 <- nyts_data %>%
   geom_line(linetype=1) +
   geom_linerange(aes(ymin = Lower, ymax = Upper)) + 
   scale_y_continuous(breaks = seq(10, 60, by = 10), limits = c(10,60)) +
+  scale_color_manual(values = v_colors) +
     theme_minimal() +
     theme(legend.position = "none",
           axis.title.x = element_blank()) +
@@ -1940,6 +1960,7 @@ summarize(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
   geom_linerange(aes(ymin = Lower, ymax = Upper)) + 
   scale_linetype_manual(values = c(2,1)) +
   scale_y_continuous(breaks = seq(0, 60, by = 10), limits = c(0,60)) +
+  scale_color_manual(values = v_colors) +
     theme_minimal() +
     theme(legend.position = "none",
           axis.title.x = element_blank()) +
@@ -2082,7 +2103,7 @@ plotsC_final <- plot_grid(plotC_uw + theme(plot.title = element_blank()),
                           align = "v",
                           axis = "bt")
 
-legend_final <- get_legend(plot8 +
+legend_final <- get_legend(plot1c +
                              theme(legend.position = "bottom",
                              legend.direction = "horizontal"))
 
