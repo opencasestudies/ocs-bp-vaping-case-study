@@ -722,7 +722,9 @@ nyts_data[["nyts2019"]] <- nyts_data[["nyts2019"]] %>%
 
 ```
 
-Great! Now we have all the same variables and our values don't need to be handled any differently for any of the years. Thus we can combine the data across years.
+Great! Now our values don't need to be handled any differently for any of the years, thus we can combine the data across years.
+
+Even though we have different numbers of variables for each year, we can coerce the data to be combined into one tibble by using the `bind_rows()` function of `dplyr`. Importantly, this function does not require that the columns be the same.  This will create NA values for any variable that is not present in given data frame but is  present in one of the other data frames that is being combined. Note that the `bind_cols()` function does expect that the rows match. The `.id` argument will create a new variable with values to link each row to its original data frame. For more information see [here](https://dplyr.tidyverse.org/reference/bind.html).
 
 ```{r}
 nyts_data <- nyts_data %>%
@@ -925,14 +927,11 @@ We are also interested in e-cigarette usage compared to other tobacco products, 
 glimpse(nyts_data)
 ```
 
-Finally, we are also interested in students that only use e-cigarettes and those that only other forms of tobacco.
-We will again use the case_when function to accomplish creating new variables. 
-
-Here is a toy example of what we will do with the larger dataset:
+Finally, we are also interested in students that only use e-cigarettes and those that only use other forms of tobacco.
 
 Recall that current users are a subset of ever users, thus students would typically answer yes to having tried vaping products if they had used them one or more days in the past 30 days.
 
-First we will make a small toy dataset:
+First we will make a small toy dataset called `test` to show what we will do with the larger dataset:
 ```{r}
 test <- tibble(ecig_ever = c("TRUE", "TRUE", "TRUE", "TRUE", "FALSE", "FALSE", "TRUE", "FALSE", "FALSE"),
                non_ecig_ever = c("TRUE", "FALSE","FALSE","FALSE", "FALSE", "FALSE", "TRUE", "TRUE", "TRUE"),
@@ -942,7 +941,8 @@ test <- tibble(ecig_ever = c("TRUE", "TRUE", "TRUE", "TRUE", "FALSE", "FALSE", "
 test
 ```
 
-Now, let's look at identifying sutents who have only ever tried e-cigarettes, but are not current users, nor have they tried or currently use other tobacco products.
+Now, let's look at identifying students who have only ever tried e-cigarettes, but are not current users, nor have they tried or do they currently use other tobacco products. We will again use the `case_when()` and the `mutate` function to accomplish creating new variables with specific values when certain conditions are met. In this case, we will specify that several statements of conditions  must be met by using the `&` symbol. Thus for a value of `TRUE` for the new `ecig_only_ever` variable, all of the conditions listed with `&` must be met.  If any of the last three conditions are `TRUE` than the `ecig_only_ever` value will be `FALSE` based on the last line `TRUE ~ FALSE`.
+
 
 ```{r}
 
@@ -950,35 +950,21 @@ test <- test %>% mutate(ecig_only_ever = case_when(ecig_ever == TRUE &
                                                non_ecig_ever == FALSE & 
                                                 ecig_current == FALSE &
                                             non_ecig_current == FALSE ~ TRUE,
-              #if any of the last three lines are TRUE than the ecig_only_ever value should be false
-                                                    TRUE ~ FALSE))
+                                                         TRUE ~ FALSE))
 test
 ```
 
-We can see from the fourth row, that even though the student reported yes to ever trying e-cigarettes, they also reported yes to currently using e-cigarettes, thus the value for only ever trying e-cigarettes is `FALSE`. Additionally we can see from the seventh row that similarly even though the student reported yest to ever trying e0cigarettes, they also reported yes to ever trying other products, and the value for only ever trying e-cigarettes is `FALSE`. Importantly, we can see from the 6th row, that if all responses are negative than the value is `FALSE`.
+We can see from the second row, that the `ecig_only_ever` is `TRUE` when we would expect it to be.
+We can also see from the fourth row, that even though the student reported yes to ever trying e-cigarettes, because they also reported yes to currently using e-cigarettes the value for only ever trying e-cigarettes is `FALSE`. Additionally we can see from the seventh row that similarly even though the student reported yest to ever trying e-cigarettes, they also reported yes to ever trying other products, and the value for only ever trying e-cigarettes is `FALSE`. Importantly, we can see from the 6th row, that if all responses are negative than the value is `FALSE`.
 
-Now we will expand this to the other possible categories. Notice since, current users are a subset of ever users, it doesn't matter if a user reports yes to ever trying  e-cigarettes, they can still be a current user.
+Now we will expand this to the other possible categories. In this case Note that since current users are a subset of ever users, it doesn't matter if a user reports yes to ever trying  e-cigarettes, they can still be a current user.
 
-```{r}
-test <- test %>% mutate(ever_or_current_both = case_when(non_ecig_ever == TRUE &
-                                                      non_ecig_current == TRUE |
-                                                          ecig_current == TRUE |
-                                                             ecig_ever == TRUE |
-                                                      non_ecig_current == TRUE &
-                                                          ecig_current == TRUE |
-                                                             ecig_ever == TRUE |
-                                                          ecig_current == TRUE &
-                                                             ecig_ever == TRUE, 
-                                                                  FALSE ~ TRUE))
-
-```
 
 ```{r}
 test <-test %>% mutate(ecig_only_ever = case_when(ecig_ever == TRUE & 
                                               non_ecig_ever == FALSE & 
                                                ecig_current == FALSE &
                                            non_ecig_current == FALSE ~ TRUE,
-              #if any of the last three lines are TRUE than the ecig_only_ever value should be false
                                                        TRUE ~ FALSE),
                  ecig_only_current = case_when(ecig_current == TRUE &
                                               non_ecig_ever == FALSE &
@@ -1004,7 +990,7 @@ test
 
 Take a minute to check that the values are what we would expect.
 
-Ok, now we are going to make a `Group` variable based on the new variables we just made. If a student has only ever tried or currently uses e-cigarettes, the value will be `Only e-cigarettes`. The same will be true for other tobacco products. If a student has tried either they will be called `Both`.
+Ok, now we are going to make a `Group` variable based on the new variables we just made. In this case we will have a particular value based on one condition **or** another. This **or** conditionality is specified by the `|` symbol. Only one of the conditions needs to exist for that particular value, where as when we used the `&` symbol, all of the conditions had to be met. If a student has only ever tried or currently uses e-cigarettes, the value will be `Only e-cigarettes`. If a student has only ever tried or is a current user of other tobacco products the value will be `Only other products`. If the value of the no_use varaible is simply `TRUE`, then the `Group` variable value will be `Neither`. Finally, if a student has tried or currently uses both e-cigarettes or other tobacco products the `Group` variable value will be `Combination of products`. Therefore the values for the usage of the variables based on only using e-cigarettes or only other products will all be `FALSE`. Of course the student will also have had to answer yes to any of the use-based questions, thus the no_use variable would also need to be `FALSE`.
 
 ```{R}
 
@@ -1018,7 +1004,7 @@ test <- test %>%
                         ecig_only_current == FALSE &
                        non_ecig_only_ever == FALSE &
                     non_ecig_only_current == FALSE &
-                           no_use == FALSE ~ "Combination of products"))
+                                   no_use == FALSE ~ "Combination of products"))
 
 
 test %>% count(Group)
@@ -1026,13 +1012,14 @@ test %>% count(Group)
 test
 ```
 
+Ok, now that we have seen how this works with our toy dataset, we will apply our code to our `nyts_data`.
+
 ```{r}
-nyts_data %<>%
-    mutate(ecig_only_ever = case_when(ecig_ever == TRUE & 
+    nyts_data %<>%
+                mutate(ecig_only_ever = case_when(ecig_ever == TRUE & 
                                               non_ecig_ever == FALSE & 
                                                ecig_current == FALSE &
                                            non_ecig_current == FALSE ~ TRUE,
-              #if any of the last three lines are TRUE than the ecig_only_ever value should be false
                                                        TRUE ~ FALSE),
                  ecig_only_current = case_when(ecig_current == TRUE &
                                               non_ecig_ever == FALSE &
@@ -1081,16 +1068,36 @@ glimpse(nyts_data)
 
 We are interested in investing how vaping product use has compared with other tobacco use. First we want to get a sense of how tobacco use has changed in general since 2015. 
 
-To create a visualiztion about how tobacco usage has changed over time, we will first convert the usage data to a mean value for each year. To do this we will use the `group_by()` and `summarize` function of the `dplyr` package. This will create new variables which we will name `Ever` and `Current` based on the mean of the percentages of `tobacco_ever` and `tobacco_current` for each year. 
+To create a visualiztion about how tobacco usage has changed over time, we will first convert the usage data to a percent value for each year. To do this we will use the `group_by()` and `summarize` function of the `dplyr` package. This will create new variables which we will name `Ever` and `Current` based on the  percentages of `tobacco_ever` and `tobacco_current` for each year. In this case the `mean()` function is used to calculate the percentages based on using a value of `TRUE` as a count of of one and a value of `FALSE` as a count of zero. This function also automatically creates a total to divide by based on the total number of `TRUE` or `FALSE` values in the variable. NA values do not contibute to the total count. 
+
+<details> <summary> Click here to see a toy example:</summary>
+```{r}
+# the test data has 3 TRUE values and 7 FALSE values
+test <-tibble("var1"= c("TRUE", "TRUE", "TRUE", rep("FALSE", 7)))
+test%<>% mutate(var1 = as.logical(var1))
+test
+
+test %>% summarize(Percentage = mean(var1)*100)
+
+
+#the test data has 3 TRUE values, 3 FALSE values, and 4 NA value
+test <-tibble("var1"= c("TRUE", "TRUE", "TRUE", rep("FALSE", 3), rep("NA", 4)))
+test%<>% mutate(var1 = as.logical(var1))
+test
+
+test %>% summarize(Percentage = mean(var1, na.rm = TRUE)*100)
+```
+</details>
 
 ```{r}
 
 nyts_data %>%
     dplyr::group_by(year) %>%
-    dplyr::summarize(Ever=(mean(tobacco_ever, na.rm = TRUE)*100),
-                     Current=(mean(tobacco_current, na.rm = TRUE)*100))
+    dplyr::summarize(Ever = (mean(tobacco_ever, na.rm = TRUE)*100),
+                  Current = (mean(tobacco_current, na.rm = TRUE)*100))
 
 ```
+
 We will use the `pivot_longer` function to take all collumns except year (in this case the `Ever` and `Current` columns), to create a column called `User` that will contain the current column name information and a column called `Percentage of students` which will contain the mean percentage values that we just calculated. This converts our data into a format called long format.
 
 ```{r}
@@ -1169,15 +1176,16 @@ plot1a
 ```
 It looks like the shape of the plot is very similar to tobacco usage overall. We see a downward trend until 2017 when the rate of both current and ever users increased. Recall that this is in agreement with the articles that we referenced earlier. We can see that the slope looks steeper for e-cigarette usage as compared to all tobacco products (including e-cigarettes).
 
-Now let's plot e-cigarette usage and tobacco products usage (besides e-cigarettes) together on the same plot. In this case we will look at students who have only smoked either of e-cigarettes or only other tobacco products besides e-cigarettes.
 
-In this case we will have four groups (only e-cigarette ever users, only e-cigarette current users, only non-e-cigarette ever tobbaco users, and only non-e-cigarette current tobacco users) to plot, therefore, it would be useful to add color to our plot.
+Now let's plot this data together on the same plot.
+
+Thus, we will have four groups (e-cigarette ever users, e-cigarette current users,  ever tobbaco users, and current tobacco users) to plot, therefore, it would be useful to add color to our plot. Keep in mind that e-cigarette users are a subset of any tobbaco product users.
 
 One important thing to keep in mind when creating plots, is that individuals with color blindness may have a difficult time distinguishing groups when certian color chocies are used. 
 
 One great option is to use the `viridis` package, which offers color palattes with colors that are still distinguishable  by individuals with most forms of color blindness. 
 
- We can choose which colors we want to use by using the `show_col()` function of the `scales` package.
+We can choose which colors we want to use by using the `show_col()` function of the `scales` package.
 
 Here are some color options:
 ```{r}
@@ -1188,7 +1196,46 @@ v_colors =  viridis(6)[c(1,4)]
 
 We will select the first and fourth colors for our plot. To add these specific colors we will use the `scale_color_manual()` function of the `ggplot2` package.
 
-We will calculate the mean ever and current usage percentages for students who had only used e-cigarette or other tobacco products (besides e-cigarettes) for each year again using the `group_by()` function and the `summarize()` function. We will again use the `pivot_longer` function to convert our data to long format. We will also use the `separate()` function of the `tidyr` package to create two variables from one of variables. This is done by separating by, in this case, a space. 
+We will calculate the mean ever and current usage percentages for students who used e-cigarette or any tobacco products (including e-cigarettes) for each year again using the `group_by()` function and the `summarize()` function. We will again use the `pivot_longer` function to convert our data to long format. We will also use the `separate()` function of the `tidyr` package to create two variables from one of variables. This is done by separating by, in this case, an underscore. 
+
+```{r}
+plot1 <- nyts_data %>%
+    dplyr::group_by(year) %>%
+    dplyr::summarize("Ever_Any Tobacco Product"=(mean(tobacco_ever, na.rm = TRUE)*100),
+                     "Current_Any Tobacco Product"=(mean(tobacco_current, na.rm = TRUE)*100),
+                     "Ever_E-cigarettes"=(mean(ecig_ever, na.rm = TRUE)*100),
+                     "Current_E-cigarettes"=(mean(ecig_current, na.rm = TRUE)*100))%>%
+  pivot_longer(cols = -year, names_to = "User", values_to = "Percentage of students")%>%
+  separate(User, into = c("User", "Product"), sep = "_")%>%
+    ggplot(aes(x=year,y=`Percentage of students`, color = Product)) +
+    geom_line(aes(linetype=User)) + 
+  geom_point(show.legend = FALSE, size = 3) +
+  # this allows us to choose what type of line we want for each line
+  scale_linetype_manual(values = c(2,1)) +
+  scale_color_manual(values = v_colors)
+  # this allows us to specify how the y-axis should appear
+  # scale_y_continuous(breaks = seq(0,60,by=10),
+  #                      labels = seq(0,60,by=10),
+  #                      limits = c(0,60)) +
+  #this adjusts the background style of the plot
+    theme_minimal() +
+  # this moves the legend to the bottom of the plot and removes the x axis title
+    theme(legend.position = "bottom",
+          axis.title.x = element_blank()) +
+    labs(title = "How has tobacco use varied over the years?",
+         y = "% of students")
+
+plot1 
+
+```
+
+We can see from this plot that the percentage of students who had only ever tried or currently used e-cigarettes was increasing since 2017, and at a faster rate than that of the usage of any tobacco products because the slope is more steeper.
+
+Now let's plot students who only reported using either e-cigarettes or other tobacco products (besides e-cigarettes), but not both.  together on the same plot. In this case we will look at students who have only smoked either only e-cigarettes or only other tobacco products besides e-cigarettes.
+
+Thus, we will have four groups (only e-cigarette ever users, only e-cigarette current users, only non-e-cigarette ever tobbaco users, and only non-e-cigarette current tobacco users) to plot.
+
+We will calculate the mean ever and current usage percentages for students who had only used e-cigarette or other tobacco products (besides e-cigarettes) for each year again using the `group_by()` function and the `summarize()` function. We will again use the `pivot_longer` function to convert our data to long format. We will also again use the `separate()` function of the `tidyr` package to create two variables from one of variables. This is done by separating by, in this case, a space. 
 
 ```{r}
 
@@ -1232,7 +1279,7 @@ plot1c
 
 ```
 
-We can see from this plot that the percentage of students who had only ever tried (or currently used) e-cigarettes was greatly increasing since 2017, while in contrast the percentage of students who had only ever tried non-e-cigarette tobacco products was  diminishing over time. In fact, we can see that in 2019 the percentage of students who were current e-cigarette users surpassed the percentage that had tried a non-e-cigarette product even just once. 
+Very intersting! We can see from this plot that the percentage of students who had only currently used (or ever tried) e-cigarettes  greatly increased since 2017, while in contrast the percentage of students who had only ever tried non-e-cigarette tobacco products actually diminished over time. In fact, we can see that in 2019 the percentage of students who were current e-cigarette users surpassed the percentage that had tried a non-e-cigarette product even just once. 
 
 We will explore the relaitonship between e-cigarette usage and other tobacco products a bit later in the case study.
 
@@ -1245,6 +1292,7 @@ nyts_data %>%
 ```
 
 We will now make a plot over time of each of these groups. Since we will have 4 total groups, we will use 4 of the viridis colors.
+Notice, that in this case we are grouping by three variables by simply speparating the variables that we want to group by with a comma in our `group_by()` function like this: `group_by(Group, year, n)`.
 
 ```{r}
 
@@ -1254,7 +1302,7 @@ nyts_data %>%
   mutate("Percentage of students" = group_count /n*100) %>%
   head()
 
-v_colors =  viridis(4)
+v_colors =  viridis(5)[1:4]
 
 nyts_data %>%
   group_by(Group, year, n) %>%
@@ -1268,14 +1316,18 @@ nyts_data %>%
 
 ```
 
+We can see that luckily the majority of students did not report using any tobacco prodcuts. Of the students that did report using tobacco products, the majority of the students used both e-cigarettes and some other tobacco product. Again, a much larger percentage reported using only e-cigarettes rather than only other tobacco products in 2019.
+
 ### Question 2
 
 Now we want to look how e-cigarette smoking rates compare between males and females across time. 
 
 
-We will calculate the mean e-cigarette ever and current percentages for each year and sex category again using the `group_by()` function and the `summarize()` function. Notice, that in this case we are grouping by two variables by simply using `group_by(year, Sex)`. We will again use the `pivot_longer` function to convert our data to long format.
+We will calculate the mean e-cigarette ever and current percentages for each year and sex category again using the `group_by()` function and the `summarize()` function.  We will again use the `pivot_longer` function to convert our data to long format.
 
 ```{r}
+
+v_colors =  viridis(6)[c(1,4)]
 
 nyts_data %>%
      group_by(year, Sex) %>%
@@ -1318,6 +1370,8 @@ It looks like the rates are fairly similar between the sexes, however the rate f
 
 We are also interested in what vaping brands and flavors appear to be used the most frequently. Only the 2019 data has this information. Therefore, we will filter for just this year using the `filter()` function of  the `dplyr` package. We will use the `summarize()` function slightly differently this time, to calculate the total number of students using each brand `n` using the `n()` function and the `sum()` function to calculate the percent for each brand based on the counts. 
 
+We will make a bar plot this time by using `geom_bar`. Importantly we assign the `stat` argument to `identity`, so that we are using the percentages that we calculated not the counts which is what is used by default. When color in specified outsied of the `aes()` argument, this determines the border color of the bars, which in this case will be black.
+
 
 ```{r}
 
@@ -1359,7 +1413,10 @@ knitr::include_graphics(here::here("img", "HuangJ_DuanZ_KwokJ_et_al_TobaccoContr
 ```
 
 We are also interested in how the usage of different flavors has changed over the years. 
-To evaluate this we will calculate the precentage of students using each flavor each year - this includes usage of any type of flavored tobacco product.
+
+START HERE
+
+To evaluate this we will calculate the precentage of students using each flavor each year - this includes usage of any type of flavored tobacco product. Recall that NA values are not included in calculating the total count for our percentages. Therefore, these values reflect the percentage of each flavor for students reporting using favored products (I think... kinda confused). Also students were allowed to select more than one flavor.
 
 ```{r}
 plot4 <- nyts_data %>%
@@ -1367,8 +1424,8 @@ plot4 <- nyts_data %>%
   group_by(year) %>%
 summarize(Menthol=(mean(menthol, na.rm = TRUE)*100),
          `Clove or Spice`=(mean(clove_spice, na.rm = TRUE)*100),
-              `Fruit`=(mean(fruit, na.rm = TRUE)*100),
-              `Chocolate`=(mean(chocolate, na.rm = TRUE)*100),
+              Fruit=(mean(fruit, na.rm = TRUE)*100),
+              Chocolate=(mean(chocolate, na.rm = TRUE)*100),
               `Alcoholic Drink`=(mean(alcoholic_drink, na.rm = TRUE)*100),
               `Candy/Desserts/Sweets`=(mean(candy_dessert_sweets, na.rm = TRUE)*100)) %>%
   pivot_longer(cols = -year, names_to = "Flavor", values_to = "Percentage of students") %>%
@@ -1386,17 +1443,12 @@ summarize(Menthol=(mean(menthol, na.rm = TRUE)*100),
 plot4 
 ```
 
-From this plot, we can see that fruit flavors are the most widely used products, followed by menthol or mint flavored products. 
+From this plot, we can see that fruit flavors are the most widely used products, followed by menthol or mint flavored products. We can also see that there was a general increase in the usage of flavored products over time.
 
 We will now look specificially at the usage of flavored e-cigarette products vs other flavored tobacco products. 
 
-Recall that we made a variable called `Group` that identified students who used either just e-cigarette products, just other tobacco products (besides e-cigarettes), or students who used both e-cigarettes and some other type of tobacco product.
+Recall that we made a variable called `Group` that identified students who used either just e-cigarette products, just other tobacco products (besides e-cigarettes), or students who used both e-cigarettes and some other type of tobacco product. We will compare the usage of these flavors for these different groups.
 
-```{r}
-count(nyts_data, Group)
-```
-
-The majority of the students that use tobacco use both e-cigarettes and other products.
 
 ```{r}
 plot5 <- nyts_data %>%
@@ -1409,7 +1461,6 @@ plot5 <- nyts_data %>%
   #          candy_dessert_sweets == TRUE|
   #          other == TRUE) %>%
 # we want to remove students that used both e-cigarette and other tobacco products
-  filter(Group != "Both") %>%
   group_by(year, Group) %>%
 summarize(Menthol=(mean(menthol, na.rm = TRUE)*100),
          `Clove or Spice`=(mean(clove_spice, na.rm = TRUE)*100),
