@@ -141,6 +141,7 @@ We will begin by loading the packages that we will need:
 ```{r}
 library(here)
 library(readxl)
+library(magrittr)
 library(stringr)
 library(purrr)
 library(dplyr)
@@ -158,6 +159,7 @@ library(cowplot)
 ---------- |-------------
 [here](https://github.com/jennybc/here_here){target="_blank"}       | to easily load and save data  
 [readxl](https://readxl.tidyverse.org/){target="_blank"}      | to import the data in the excel files 
+[magrittr](https://cran.r-project.org/web/packages/magrittr/vignettes/magrittr.html) {target="_blank"} | to use the compound assignment pipe operator `%<>%`
 [stringr](https://stringr.tidyverse.org/articles/stringr.html){target="_blank"}    | to manipulate the character strings within the data  
 [purrr](https://purrr.tidyverse.org/){target="_blank"}   | to import the data in all the different excel and csv files efficiently
 [dplyr](https://dplyr.tidyverse.org/){target="_blank"}      | to arrange/filter/select/compare specific subsets of the data  
@@ -926,6 +928,8 @@ We are also interested in e-cigarette usage compared to other tobacco products, 
 ```{r}
 glimpse(nyts_data)
 ```
+
+####
 
 Finally, we are also interested in students that only use e-cigarettes and those that only use other forms of tobacco.
 
