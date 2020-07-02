@@ -296,6 +296,12 @@ tbl_files <- excel_files %>%
 ```
 
 The elements of this list are in the same order as the elements of the `excel_files` vector, so we can extract the data for a particular file (year) by selecting a certain element of the list. However, it is safer to be able to select the data from this list for a specific year using a name based on the original vector of file names. We extracted a name from each Excel file name using the `str_extract()` function of the `stringr` package. Here we are keeping occurrences of the character string "nyts201" followed by a "5","6","7","8", or "9".
+
+AVOCADO: Would it be simpler to do
+tbl_names <- excel_files %>%
+   str_extract("nyts201[5-9]")
+below? I think all the square brackets could be confusing.
+
 ```{r}
 tbl_names <- excel_files %>%
   str_extract("nyts[2][0][1][5-9]")
@@ -307,6 +313,8 @@ These names became the names of the tibbles in the list of tibbles.
 ```{r, eval = FALSE}
 names(tbl_files) <- tbl_names
 ```
+
+AVOCADO: What is the distinction between a tibble and a data.frame and a data_frame? I'm not sure that this distinction is useful to go into, but it is something that kind of bugs me, in case you do want to elaborate on it.
 
 
 Specific columns were selected using the `select()` function of `dplyr` from each of the tibbles using the variable name, as identified in the codebook as being of interest for our analysis.
@@ -418,6 +426,8 @@ A directory called `data_reduced` was created for the new .csv files using the b
 A csv file was created for each of the tibbles in the list using the `write_csv()` function of the `readr` package.
 This was done all at once using the base `mapply()` function.
 
+AVOCADO: For writing the csv files, shouldn't you just use map rather than introducing mapply? You also include an example using map, and it seems like it would be more in keeping with the tidyverse environment. I saw your response to this -- I am not that familiar with map, actually, so I didn't understand that the code didn't work. I'm fine with just using mapply, but you probably want to remove the map code in that case.
+
 ```{r, eval = FALSE}
 # 
 dir.create("docs/data_reduced")
@@ -447,6 +457,8 @@ Now we will show how to read in the data from the five csv files that were creat
 ### Reading in the CSV files
 ***
 
+AVOCADO: Curious what the system time code is doing -- is it just left over from something before? It is not run or included in the markdown output.
+
 ```{r, echo=FALSE, include=FALSE}
 start_time <- Sys.time()
 
@@ -460,6 +472,12 @@ time_message <- paste("Duration of data import:",
       )
 ```
 
+AVOCADO: Same comment as above for:
+nyts_data_names <- list.files(recursive = TRUE,
+                         pattern = "*.csv")%>%
+  str_extract("nyts[2][0][1][5-9]")
+Potentially replace last line with
+  str_extract("nyts201[5-9]")
 
 ```{r}
 nyts_data <- list.files(here::here(),recursive = TRUE,
@@ -536,6 +554,9 @@ glimpse(nyts_data[["nyts2015"]])
 
 
 The data for 2016-2018 have many common attributes, so we will want to write code that can be applied to all three data sets. To do this, we will use a `function` in R, which is basically a piece of code that can be applied to similar but different objects in R (e.g., the data tibbles from each of these three years). For more information on functions, see for example [here](https://r4ds.had.co.nz/functions.html){target="_blank"}.
+
+AVOCADO: I added a link to the r4ds chapter on functions; are there other places in the case studies that we discuss functions? Or additional links or resources you want to add?
+
 
 These next 3 years have the same structure for many of the questions we are interested in. For example, they all have flavor questions, but not a brand question. Moreover, their variable names are consistent across the years; for each year, we want to replace the vague question name `Q50A` with the value `menthol` in all three data sets, and the same is true for the other flavor variables.  For each of these years, we also want to create a variable `brand_ecig` that just contains `NA` values.  
 
@@ -617,6 +638,8 @@ knitr::include_graphics(here::here("img", "grade.png"))
 **This is why it is so important to always check the codebook!!**
 
 We also  want to replace the value of `19` for `Age` to be `">18"` and the value of `13` for `Grade` to be replaced with `"Ungraded/Other"` Also according to the codebooks, numeric values of `1` indicate a survey answer of `FALSE`, while a value of `2` indicates `TRUE`. `Sex` needs to be recoded, but it is a bit unclear if it is encoded slightly differently across years.
+
+AVOCADO: For the Sex variable, how did you determine "It's a bit difficult to tell if the encoding was the same across years" -- I don't see documentation of this (i.e., is this missing from the codebook somehow?), so it might be helpful to let the reader know how you figured this out.
 
 
 Let's create a function to make all these updates except for `Sex`. We will use the `mutate` function again, as well as `mutate_all` and `recode` to replace specific values of certain variables.
@@ -710,6 +733,11 @@ nyts_data  <- nyts_data  %>% map_at(vars(-nyts2015), Update_flavors)
 
 Now there are just a few changes needed that are specific to 2019:
 
+AVOCADO: I think a little more illustration of the pre-data cleaning data would be helpful for understanding things like:
+mutate_all(~ replace(., . %in% c(".N",".S",".Z"), NA))
+What is the purpose of this line? How did you figure out these things needed to be replaced?
+
+
 ```{r}
 nyts_data[["nyts2019"]] <- nyts_data[["nyts2019"]] %>%
   mutate_all(~ replace(., . %in% c(".N",".S",".Z"), NA)) %>%
@@ -729,6 +757,7 @@ nyts_data[["nyts2019"]] <- nyts_data[["nyts2019"]] %>%
 Great! Now our values don't need to be handled any differently for any of the years, thus we can combine the data across years.
 
 Even though we have different numbers of variables for each year, we can coerce the data to be combined into one tibble by using the `bind_rows()` function of `dplyr`. Importantly, this function does not require that the columns be the same.  This will create NA values for any variable that is not present in given data frame but is  present in one of the other data frames that is being combined. Note that the `bind_cols()` function does expect that the rows match. The `.id` argument will create a new variable with values to link each row to its original data frame. For more information see [here](https://dplyr.tidyverse.org/reference/bind.html).
+
 
 ```{r}
 nyts_data <- nyts_data %>%
@@ -758,6 +787,11 @@ glimpse(nyts_data)
 
 Note that there are several variables where there are similar names, but with a `C` compared to an `E` in the variable name. Those starting with `C` are related to questions about current usage (last 30 days), while those with an `E` are related to usage across the subjects whole life ("ever" usage). We will discuss these groups further below.
 
+AVOCADO: I'm not sure why this reminder is where it is:
+Reminder: Current users are a subset of ever users. 
+I have added a bit of text just before it that I think gives it more context at least. But I think it should be removed from this spot and potentially moved to another location or just dropped. You make the same point below in the data wrangling section.
+
+AVOCADO: I'm not sure where this should go, but I had the thought so I figured I'd include it. Maybe we can be more consistent about how we refer to students, subjects, respondents?
 
 <style>
 div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
@@ -854,7 +888,7 @@ Here are some examples for these data entries:
  - EPIPE: Students who reported they have smoked tobacco from a pipe (not hookah).  
  - CPIPE: Students who reported they smoked tobacco in a pipe (not hookah) during the past 30 days. 
  - EROLLCIGTS: RECODE: Students who reported they have tried smoking roll-your-own cigarettes. 
- - CROLLCIGTS: RECODE: Students who reported smoked roll-your-own cigarettes during the past 30 days. 
+ - CROLLCIGTS: RECODE: Students who reported they smoked roll-your-own cigarettes during the past 30 days. 
  
 Based on many questions like this:  
  
@@ -876,11 +910,11 @@ E. Bidis (small brown cigarettes wrapped in a leaf)
 F. I have never tried any of the products listed above   
  
  
-We will sum across the variables that relate to ever or current tobacco usage questions to get determine if the student answered yes to any of the ever or current questions. 
+We will sum across the variables that relate to ever or current tobacco usage questions to determine if the student answered yes to any of the ever or current questions. 
 
 We will then use the `case_when()` function of the `dplyr` package to convert the sum values to `TRUE` or `FALSE` based on the threshold of zero. If the sum is greater than zero, then we know the student answered yes to at least one question. 
  
-
+AVOCADO: This may be a tidyverse philosophical question, but case_when() is kind of overkill: you could just do tobacco_ever = tobacco_sum_ever > 0, since the latter is just going to return TRUE or FALSE, or NA as appropriate. But that requires understanding vectorization in a way that the case_when does not.
 ```{r}
 nyts_data <-nyts_data %>%
     mutate(tobacco_sum_ever = select(., starts_with("E", ignore.case = FALSE)) %>%
@@ -902,6 +936,8 @@ glimpse(nyts_data)
 ####
 
 We are also interested in e-cigarette usage compared to other tobacco products, so we will create some variables related to the sum of all e-cigarette usage question variables and the sum of all tobacco usage question variables excluding those that are about e-cigarettes. There is only one variable about e-cigarette usage ever (EELCIGT) and one about current usage (CELCIGT).
+
+AVOCADO: For the e-cigarette variables, can't you just use EELCIGT and CELCIGT? No need to do any summing or case_when here since it is just the one variable in any case. Also, see my comment above about not needing to use case_when to get the binary variable you want.
 
 ```{r}
    nyts_data <-nyts_data %>% mutate(ecig_sum_ever = select(., EELCIGT) %>%
@@ -933,7 +969,7 @@ glimpse(nyts_data)
 
 ####
 
-Finally, we are also interested in students that only use e-cigarettes and those that only use other forms of tobacco.
+Finally, we are also interested in grouping students that only use e-cigarettes and those that only use other forms of tobacco.
 
 Recall that current users are a subset of ever users, thus students would typically answer yes to having tried vaping products if they had used them one or more days in the past 30 days.
 
@@ -947,8 +983,9 @@ test <- tibble(ecig_ever = c("TRUE", "TRUE", "TRUE", "TRUE", "FALSE", "FALSE", "
 test
 ```
 
-Now, let's look at identifying students who have only ever tried e-cigarettes, but are not current users, nor have they tried or do they currently use other tobacco products. We will again use the `case_when()` and the `mutate` function to accomplish creating new variables with specific values when certain conditions are met. In this case, we will specify that several statements of conditions  must be met by using the `&` symbol. Thus for a value of `TRUE` for the new `ecig_only_ever` variable, all of the conditions listed with `&` must be met.  If any of the last three conditions are `TRUE` than the `ecig_only_ever` value will be `FALSE` based on the last line `TRUE ~ FALSE`.
+Now, let's look at identifying students who have tried e-cigarettes, but are not current users, and who have never tried other tobacco products (and are therefore not current users). We will again use the `case_when()` and the `mutate` function to create new variables with specific values when certain conditions are met. In this case, we will specify that several conditions must be met by using the `&` symbol. For a value of `TRUE` for the new `ecig_only_ever` variable, all of the conditions combined with `&` must be met.  If any of the conditions are not met then the `ecig_only_ever` value will be `FALSE` based on the last line `TRUE ~ FALSE`.
 
+AVOCADO: In theory, non_ecig_ever == FALSE should imply non_ecig_current == FALSE, so is the last condition necessary? I'm not sure if the data are completely clean, i.e., are there some people who say they have never used, but who also say they are current users?
 
 ```{r}
 
@@ -963,7 +1000,7 @@ test
 We can see from the second row, that the `ecig_only_ever` is `TRUE` when we would expect it to be.
 We can also see from the fourth row, that even though the student reported yes to ever trying e-cigarettes, because they also reported yes to currently using e-cigarettes the value for only ever trying e-cigarettes is `FALSE`. Additionally we can see from the seventh row that similarly even though the student reported yest to ever trying e-cigarettes, they also reported yes to ever trying other products, and the value for only ever trying e-cigarettes is `FALSE`. Importantly, we can see from the 6th row, that if all responses are negative than the value is `FALSE`.
 
-Now we will expand this to the other possible categories. In this case Note that since current users are a subset of ever users, it doesn't matter if a user reports yes to ever trying  e-cigarettes, they can still be a current user.
+Now we will expand this to the other possible categories. In this case we note that since current users are a subset of ever users, it doesn't matter if a user reports yes to ever trying  e-cigarettes, they can still be a current user.
 
 
 ```{r}
@@ -996,7 +1033,11 @@ test
 
 Take a minute to check that the values are what we would expect.
 
-OK, now we are going to make a `Group` variable based on the new variables we just made. In this case we will have a particular value based on one condition **or** another. This **or** conditional is specified by the `|` symbol. Only one of the conditions needs to exist for that particular value, where as when we used the `&` symbol, all of the conditions had to be met. If a student has only ever tried or currently uses e-cigarettes, the value will be `Only e-cigarettes`. If a student has only ever tried or is a current user of other tobacco products the value will be `Only other products`. If the value of the no_use variable is simply `TRUE`, then the `Group` variable value will be `Neither`. Finally, if a student has tried or currently uses both e-cigarettes or other tobacco products the `Group` variable value will be `Combination of products`. Therefore the values for the usage of the variables based on only using e-cigarettes or only other products will all be `FALSE`. Of course the student will also have had to answer yes to any of the use-based questions, thus the no_use variable would also need to be `FALSE`.
+AVOCADO: There isn't an easy way of making horizontal scrolling like you have the vertical scrolling, is there? The columns are not all displayed in the knitted document, which makes checking the last four variables more difficult. 
+
+OK, now we are going to make a `Group` variable based on the new variables we just made. In this case we will have a particular value based on one condition **or** another. This **or** conditional is specified by the `|` symbol. Only one of the conditions needs to exist for that particular value, whereas when we used the `&` symbol, all of the conditions had to be met. If a student has ever tried or currently uses e-cigarettes, but has never tried other tobacco products, the value will be `Only e-cigarettes`. If a student has ever tried or is a current user of other tobacco products, but has never tried e-cigarettes, the value will be `Only other products`. If the value of the `no_use` variable is simply `TRUE`, then the `Group` variable value will be `Neither`. Finally, if a student has tried or currently uses both e-cigarettes and other tobacco products the `Group` variable value will be `Combination of products`. Therefore the values for the usage of the variables based on only using e-cigarettes or only other products will all be `FALSE`. Of course the student will also have had to answer yes to any of the use-based questions, thus the no_use variable would also need to be `FALSE`.
+
+AVOCADO: Consider dropping the last two sentences in the paragraph above? i.e., from "Therefore the values..." to "would also need to be `FALSE`." I'm not sure what they are adding.
 
 ```{R}
 
@@ -1072,9 +1113,9 @@ glimpse(nyts_data)
 
 ### Question 1 
 
-We are interested in investing how vaping product use has compared with other tobacco use. First we want to get a sense of how tobacco use has changed in general since 2015. 
+Recall that we are interested in investing how vaping product use has compared with other tobacco use. To answer this, we first want to get a sense of how tobacco use has changed in general since 2015. 
 
-To create a visualization about how tobacco usage has changed over time, we will first convert the usage data to a percent value for each year. To do this we will use the `group_by()` and `summarize` function of the `dplyr` package. This will create new variables which we will name `Ever` and `Current` based on the  percentages of `tobacco_ever` and `tobacco_current` for each year. In this case the `mean()` function is used to calculate the percentages based on using a value of `TRUE` as a count of of one and a value of `FALSE` as a count of zero. This function also automatically creates a total to divide by based on the total number of `TRUE` or `FALSE` values in the variable. NA values do not contribute to the total count. 
+To create a visualization about how tobacco usage has changed over time, we will first convert the usage data to a percent value for each year, telling us what percent of respondents fall into a particular usage category. To do this we will use the `group_by()` and `summarize()` functions of the `dplyr` package. This will create new variables which we will name `Ever` and `Current` based on the  percentages of `TRUE` values for `tobacco_ever` and `tobacco_current` for each year. In this case the `mean()` function is used to calculate the percentages based on an automatic conversion that R does where for TRUE/FALSE variables, `TRUE` is given a value of one and `FALSE` is given a value of zero. The mean of a 0-1 binary variable is just the percent of the time the value is 1. NA values do not contribute to the total count when we include the argument `na.rm = TRUE` to our function call. 
 
 <details> <summary> Click here to see a toy example:</summary>
 ```{r}
@@ -1104,7 +1145,7 @@ nyts_data %>%
 
 ```
 
-We will use the `pivot_longer` function to take all columns except year (in this case the `Ever` and `Current` columns), to create a column called `User` that will contain the current column name information and a column called `Percentage of students` which will contain the mean percentage values that we just calculated. This converts our data into a format called long format.
+We will use the `pivot_longer` function to take all columns except year (in this case the `Ever` and `Current` columns), to create a column called `User` that will contain the current column name information and a column called `Percentage of students` which will contain the mean percentage values that we just calculated. This converts our data into a format called "long" format.
 
 ```{r}
 
