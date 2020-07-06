@@ -10,7 +10,7 @@ tbl_names <- excel_files %>%
    str_extract("nyts201[5-9]")
 I think all the square brackets could be confusing.
 
-What is the distinction between a tibble and a data.frame? I'm not sure that this distinction is useful to go into, but it is something that kind of bugs me, in case you do want to elaborate on it.
+What is the distinction between a tibble and a data.frame and a data_frame? I'm not sure that this distinction is useful to go into, but it is something that kind of bugs me, in case you do want to elaborate on it.
 
 For writing the csv files, shouldn't you just use map rather than introducing mapply? You also include an example using map, and it seems like it would be more in keeping with the tidyverse environment.
 ##

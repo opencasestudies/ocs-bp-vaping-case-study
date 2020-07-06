@@ -1113,9 +1113,9 @@ glimpse(nyts_data)
 
 ### Question 1 
 
-Recall that we are interested in investing how vaping product use has compared with other tobacco use. To answer this, we first want to get a sense of how tobacco use has changed in general since 2015. 
+Recall that we are interested in investing how vaping product use has compared with other tobacco use over time. To answer this, we first want to get a sense of how tobacco use has changed in general since 2015. 
 
-To create a visualization about how tobacco usage has changed over time, we will first convert the usage data to a percent value for each year, telling us what percent of respondents fall into a particular usage category. To do this we will use the `group_by()` and `summarize()` functions of the `dplyr` package. This will create new variables which we will name `Ever` and `Current` based on the  percentages of `TRUE` values for `tobacco_ever` and `tobacco_current` for each year. In this case the `mean()` function is used to calculate the percentages based on an automatic conversion that R does where for TRUE/FALSE variables, `TRUE` is given a value of one and `FALSE` is given a value of zero. The mean of a 0-1 binary variable is just the percent of the time the value is 1. NA values do not contribute to the total count when we include the argument `na.rm = TRUE` to our function call. 
+To create a visualization of how tobacco usage has changed over time, we will first convert the usage data to a percent value for each year, telling us what percent of respondents fall into a particular usage category. To do this we will use the `group_by()` and `summarize()` functions of the `dplyr` package. This will create new variables which we will name `Ever` and `Current` based on the  percentages of `TRUE` values for `tobacco_ever` and `tobacco_current` for each year. In this case the `mean()` function is used to calculate the percentages based on an automatic conversion that R does where for TRUE/FALSE variables, `TRUE` is given a value of one and `FALSE` is given a value of zero. The mean of a 0-1 binary variable is just the percent of the time the value is 1. NA values do not contribute to the total count when we include the argument `na.rm = TRUE` to our function call. 
 
 <details> <summary> Click here to see a toy example:</summary>
 ```{r}
@@ -1135,6 +1135,8 @@ test
 test %>% summarize(Percentage = mean(var1, na.rm = TRUE)*100)
 ```
 </details>
+
+And now back to our data:
 
 ```{r}
 
@@ -1189,9 +1191,11 @@ plot1 <- nyts_data %>%
 plot1 
 ```
 
-Nice! Now we can see how overall tobacco usage has changed since 2017. It appears that usage has increased a bit since 2017, and has surpassed the levels in 2015.
+Nice! Now we can see how overall tobacco usage has changed since 2017. It appears that usage first decreased from 2015 to 2017 and then increased a bit since 2017, surpassing the levels in 2015.
 
 What about e-cigarette use? How has the usage of e-cigarettes changed over time?
+
+AVOCADO: Why leave in the commented lines below?
 
 ```{r}
 plot1a <- nyts_data %>%
@@ -1226,11 +1230,11 @@ It looks like the shape of the plot is very similar to tobacco usage overall. We
 
 Now let's plot this data together on the same plot.
 
-Thus, we will have four groups (e-cigarette ever users, e-cigarette current users,  ever tobacco users, and current tobacco users) to plot, therefore, it would be useful to add color to our plot. Keep in mind that e-cigarette users are a subset of any tobacco product users.
+We will have four groups (e-cigarette ever users, e-cigarette current users, tobacco ever users, and tobacco current users) to plot, therefore, it would be useful to add color to our plot. Keep in mind that e-cigarette users are a subset of any tobacco product users.
 
-One important thing to keep in mind when creating plots, is that individuals with color blindness may have a difficult time distinguishing groups when certain color choices are used. 
+One important thing to keep in mind when creating plots is that individuals with color blindness may have a difficult time distinguishing groups when certain color choices are used. 
 
-One great option is to use the `viridis` package, which offers color palettes with colors that are still distinguishable  by individuals with most forms of color blindness. 
+One great option is to use the `viridis` package, which offers color palettes with colors that are still distinguishable by individuals with most forms of color blindness. 
 
 We can choose which colors we want to use by using the `show_col()` function of the `scales` package.
 
@@ -1243,7 +1247,9 @@ v_colors =  viridis(6)[c(1,4)]
 
 We will select the first and fourth colors for our plot. To add these specific colors we will use the `scale_color_manual()` function of the `ggplot2` package.
 
-We will calculate the mean ever and current usage percentages for students who used e-cigarette or any tobacco products (including e-cigarettes) for each year again using the `group_by()` function and the `summarize()` function. We will again use the `pivot_longer` function to convert our data to long format. We will also use the `separate()` function of the `tidyr` package to create two variables from one of variables. This is done by separating by, in this case, an underscore. 
+We will calculate the mean ever and current usage percentages for students who used e-cigarettes or any tobacco products (including e-cigarettes) for each year again using the `group_by()` and `summarize()` functions. We will again use the `pivot_longer` function to convert our data to long format. We will also use the `separate()` function of the `tidyr` package to create two variables from one of the variables. This is done by separating by, in this case, an underscore. 
+
+AVOCADO: That use of separate is very clever; I wonder if it might be getting lost in the plot command.
 
 ```{r}
 plot1t <- nyts_data %>%
@@ -1259,7 +1265,8 @@ plot1t <- nyts_data %>%
   geom_point(show.legend = FALSE, size = 2) +
   # this allows us to choose what type of line we want for each line
   scale_linetype_manual(values = c(2,1)) +
-  scale_color_manual(values = v_colors)+
+  # we want purple associated with e-cigarettes to be consistent with later plots
+  scale_color_manual(values = rev(v_colors))+
   # this allows us to specify how the y-axis should appear
   # scale_y_continuous(breaks = seq(0,60,by=10),
   #                      labels = seq(0,60,by=10),
@@ -1276,13 +1283,13 @@ plot1t
 
 ```
 
-We can see from this plot that the percentage of students who had only ever tried or currently used e-cigarettes was increasing since 2017, and at a faster rate than that of the usage of any tobacco products because the slope is more steeper.
+We see an increase in all categories starting in 2017, but the rate of increase is higher for students using only e-cigarettes (current or ever users), as shown by the higher slope of the e-cigarette lines.
 
-Now let's plot students who only reported using either e-cigarettes or other tobacco products (besides e-cigarettes), but not both.  together on the same plot. In this case we will look at students who have only smoked either only e-cigarettes or only other tobacco products besides e-cigarettes.
+In the above plots, the "Any tobacco product" groups include individuals in the "E-cigarette only" groups. Now let's plot students in two mutually exclusive groups on the same plot: those who reported either using only e-cigarettes or only other tobacco products (besides e-cigarettes), but not both. 
 
-Thus, we will have four groups (only e-cigarette ever users, only e-cigarette current users, only non-e-cigarette ever tobacco users, and only non-e-cigarette current tobacco users) to plot.
+We will calculate the mean ever and current usage percentages for students in these two mutually exclusive groups, again using the `group_by()` function and the `summarize()` function. We will again use the `pivot_longer` function to convert our data to long format. We will also again use the `separate()` function of the `tidyr` package to create two variables from one variable. This is done by separating by, in this case, a space. 
 
-We will calculate the mean ever and current usage percentages for students who had only used e-cigarette or other tobacco products (besides e-cigarettes) for each year again using the `group_by()` function and the `summarize()` function. We will again use the `pivot_longer` function to convert our data to long format. We will also again use the `separate()` function of the `tidyr` package to create two variables from one of variables. This is done by separating by, in this case, a space. 
+AVOCADO: Why the switch from _ to space for the separate command? Also, colors switch order below -- I think it would be better for e-cigarettes to be blue or purple consistently, right? Looks like it would be easier to switch the plots above to be consistent with the main figure.
 
 ```{r}
 
@@ -1319,14 +1326,14 @@ plot1c <- nyts_data %>%
   # this moves the legend to the bottom of the plot and removes the x axis title
     theme(legend.position = "bottom",
           axis.title.x = element_blank()) +
-    labs(title = "How has use of only e-cigarettes and and \n only tobacco products besides e-cigarettes varied over time?",
+    labs(title = "How has use of only e-cigarettes and \n only tobacco products besides e-cigarettes varied over time?",
          y = "% of students")
 
 plot1c
 
 ```
 
-Very interesting! We can see from this plot that the percentage of students who had only currently used (or ever tried) e-cigarettes  greatly increased since 2017, while in contrast the percentage of students who had only ever tried non-e-cigarette tobacco products actually diminished over time. In fact, we can see that in 2019 the percentage of students who were current e-cigarette users surpassed the percentage that had tried a non-e-cigarette product even just once. 
+Very interesting! We can see from this plot that the percentage of students who had currently used (or ever tried) only e-cigarettes greatly increased starting in 2017, while in contrast the percentage of students who had ever tried only non-e-cigarette tobacco products actually diminished over time. In fact, we can see that in 2019 the percentage of students who were current e-cigarette users surpassed the percentage that had tried a non-e-cigarette product even just once. 
 
 
 Recall that we made a variable called `Group` that identified students who used either just e-cigarette products, just other tobacco products (besides e-cigarettes), or students who used both e-cigarettes and some other type of tobacco product.
@@ -1337,7 +1344,9 @@ nyts_data %>%
 ```
 
 We will now make a plot over time of each of these groups. Since we will have 4 total groups, we will use 4 of the viridis colors.
-Notice, that in this case we are grouping by three variables by simply separating the variables that we want to group by with a comma in our `group_by()` function like this: `group_by(Group, year, n)`. We will also rename the `year` variable to be upper case using the `rename()` function of the `tidyr` package.
+Notice, that in this case we are grouping by three variables by simply separating the variables that we want to group by with a comma in our `group_by()` function like this: `group_by(Group, year, n)`. We will also rename the `year` variable to be upper case using the `rename()` function of the `tidyr` package. We do this just to make the plot label look nicer.
+
+AVOCADO: The renaming is only for the sake of the plot label, right?
 
 ```{r}
 
@@ -1362,9 +1371,9 @@ nyts_data %>%
 
 ```
 
-We can see that luckily the majority of students did not report using any tobacco products. Of the students that did report using tobacco products, the majority of the students used both e-cigarettes and some other tobacco product. Again, a much larger percentage reported using only e-cigarettes rather than only other tobacco products in 2019.
+We can see that the majority of students did not report using any tobacco products. Of the students that did report using tobacco products, the majority of the students used both e-cigarettes and some other tobacco product. Again, a much larger percentage reported using only e-cigarettes rather than only other tobacco products in 2019.
 
-We will explore the relationship between e-cigarette usage and other tobacco products a bit later in the case study.
+We will further explore the relationship between e-cigarette usage and other tobacco products a bit later in the case study.
 
 
 ### Question 2
@@ -1372,7 +1381,9 @@ We will explore the relationship between e-cigarette usage and other tobacco pro
 Now we want to look how e-cigarette smoking rates compare between males and females across time. 
 
 
-We will calculate the mean e-cigarette ever and current percentages for each year and sex category again using the `group_by()` function and the `summarize()` function.  We will again use the `pivot_longer` function to convert our data to long format.
+We will calculate the percent ever and current e-cigarette users for each year and sex category again using the `group_by()` function and the `summarize()` function.  We will again use the `pivot_longer` function to convert our data to long format.
+
+AVOCADO: There are NA values for Sex; should these be explicitly filtered out? Right now, they are not displayed on the plot I guess because they don't have a color assigned, but there is still an NA in the legend. I would probably just use the filter command to remove them from the data set passed to ggplot. Also, in this plot title e-cigarette is changed to vaping -- is that on purpose? Should we make that change earlier or throughout the case study? Or stick with e-cigarette?
 
 ```{r}
 
@@ -1417,10 +1428,11 @@ It looks like the rates are fairly similar between the sexes, however the rate f
 
 ### Question 3
 
-We are also interested in what vaping brands and flavors appear to be used the most frequently. Only the 2019 data has this information. Therefore, we will filter for just this year using the `filter()` function of  the `dplyr` package. We will use the `summarize()` function slightly differently this time, to calculate the total number of students using each brand `n` using the `n()` function and the `sum()` function to calculate the percent for each brand based on the counts. 
+We are also interested in what vaping brands and flavors appear to be used the most frequently. Only the 2019 data set has this information. Therefore, we will filter for just this year using the `filter()` function of  the `dplyr` package. We will use the `summarize()` function slightly differently this time, to calculate the total number of students using each brand using the `n()` function and the `sum()` function to calculate the percent for each brand based on the counts. We will also reorder the factor levels for the brand names so that they are in descending order of percent use, using the `fct_reorder()` function from `dplyr`.
 
 We will make a bar plot this time by using `geom_bar`. Importantly we assign the `stat` argument to `identity`, so that we are using the percentages that we calculated not the counts which is what is used by default. When color in specified outside of the `aes()` argument, this determines the border color of the bars, which in this case will be black.
 
+AVOCADO: I think it might be worth pointing out the trick of reordering the factor by the values of another variable (which I actually did not know you could do). I added a sentence above.
 
 ```{r}
 
@@ -1455,18 +1467,18 @@ plot3 <- nyts_data %>%
 plot3
 ```
 
-Juul appears to be the most widely used brand. This is in agreement with a recent [article](https://tobaccocontrol.bmj.com/content/tobaccocontrol/28/2/146.full.pdf):
+Juul appears to be the most widely used brand. This is in agreement with a recent [article](https://tobaccocontrol.bmj.com/content/tobaccocontrol/28/2/146.full.pdf), whose most recent data was from 2017:
 
 ```{r, echo=FALSE, fig.cap="Huang J, Duan Z, Kwok J, et al. Tob Control 2019;28:146–151.", out.width = '100%'}
 knitr::include_graphics(here::here("img", "HuangJ_DuanZ_KwokJ_et_al_TobaccoControl_Figure1.png"))
 ```
 
-We are also interested in how the usage of different flavors has changed over the years. 
+We are also interested in how the usage of different flavors has changed over time. 
 
 
-To evaluate this we will calculate the percentage of students using each flavor each year - this includes usage of any type of flavored tobacco product. We will exclude 2015 data, as no specific flavor questions were yet asked at that time.
+To evaluate this we will calculate the percentage of students using each flavor each year - this includes usage of any type of flavored tobacco product. We will exclude 2015 data, as no specific flavor questions were asked at that time.
 
-Recall that `NA` values are not included in calculating the total count for our percentages. However all of these flavor questions had complete reporting and did not have `NA` values. Therefore, these values reflect the percentage of students reporting using a particular favor out of all students surveyed (including those that did not use any tobacco products). Also students were allowed to select more than one flavor. You can look at if these variables had complete reporting by checking the `NA` values by using the base `summary` function. Alternatively you can create a visual representation using the `vis_miss()` function of the `naniar` package.
+Recall that `NA` values are not included in calculating the total count for our percentages. However all of these flavor questions had complete reporting and did not have `NA` values. Therefore, these values reflect the percentage of students reporting using a particular favor out of all students surveyed (including those that did not use any tobacco products). Also students were allowed to select more than one flavor. You can see whether these variables had complete reporting by checking the `NA` values using the base `summary` function. Alternatively you can create a visual representation using the `vis_miss()` function of the `naniar` package.
 
 #### {.scrollable}
 ```{r}
@@ -1478,6 +1490,7 @@ nyts_data %>%
 ```
 ####
 
+
 ```{r}
 nyts_data %>%
   filter(year!=2015) %>%
@@ -1486,7 +1499,7 @@ nyts_data %>%
 
 ```
 
-We can confirm with this plot that these variables have no `NA` values.
+The plot above confirms that these variables have no `NA` values.
 
 ```{r}
 plot4 <- nyts_data %>%
