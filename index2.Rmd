@@ -1499,7 +1499,7 @@ nyts_data %>%
 
 ```
 
-The plot above confirms that these variables have no `NA` values.
+The plot above confirms that these variables have no `NA` values (because all fields indicate 100% of data is present).
 
 ```{r}
 plot4 <- nyts_data %>%
@@ -1532,7 +1532,7 @@ From this plot, we can see that fruit flavors are the most widely used products,
 
 We will now look specifically at the usage of flavored e-cigarette products vs other flavored tobacco products. 
 
-Recall that we made a variable called `Group` that identified students who used either just e-cigarette products, just other tobacco products (besides e-cigarettes), or students who used both e-cigarettes and some other type of tobacco product. We will compare the usage of these flavors for these different groups.
+Recall that we made a variable called `Group` that identified students who used either just e-cigarette products, just other tobacco products (besides e-cigarettes), or students who used both e-cigarettes and some other type of tobacco product. We will compare the usage of these flavors for these different groups. We also perform some data summaries to decide how to order the panels (flavors) for display.
 
 
 ```{r}
@@ -1572,6 +1572,9 @@ plot5 <- nyts_data %>%
 
 plot5
 ```
+
+AVOCADO: What does the dense_rank function do? I guess something to order the panels by a summary of all the groups? I added a line to the paragraph above mentioning the ordering, but I'm not completely sure how it is done, in case you want to add another note.
+AVOCADO: Why is the Neither group included? Shouldn't all these values be 0?
 
 We can see from this plot that there has been an increase in the number of students reporting using flavored tobacco products. Users who use both e-cigarettes and other tobacco products appear to report using flavored products the most, followed by users who only use e-cigarettes.
 
@@ -1672,7 +1675,7 @@ plot8 <- nyts_data %>%
     theme_linedraw() +
     theme(legend.position = "bottom",
           axis.title.x = element_blank()) +
-    labs(title = "How does the rate of currently using e-cigarettes \ncompare to currently using other products over time",
+    labs(title = "How does the rate of currently using e-cigarettes \ncompare to currently using other products over time?",
          y = "% of students")
 
 plot8
@@ -1680,7 +1683,7 @@ plot8
 
 Now we will put these plots together using the `plot_grid()` function of the `cowplot` package.  We will also modify the labels using the `ggdraw()` function, which is also part of the `cowplot` package.
 
-
+AVOCADO: Why is this section header here? I don't think it belongs here.
 ### Unweighted Sample
 
 ```{r, fig.height=10}
@@ -1745,13 +1748,11 @@ figure_uw
 
 ### Survey Weighting
 
-Now we will use [survey weighting](http://www.applied-survey-methods.com/weight.html){target="_blank"} to see if this changes the general trends that we see in our data. This is a common technique used in survey data analysis because often the individuals that take a survey are not necessarily representative of the population that we are trying to gather information about.
+It turns out that our analysis thus far has been brushing an important statistical concept under the rug, related to how our data were collected. Our data come from responses to a survey, which may have a particular sampling scheme to capture data about the population we are interested in. For example, the survey may be designed to capture a set of individuals who reflect the characteristics of the population that we are interested in drawing conclusions about. However, only a fraction of the individuals who were contacted about taking the survey may have completed it, and this fraction of individuals may no longer be representative of the population. Or the survey may be designed to over-sample a particular group of interest so that individuals from that group show up more often as survey respondents than are present in the population overall. In order to account for the fact that the survey respondents may not reflect the composition of the population we want to generalize to, we can emply a technique called [survey weighting](http://www.applied-survey-methods.com/weight.html){target="_blank"}.
 
-For example, we may have more females that respond to the survey than males because perhaps female students were more willing to participate. In this case, the proportion of data values in our data will be smaller for the males than the proportion of actual male students and larger for the females than the true proportion of actual female students. To get a better estimate of overall e-cigarette smoking rates, the data from the males can be weighted based on the true proportion of male students to amplify the contribution of the responses from the males that did participate. Conversely, the female data can be weighted to diminish the contribution if their responses to the overall picture.
+Survey weighting is a common technique used in survey data analysis because often the individuals that take a survey are not necessarily representative of the population that we are trying to gather information about. For example, we may have more females that respond to the survey than males because perhaps female students were more willing to participate. In this case, the proportion of data values in our data will be smaller for the males than the proportion of actual male students and larger for the females than the true proportion of actual female students. To get a better estimate of overall e-cigarette smoking rates, the data from the males can be weighted based on the true proportion of male students to amplify the contribution of the responses from the males that did participate. Conversely, the female data can be weighted to diminish the contribution if their responses to the overall picture. We will see if using survey weighting changes the general trends that we see in our data. 
 
-This involves making a weight based on the ratio of the proportion of survey respondents of particular group and the actual proportion of of that group in the population.
-
-For example, let's say that females account for 50% of the population and males account for 50 % of the population. Let's also say that 75% of the respondents for the survey were female and only 25% were males. 
+Calculating survey weights involves making a weight based on the ratio of the proportion of survey respondents from a particular group and the actual proportion of that group in the population. For example, let's say that females account for 50% of the population and males account for 50 % of the population. Let's also say that 75% of the respondents to the survey were female and only 25% were males. 
 
 Then we could calculate survey weights using this formula:
 
@@ -1765,11 +1766,11 @@ The weight for the males would be calculated as:
 
 $$ \frac{.5}{.25} = 2$$
 
-Therefore each male response value would be multiplied by a factor of 2 and would have twice the contribution, while the female response values would have only about 70% of the contribution that they would have had otherwise.
+Therefore each male response value would be multiplied by a factor of 2 and would have twice the contribution, while the female response values would have only about 70% of the contribution that they would have had without weighting.
 
 Note that survey weights are in reality corrected for other aspects - for example the response rate to individual questions.
 
-We do not need to calculate survey weights for our data as they were already supplied in the codebooks. 
+We do not need to calculate survey weights for our data as they were already supplied, as described in the codebooks. 
 
 #### `srvyr` package and survey design 
 
