@@ -125,6 +125,16 @@ We will base this on the following survey questions:
 *** 
 
 In this case study, we will cover how to import data from multiple files efficiently, how to import data from excel files, and how to make a variety of visualizations to compare multiple groups across time. We will also demonstrate how to work with codebooks. We will cover the concept of survey weighting and introduce the `srvyr` package. We will discuss the difference between pooled cross-sectional data and panel data. We will especially focus on using packages and functions from the [`Tidyverse`](https://www.tidyverse.org/){target="_blank"} for wrangling data, such as `tidyr` and `dplyr` and for visualization, such as as `ggplot2`. The tidyverse is a library of packages created by RStudio. While some students may be familiar with previous R programming packages, these packages make data science in R especially efficient.
+AVOCADO: I would like these to be more detailed and probably separated into two categories along the lines of data science skills and statistical methods, so that the data import and visualization are in one category and the survey weighting is in another category. This is to help instructors who may be looking for an illustration of a particular tool or method to more readily identify an appropriate case study. More like keywords..... An attempt is below.
+
+Learning objectives:
+Data science skills:
+1) Import data from Excel files
+2) Merge data from multiple similar but not identical data structures
+3) Create effective longitudinal data visualizations
+
+Statistical methods:
+1) Survey weighting
 
 
 ```{r, out.width = "20%", echo = FALSE, fig.align ="center"}
@@ -160,7 +170,7 @@ library(cowplot)
 ---------- |-------------
 [here](https://github.com/jennybc/here_here){target="_blank"}       | to easily load and save data  
 [readxl](https://readxl.tidyverse.org/){target="_blank"}      | to import the data in the excel files 
-[magrittr](https://cran.r-project.org/web/packages/magrittr/vignettes/magrittr.html) {target="_blank"} | to use the compound assignment pipe operator `%<>%`
+[magrittr](https://cran.r-project.org/web/packages/magrittr/vignettes/magrittr.html){target="_blank"} | to use the compound assignment pipe operator `%<>%`
 [stringr](https://stringr.tidyverse.org/articles/stringr.html){target="_blank"}    | to manipulate the character strings within the data  
 [purrr](https://purrr.tidyverse.org/){target="_blank"}   | to import the data in all the different excel and csv files efficiently
 [dplyr](https://dplyr.tidyverse.org/){target="_blank"}      | to arrange/filter/select/compare specific subsets of the data  
@@ -232,6 +242,7 @@ The data in this case study comes from the [National Youth Tobacco Survey (NYTS)
 The data for this survey is freely available online at this [website](https://www.cdc.gov/tobacco/data_statistics/surveys/nyts/data/index.html){target="_blank"} with data from 1999, 2000, 2002, 2004, 2006, 2009,  and 2011-2019. We will be using data from **2015-2019** due to the fact that these years are the most recent that asked questions regarding e-cigarette usage.
 
 Each year includes documentation, such as a [codebook](https://www.icpsr.umich.edu/icpsrweb/content/shared/ICPSR/faqs/what-is-a-codebook.html) and an excel file containing the data:
+AVOCADO: The codebook link is not working for me. Also, I'm not sure why the same link is used three times here. I would think at least one of these links would be to an actual codebook from the survey being used. Or you can refer to the codebooks in the docs folder 
 
 ```{r, echo = FALSE, fig.align ="center", out.width = "600 px"}
 
@@ -1770,37 +1781,38 @@ Therefore each male response value would be multiplied by a factor of 2 and woul
 
 Note that survey weights are in reality corrected for other aspects - for example the response rate to individual questions.
 
-We do not need to calculate survey weights for our data as they were already supplied, as described in the codebooks. 
+We do not need to calculate survey weights for our data as they were already supplied in the data set, as described in the codebooks. 
 
 #### `srvyr` package and survey design 
 
 ***
 
-We will now use the `srvyr` package to evaluate our data using survey weights that were provided in the respective codebooks for the data for each year.
+We will now use the `srvyr` package to evaluate our data using survey weights that were provided in the data for each year, as described in the respective codebooks. This package contains functions that allow the user to easily perform calculations from the data that take the survey design into account, withouth having to work out the math by hand.
 
-Within the data you will see that we have variables called  `psu`, `finwgt`, and `stratum:
+Within the data you will see that we have three variables related to the survey sampling scheme:  `psu`, `finwgt`, and `stratum`:
 
-1) `PSU` - Surveys like the one used to create the data we are using often sample people based on strata. This is done to ensure that the responses are representative of the population of interest. Thus, often people first think about ensuring that surveys are conducted in a variety of geographical areas. This is often called the **primary sampling unit** or **psu**. In [this survey](https://web.sph.harvard.edu/mch-data-connect/results/national-youth-tobacco-survey-nyts/){target="_blank"}, the county where the student's school was located was used as the psu. 
+1) `psu`: Surveys like the one used to create the data we are using often sample people based on strata. This is done to ensure that the responses are representative of the population of interest. Thus, often people first think about ensuring that surveys are conducted in a variety of geographical areas. This is often called the **primary sampling unit** or **PSU**. In [this survey](https://web.sph.harvard.edu/mch-data-connect/results/national-youth-tobacco-survey-nyts/){target="_blank"}, the county where the student's school was located was used as the PSU. 
 
-2) The `stratum` variable is a subset of the data that includes respondents from different *PSUs*. Estimates for the values for responses are calculated using different strata allowing for improved precision of the response estimates.
+2) `stratum`: A categorical variable that indicates subsets of the data that include respondents from different *PSUs*. In our case, strata are determined by the predominant minority in the PSU (Non-Hispanic Black or Hispanic), whether the PSU is urban or non-urban, and what percent of the students in the PSU fall into the predominant minority group. PSUs are allocated across the 16 possible strata according to the sampling scheme. These strata values allow estimates based on the survey responses to be calculated using different strata allowing for improved precision of the response estimates.
+AVOCADO: I added a bunch of details here to the definition of stratum - perhaps give it a quick read. I also think it might be worth including one of the Methodology Reports, which is where I pulled this information from.
 
-3) The `finwgt` is the survey weight which was calculated based on a variety of factors.
+3) `finwgt`: The survey weight which was calculated based on a variety of factors.
 
 This [link](https://web.sph.harvard.edu/mch-data-connect/results/national-youth-tobacco-survey-nyts/){target="_blank"} and this [link](https://osf.io/n7r32){target="_blank"} have more information about the study design of the data that we are using.
 
-For detailed information on such survey designs in general see [here](http://www.asasrms.org/Proceedings/y2008/Files/301835.pdf
-http://ocw.jhsph.edu/courses/StatMethodsForSampleSurveys/PDFs/Lecture5.pdf){target="_blank"}.
+For detailed information on such survey designs in general see [here](http://www.asasrms.org/Proceedings/y2008/Files/301835.pdf){target="_blank"} and [here](http://ocw.jhsph.edu/courses/StatMethodsForSampleSurveys/PDFs/Lecture5.pdf){target="_blank"}.
+AVOCADO: This link does not work -- it looks like two different URLs? I have split it into two.
 
-We will use the `as_survey_desing()` function of the `srvyr`package to create a survey object with a specified survey design, in other words it includes information about how the survey was conducted.
+We will use the `as_survey_design()` function of the `srvyr`package to create a survey object with a specified survey design. This is a special R object that includes information about how the survey was conducted that can be taken into account in the analysis.
 
 There are several arguments to pay attention to:
 
-1) The `strata` argument of the is used to specify the variables that defined strata in the data.
-2) The `ids` argument is used to define cluster ids within the data - in this case we will use the `psu`.
+1) The `strata` argument is used to specify the variable(s) that defined strata in the data. In this case, we will use the `stratum` variable.
+2) The `ids` argument is used to define cluster ids within the data. In this case we will use the `psu` variable.
 3) The `weight` argument is the  used to define which variable(s) are the survey weights.
-4) The `nest = TRUE` argument, forces cluster ids (in this case the psu) to be nested within the strata.
+4) The `nest = TRUE` argument, forces cluster ids (in this case the PSU) to be nested within the strata.
 
-We can then use the `survey_mean()` function to calculate means of students who report using tobacco for each year while accounting for the survey design and weights. We will specify that we want [confidence interval](https://en.wikipedia.org/wiki/Confidence_interval) estimates by using the `vartype = "ci"` argument. The confidence intervals in our case give a range of possible values for the true population mean based on the data observed in the survey. We will multiply these values by 100 to get percentages.
+We can then use the `survey_mean()` function to calculate percentages of students who report using tobacco for each year while accounting for the survey design and weights. We will specify that we want [confidence interval](https://en.wikipedia.org/wiki/Confidence_interval) estimates by using the `vartype = "ci"` argument. The confidence intervals in our case give a range of possible values for the true population mean based on the data observed in the survey. We will multiply these values by 100 to get percentages.
 
 ### Weighted Sample
 ```{r}
@@ -1832,6 +1844,7 @@ nyts_data %>%
 
 ```
 
+AVOCADO: Why are we calculating confidence intervals here, but not in the unweighted case? Is it just because the survey_mean function does it automatically? We could calculate it for the unweighted percentages as a statistical lesson (formula for confidence interval for a population proportion).
 
 We will now make a plot using this data. The confidence intervals are included using the `geom_linerange()` function of the `ggplot2` package.
 
@@ -1980,6 +1993,8 @@ plotC_w
 
 Now we will put these plots together again using the `cowplot` package:
 
+AVOCADO: I assume this plot title should change to something like: "What is the relationship between vaping rates and tobacco use?" 
+
 ```{r}
 title_w <- ggdraw() + 
   draw_label(
@@ -2021,9 +2036,15 @@ figure_w <- plot_grid(title_w,
 figure_w
 ```
 
-Now we are interested in looking at how tobacco usage changed for students of the same age. All of the data so far has included all 6th-12th graders every year. Now we will look at just the data for students expected to graduate in 2019. Thus these are the students who were in 8th grade in 2015. Most of these students were 9th graders in 2016 and so on. So first we will filter for the data for just the graduating class of 2019 students.
+We can see that these figures look quite similar to the ones generated without using the survey weights.
 
-### Hypothetical Cohort
+### Artificial Cohort
+
+Although the survey design does not allow specific individuals to be followed over time, we will use certain subsets of the data from each year to construct an artificial cohort where we follow students of the same age group as they get older. This will allow us to look at how tobacco usage changed for students who were in 8th grade in 2015 as they aged. 
+
+All of the data so far has included all 6th-12th graders every year. Now we will look at just the data for students expected to graduate in 2019. These are the students who were in 8th grade in 2015, most of whom were 9th graders in 2016, 10th graders in 2017 and so on. We will filter the data to just the students expected to be in the graduating class of 2019.
+
+
 ```{r}
 Cohort_data <-nyts_data %>%
   filter((Grade == "8" & year == 2015) |
@@ -2057,7 +2078,7 @@ summarize(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
 head(Cohort_data)
 ```
 
-We will now make similar plots for this subset of the data:
+We will now make similar plots to those above for this subset of the data:
 
 ```{r}
 plotA_w_8 <-Cohort_data %>%
@@ -2105,7 +2126,7 @@ plotC_w_8 <-Cohort_data %>%
 
 title_w_8 <- ggdraw() + 
   draw_label(
-    expression("Among students expected to be in the graduating class of 2019, have vaping rates possibly influenced tobacco use?"),
+    expression("Among students expected to be in the graduating class of 2019, how are vaping rates related to tobacco use?"),
     fontface = 'bold',
     size=14,
     x = 0,
@@ -2146,7 +2167,7 @@ figure_w_8
 
 ### Final Figure
 
-Finally we will put our plots together to create a plot that describes the relationship between e-cigarette usage and overall tobacco use.
+Finally we will put our plots together to create a plot that describes the relationship between e-cigarette usage and overall tobacco use, combining both our first set of unweighted results, and those calculated using the `srvyr` package.
 
 ```{r}
 title_final <- ggdraw() +
