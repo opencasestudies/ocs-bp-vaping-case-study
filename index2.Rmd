@@ -108,7 +108,7 @@ Gentzke, Andrea S., Melisa Creamer, Karen A. Cullen, Bridget K. Ambrose, Gordon 
 #### {.main_question_block}
 <b><u> Our main question: </u></b>
 
-1) How has tobacco and e-cigarette use by American youths changed since 2015?
+1) How has tobacco and e-cigarette/vaping use by American youths changed since 2015?
 2) How do vaping rates compare between males and females?
 3) What vaping brands and flavors appear to be used the most frequently?  
 We will base this on the following survey questions:   
@@ -116,25 +116,29 @@ We will base this on the following survey questions:
 >" What flavors of tobacco products have you used in the past
 30 days?" 
 
-4) Have vaping rates possibly influenced tobacco use?
+4) Is there a relationship between e-cigarette/vaping use and other tobacco use?
 
 ####
 
+AVOCADO: Note that I did change question 4 above to be less causal sounding
 
 ## **Learning Objectives** 
 *** 
 
 In this case study, we will cover how to import data from multiple files efficiently, how to import data from excel files, and how to make a variety of visualizations to compare multiple groups across time. We will also demonstrate how to work with codebooks. We will cover the concept of survey weighting and introduce the `srvyr` package. We will discuss the difference between pooled cross-sectional data and panel data. We will especially focus on using packages and functions from the [`Tidyverse`](https://www.tidyverse.org/){target="_blank"} for wrangling data, such as `tidyr` and `dplyr` and for visualization, such as as `ggplot2`. The tidyverse is a library of packages created by RStudio. While some students may be familiar with previous R programming packages, these packages make data science in R especially efficient.
+
+
 AVOCADO: I would like these to be more detailed and probably separated into two categories along the lines of data science skills and statistical methods, so that the data import and visualization are in one category and the survey weighting is in another category. This is to help instructors who may be looking for an illustration of a particular tool or method to more readily identify an appropriate case study. More like keywords..... An attempt is below.
 
-Learning objectives:
 Data science skills:
-1) Import data from Excel files
-2) Merge data from multiple similar but not identical data structures
-3) Create effective longitudinal data visualizations
+
+1. Import data from Excel files
+2. Merge data from multiple similar but not identical data structures
+3. Create effective longitudinal data visualizations
 
 Statistical methods:
-1) Survey weighting
+
+1. Survey weighting
 
 
 ```{r, out.width = "20%", echo = FALSE, fig.align ="center"}
@@ -224,7 +228,7 @@ See [here](https://www.cdc.gov/tobacco/basic_information/e-cigarettes/Quick-Fact
 *** 
 There are some important considerations regarding this data analysis to keep in mind: 
 
-1) The data included in the [National Youth Tobacco Survey (NYTS)](https://www.cdc.gov/tobacco/data_statistics/surveys/nyts/index.htm){target="_blank"} does not follow the same individual students over time.  A [longitudinal study](https://www.bmj.com/about-bmj/resources-readers/publications/epidemiology-uninitiated/7-longitudinal-studies){target="_blank"} that does follow the same individuals over time collects data called [panel data](https://en.wikipedia.org/wiki/Panel_data). The data in this study is called pooled [cross-sectional data](https://en.wikipedia.org/wiki/Cross-sectional_data), and is obtained from random collection of observations across time.
+1) The [National Youth Tobacco Survey (NYTS)](https://www.cdc.gov/tobacco/data_statistics/surveys/nyts/index.htm){target="_blank"} does not follow the same individual students over time.  A [longitudinal study](https://www.bmj.com/about-bmj/resources-readers/publications/epidemiology-uninitiated/7-longitudinal-studies){target="_blank"} that does follow the same individuals over time collects data called [panel data](https://en.wikipedia.org/wiki/Panel_data). The data in this study is called pooled [cross-sectional data](https://en.wikipedia.org/wiki/Cross-sectional_data), and is obtained from random collection of observations across time.
 
 According to Wikipedia:
 
@@ -241,16 +245,15 @@ The data in this case study comes from the [National Youth Tobacco Survey (NYTS)
 
 The data for this survey is freely available online at this [website](https://www.cdc.gov/tobacco/data_statistics/surveys/nyts/data/index.html){target="_blank"} with data from 1999, 2000, 2002, 2004, 2006, 2009,  and 2011-2019. We will be using data from **2015-2019** due to the fact that these years are the most recent that asked questions regarding e-cigarette usage.
 
-Each year includes documentation, such as a [codebook](https://www.icpsr.umich.edu/icpsrweb/content/shared/ICPSR/faqs/what-is-a-codebook.html) and an excel file containing the data:
-AVOCADO: The codebook link is not working for me. Also, I'm not sure why the same link is used three times here. I would think at least one of these links would be to an actual codebook from the survey being used. Or you can refer to the codebooks in the docs folder 
+Each year includes documentation, such as a [codebook](https://www.lib.ncsu.edu/data/icpsrfaq#whatare){target="_blank"} and an excel file containing the data:
 
 ```{r, echo = FALSE, fig.align ="center", out.width = "600 px"}
 
 knitr::include_graphics(here::here("img", "data.png"))
 ```
-Therefore, since we are using data from **2015-2019**, the data we are interested in are located in 5 different excel files, one for each year, each with its own [codebook](https://www.icpsr.umich.edu/icpsrweb/content/shared/ICPSR/faqs/what-is-a-codebook.html).
+Therefore, since we are using data from **2015-2019**, the data we are interested in are located in 5 different excel files, one for each year, each with its own [codebook](./docs/2019-nyts-dataset-and-codebook-microsoft-excel/2019-nyts-codebook-p.pdf){target="_blank"} (this is the one for 2019).
 
-The [codebook](https://www.icpsr.umich.edu/icpsrweb/content/shared/ICPSR/faqs/what-is-a-codebook.html) contains information describing the data within the excel file. 
+The codebook contains information describing the data within the excel file. 
 
 As you can see the excel file contains very short variable names and numeric values, and it is not clear what they mean without the codebook:
 
@@ -308,14 +311,9 @@ tbl_files <- excel_files %>%
 
 The elements of this list are in the same order as the elements of the `excel_files` vector, so we can extract the data for a particular file (year) by selecting a certain element of the list. However, it is safer to be able to select the data from this list for a specific year using a name based on the original vector of file names. We extracted a name from each Excel file name using the `str_extract()` function of the `stringr` package. Here we are keeping occurrences of the character string "nyts201" followed by a "5","6","7","8", or "9".
 
-AVOCADO: Would it be simpler to do
-tbl_names <- excel_files %>%
-   str_extract("nyts201[5-9]")
-below? I think all the square brackets could be confusing.
-
 ```{r}
 tbl_names <- excel_files %>%
-  str_extract("nyts[2][0][1][5-9]")
+  str_extract("nyts201[5-9]")
 
 tbl_names
 ```
@@ -324,8 +322,6 @@ These names became the names of the tibbles in the list of tibbles.
 ```{r, eval = FALSE}
 names(tbl_files) <- tbl_names
 ```
-
-AVOCADO: What is the distinction between a tibble and a data.frame and a data_frame? I'm not sure that this distinction is useful to go into, but it is something that kind of bugs me, in case you do want to elaborate on it.
 
 
 Specific columns were selected using the `select()` function of `dplyr` from each of the tibbles using the variable name, as identified in the codebook as being of interest for our analysis.
@@ -435,28 +431,16 @@ tbl_files[["nyts2019"]] <- tbl_files[["nyts2019"]] %>%
 
 A directory called `data_reduced` was created for the new .csv files using the base `dir.create()` function. 
 A csv file was created for each of the tibbles in the list using the `write_csv()` function of the `readr` package.
-This was done all at once using the base `mapply()` function.
+This was done all at once using the `map()` function.
 
-AVOCADO: For writing the csv files, shouldn't you just use map rather than introducing mapply? You also include an example using map, and it seems like it would be more in keeping with the tidyverse environment. I saw your response to this -- I am not that familiar with map, actually, so I didn't understand that the code didn't work. I'm fine with just using mapply, but you probably want to remove the map code in that case.
+AVOCADO: I got it to work using map; hopefully this is OK?
 
 ```{r, eval = FALSE}
 # 
 dir.create("docs/data_reduced")
 
-mapply(write_csv, tbl_files, path=here(paste0("docs/data_reduced/",
-                                  names(tbl_files),
-                                   '.csv'))
-     )
+names(tbl_files) %>% map(~write_csv(tbl_files[[.]], path=paste0("docs/data_reduced/", ., ".csv")))   
 
-#trying to use map...
-tbl_files %>%
-map(~write_csv(. , path=paste0("docs/data_reduced2/nyts", pull(year)[[1]], ".csv")))
-
-
-    tbl_files %>%
-map(~write_csv(. , path=paste0("docs/data_reduced2/nyts", names(.), ".csv")))
-
-   
 ```
 
 </details>
@@ -468,27 +452,6 @@ Now we will show how to read in the data from the five csv files that were creat
 ### Reading in the CSV files
 ***
 
-AVOCADO: Curious what the system time code is doing -- is it just left over from something before? It is not run or included in the markdown output.
-
-```{r, echo=FALSE, include=FALSE}
-start_time <- Sys.time()
-
-end_time <- Sys.time()
-
-test_time <- end_time - start_time
-
-time_message <- paste("Duration of data import:",
-      round(as.numeric(test_time) ,3),
-      units(test_time)
-      )
-```
-
-AVOCADO: Same comment as above for:
-nyts_data_names <- list.files(recursive = TRUE,
-                         pattern = "*.csv")%>%
-  str_extract("nyts[2][0][1][5-9]")
-Potentially replace last line with
-  str_extract("nyts201[5-9]")
 
 ```{r}
 nyts_data <- list.files(here::here(),recursive = TRUE,
@@ -498,7 +461,7 @@ nyts_data <- list.files(here::here(),recursive = TRUE,
 
 nyts_data_names <- list.files(recursive = TRUE,
                          pattern = "*.csv")%>%
-  str_extract("nyts[2][0][1][5-9]")
+  str_extract("nyts201[5-9]")
 
 names(nyts_data) <- nyts_data_names
 ```
@@ -521,7 +484,7 @@ dplyr::glimpse(nyts_data[["nyts2015"]])
 ### Updating the set of variables and their names
 *** 
 
-The easiest way of making it so that the data from the different years can be combined is by making sure the different data sets all contain the same variables that share the same names. In addition, giving the columns informative names will help make our code more readable. Currently, it isn't very clear what most of the variables indicate since the variable names are uninformative on their own, without the code book.
+The easiest way of making it so that the data from the different years can be combined is by making sure the different data sets all contain the same variables that share the same names. In addition, giving the columns informative names will help make our code more readable. Currently, it isn't very clear what most of the variables indicate since the variable names are uninformative on their own, without the [codebook](./docs/2019-nyts-dataset-and-codebook-microsoft-excel/2019-nyts-codebook-p.pdf){target="_blank"}.
 
 We want to rename variables like `Qn1` to something more meaningful like `Age`.
 
@@ -535,6 +498,8 @@ nyts_data[["nyts2015"]] <- nyts_data[["nyts2015"]] %>%
            Grade=Qn3)
 ```
 
+
+AVOCADO: I later learned that it is not correct that we need the same variables in the data set when using bind_rows, so why are we creating these dummy variables with NAs here? Won't they be automatically created later in any case?
 
 We also need to add new variables about usage of brands and specific flavors of e-cigarettes, because although later years have questions about this, this year unfortunately only has broad questions about flavors. Eventually we want to put the data from each year together, so we need the same variables for each year. Thus we need to add variables for brand and flavor to the 2015 data set that just contain missing values (`NA`).
 
@@ -650,7 +615,7 @@ knitr::include_graphics(here::here("img", "grade.png"))
 
 We also  want to replace the value of `19` for `Age` to be `">18"` and the value of `13` for `Grade` to be replaced with `"Ungraded/Other"` Also according to the codebooks, numeric values of `1` indicate a survey answer of `FALSE`, while a value of `2` indicates `TRUE`. `Sex` needs to be recoded, but it is a bit unclear if it is encoded slightly differently across years.
 
-AVOCADO: For the Sex variable, how did you determine "It's a bit difficult to tell if the encoding was the same across years" -- I don't see documentation of this (i.e., is this missing from the codebook somehow?), so it might be helpful to let the reader know how you figured this out.
+AVOCADO: For the Sex variable, how did you determine "It's a bit difficult to tell if the encoding was the same across years" -- I don't see documentation of this (i.e., is this missing from the codebook somehow?), so it might be helpful to let the reader know how you figured this out. Carrie says to look at the codebooks and it will make sense; could consider screen shots. I looked at it again; the confusion seems to come from the SEX:RECODE variables, but we aren't using those. Otherwise, I do think this could be dropped.
 
 
 Let's create a function to make all these updates except for `Sex`. We will use the `mutate` function again, as well as `mutate_all` and `recode` to replace specific values of certain variables.
@@ -742,11 +707,7 @@ nyts_data  <- nyts_data  %>% map_at(vars(-nyts2015), Update_flavors)
 ```
 
 
-Now there are just a few changes needed that are specific to 2019:
-
-AVOCADO: I think a little more illustration of the pre-data cleaning data would be helpful for understanding things like:
-mutate_all(~ replace(., . %in% c(".N",".S",".Z"), NA))
-What is the purpose of this line? How did you figure out these things needed to be replaced?
+Now there are just a few changes needed that are specific to 2019. Specifically, some of the 2019 questions use the values ".N", ".S", and ".Z" to indicate different types of missing data (see for example Q2 of the 2019 [codebook](./docs/2019-nyts-dataset-and-codebook-microsoft-excel/2019-nyts-codebook-p.pdf){target="_blank"}); we just want them to be replaced with `NA` values.
 
 
 ```{r}
@@ -798,20 +759,7 @@ glimpse(nyts_data)
 
 Note that there are several variables where there are similar names, but with a `C` compared to an `E` in the variable name. Those starting with `C` are related to questions about current usage (last 30 days), while those with an `E` are related to usage across the subjects whole life ("ever" usage). We will discuss these groups further below.
 
-AVOCADO: I'm not sure why this reminder is where it is:
-Reminder: Current users are a subset of ever users. 
-I have added a bit of text just before it that I think gives it more context at least. But I think it should be removed from this spot and potentially moved to another location or just dropped. You make the same point below in the data wrangling section.
-
-AVOCADO: I'm not sure where this should go, but I had the thought so I figured I'd include it. Maybe we can be more consistent about how we refer to students, subjects, respondents?
-
-<style>
-div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
-</style>
-<div class = "blue">
-
-Reminder: Current users are a subset of ever users. 
-
-</div>
+AVOCADO: I'm not sure where this should go, but I had the thought so I figured I'd include it. Maybe we can be more consistent about how we refer to students, subjects, respondents? Carrie suggests maybe trying to use students where we are talking about this specific data set, but respondents in the general survey weighting section.
 
 
 
@@ -878,7 +826,7 @@ We will base this on the following survey questions:
 >" What flavors of tobacco products have you used in the past
 30 days?" 
 
-4) Have vaping rates possibly influenced tobacco use?
+4) Is there a relationship between e-cigarette/vaping use and other tobacco use?
 
 
 We are now going to create data visualizations to explore each of these questions.
@@ -925,7 +873,6 @@ We will sum across the variables that relate to ever or current tobacco usage qu
 
 We will then use the `case_when()` function of the `dplyr` package to convert the sum values to `TRUE` or `FALSE` based on the threshold of zero. If the sum is greater than zero, then we know the student answered yes to at least one question. 
  
-AVOCADO: This may be a tidyverse philosophical question, but case_when() is kind of overkill: you could just do tobacco_ever = tobacco_sum_ever > 0, since the latter is just going to return TRUE or FALSE, or NA as appropriate. But that requires understanding vectorization in a way that the case_when does not.
 ```{r}
 nyts_data <-nyts_data %>%
     mutate(tobacco_sum_ever = select(., starts_with("E", ignore.case = FALSE)) %>%
@@ -947,8 +894,6 @@ glimpse(nyts_data)
 ####
 
 We are also interested in e-cigarette usage compared to other tobacco products, so we will create some variables related to the sum of all e-cigarette usage question variables and the sum of all tobacco usage question variables excluding those that are about e-cigarettes. There is only one variable about e-cigarette usage ever (EELCIGT) and one about current usage (CELCIGT).
-
-AVOCADO: For the e-cigarette variables, can't you just use EELCIGT and CELCIGT? No need to do any summing or case_when here since it is just the one variable in any case. Also, see my comment above about not needing to use case_when to get the binary variable you want.
 
 ```{r}
    nyts_data <-nyts_data %>% mutate(ecig_sum_ever = select(., EELCIGT) %>%
@@ -996,8 +941,6 @@ test
 
 Now, let's look at identifying students who have tried e-cigarettes, but are not current users, and who have never tried other tobacco products (and are therefore not current users). We will again use the `case_when()` and the `mutate` function to create new variables with specific values when certain conditions are met. In this case, we will specify that several conditions must be met by using the `&` symbol. For a value of `TRUE` for the new `ecig_only_ever` variable, all of the conditions combined with `&` must be met.  If any of the conditions are not met then the `ecig_only_ever` value will be `FALSE` based on the last line `TRUE ~ FALSE`.
 
-AVOCADO: In theory, non_ecig_ever == FALSE should imply non_ecig_current == FALSE, so is the last condition necessary? I'm not sure if the data are completely clean, i.e., are there some people who say they have never used, but who also say they are current users?
-
 ```{r}
 
 test <- test %>% mutate(ecig_only_ever = case_when(ecig_ever == TRUE & 
@@ -1038,17 +981,16 @@ test <-test %>% mutate(ecig_only_ever = case_when(ecig_ever == TRUE &
                                                ecig_current == FALSE &
                                            non_ecig_current == FALSE ~TRUE,
                                                         TRUE ~ FALSE)) 
-
-test
+glimpse(test)
 ```
+
+
 
 Take a minute to check that the values are what we would expect.
 
-AVOCADO: There isn't an easy way of making horizontal scrolling like you have the vertical scrolling, is there? The columns are not all displayed in the knitted document, which makes checking the last four variables more difficult. 
+OK, now we are going to make a `Group` variable based on the new variables we just made to classify students into one of four mutually exclusive and exhaustive categories. In this case we will have a particular value based on one condition **or** another. This **or** conditional is specified by the `|` symbol. Only one of the conditions needs to exist for that particular value, whereas when we used the `&` symbol, all of the conditions had to be met. If a student has ever tried or currently uses e-cigarettes, but has never tried other tobacco products, the value will be `Only e-cigarettes`. If a student has ever tried or is a current user of other tobacco products, but has never tried e-cigarettes, the value will be `Only other products`. If the value of the `no_use` variable is simply `TRUE`, then the `Group` variable value will be `Neither`. Finally, if a student has tried or currently uses both e-cigarettes and other tobacco products the `Group` variable value will be `Combination of products`. Therefore the values for the usage of the variables based on only using e-cigarettes or only other products will all be `FALSE`. Of course the student will also have had to answer yes to any of the use-based questions, thus the no_use variable would also need to be `FALSE`.
 
-OK, now we are going to make a `Group` variable based on the new variables we just made. In this case we will have a particular value based on one condition **or** another. This **or** conditional is specified by the `|` symbol. Only one of the conditions needs to exist for that particular value, whereas when we used the `&` symbol, all of the conditions had to be met. If a student has ever tried or currently uses e-cigarettes, but has never tried other tobacco products, the value will be `Only e-cigarettes`. If a student has ever tried or is a current user of other tobacco products, but has never tried e-cigarettes, the value will be `Only other products`. If the value of the `no_use` variable is simply `TRUE`, then the `Group` variable value will be `Neither`. Finally, if a student has tried or currently uses both e-cigarettes and other tobacco products the `Group` variable value will be `Combination of products`. Therefore the values for the usage of the variables based on only using e-cigarettes or only other products will all be `FALSE`. Of course the student will also have had to answer yes to any of the use-based questions, thus the no_use variable would also need to be `FALSE`.
-
-AVOCADO: Consider dropping the last two sentences in the paragraph above? i.e., from "Therefore the values..." to "would also need to be `FALSE`." I'm not sure what they are adding.
+AVOCADO: Consider dropping the last two sentences in the paragraph above? i.e., from "Therefore the values..." to "would also need to be `FALSE`." I'm not sure what they are adding. LEAVE IN FOR CARRIE TO REVIEW.
 
 ```{R}
 
@@ -1067,7 +1009,7 @@ test <- test %>%
 
 test %>% count(Group)
 
-test
+glimpse(test)
 ```
 
 OK, now that we have seen how this works with our toy dataset, we will apply our code to our `nyts_data`.
@@ -1110,7 +1052,7 @@ OK, now that we have seen how this works with our toy dataset, we will apply our
 ```
 
 
-Lastly, it can be very helpful to have the total number of students surveyed each year. We can easily add a variable for this by using the `add_count()` function of the `dplyr` package. This will create a variable called `n` which will show the total counts based on the variable `year`.
+Lastly, it can be very helpful to have the total number of students surveyed each year. We can easily add a variable for this by using the `add_count()` function of the `dplyr` package. This will create a variable called `n` which will show the total number of survey responses for that year.
 
 ```{r}
 nyts_data %<>% add_count(year)
@@ -1124,7 +1066,7 @@ glimpse(nyts_data)
 
 ### Question 1 
 
-Recall that we are interested in investing how vaping product use has compared with other tobacco use over time. To answer this, we first want to get a sense of how tobacco use has changed in general since 2015. 
+Recall that we are interested in investigating how vaping product use has compared with other tobacco use over time. To answer this, we first want to get a sense of how tobacco use has changed in general since 2015. 
 
 To create a visualization of how tobacco usage has changed over time, we will first convert the usage data to a percent value for each year, telling us what percent of respondents fall into a particular usage category. To do this we will use the `group_by()` and `summarize()` functions of the `dplyr` package. This will create new variables which we will name `Ever` and `Current` based on the  percentages of `TRUE` values for `tobacco_ever` and `tobacco_current` for each year. In this case the `mean()` function is used to calculate the percentages based on an automatic conversion that R does where for TRUE/FALSE variables, `TRUE` is given a value of one and `FALSE` is given a value of zero. The mean of a 0-1 binary variable is just the percent of the time the value is 1. NA values do not contribute to the total count when we include the argument `na.rm = TRUE` to our function call. 
 
@@ -1206,8 +1148,6 @@ Nice! Now we can see how overall tobacco usage has changed since 2017. It appear
 
 What about e-cigarette use? How has the usage of e-cigarettes changed over time?
 
-AVOCADO: Why leave in the commented lines below?
-
 ```{r}
 plot1a <- nyts_data %>%
     dplyr::group_by(year) %>%
@@ -1220,9 +1160,9 @@ plot1a <- nyts_data %>%
   # this allows us to choose what type of line we want for each line
   scale_linetype_manual(values = c(2,1)) +
   # this allows us to specify how the y-axis should appear
-  # scale_y_continuous(breaks = seq(0,60,by=10),
-  #                      labels = seq(0,60,by=10),
-  #                      limits = c(0,60)) +
+  scale_y_continuous(breaks = seq(0,60,by=10),
+                        labels = seq(0,60,by=10),
+                        limits = c(0,60)) +
   #this adjusts the background style of the plot
     theme_linedraw() +
   # this moves the legend to the bottom of the plot and removes the x axis title
@@ -1260,9 +1200,19 @@ We will select the first and fourth colors for our plot. To add these specific c
 
 We will calculate the mean ever and current usage percentages for students who used e-cigarettes or any tobacco products (including e-cigarettes) for each year again using the `group_by()` and `summarize()` functions. We will again use the `pivot_longer` function to convert our data to long format. We will also use the `separate()` function of the `tidyr` package to create two variables from one of the variables. This is done by separating by, in this case, an underscore. 
 
-AVOCADO: That use of separate is very clever; I wonder if it might be getting lost in the plot command.
 
 ```{r}
+ nyts_data %>%
+    dplyr::group_by(year) %>%
+    dplyr::summarize("Ever_Any Tobacco Product \n (including e-cigarettes)"=(mean(tobacco_ever, na.rm = TRUE)*100),
+                     "Current_Any Tobacco Product \n (including e-cigarettes)"=(mean(tobacco_current, na.rm = TRUE)*100),
+                     "Ever_E-cigarettes"=(mean(ecig_ever, na.rm = TRUE)*100),
+                     "Current_E-cigarettes"=(mean(ecig_current, na.rm = TRUE)*100))%>%
+  pivot_longer(cols = -year, names_to = "User", values_to = "Percentage of students")%>%
+  separate(User, into = c("User", "Product"), sep = "_")%>%
+  head()
+
+
 plot1t <- nyts_data %>%
     dplyr::group_by(year) %>%
     dplyr::summarize("Ever_Any Tobacco Product \n (including e-cigarettes)"=(mean(tobacco_ever, na.rm = TRUE)*100),
@@ -1279,9 +1229,9 @@ plot1t <- nyts_data %>%
   # we want purple associated with e-cigarettes to be consistent with later plots
   scale_color_manual(values = rev(v_colors))+
   # this allows us to specify how the y-axis should appear
-  # scale_y_continuous(breaks = seq(0,60,by=10),
-  #                      labels = seq(0,60,by=10),
-  #                      limits = c(0,60)) +
+  scale_y_continuous(breaks = seq(0,60,by=10),
+                        labels = seq(0,60,by=10),
+                        limits = c(0,60)) +
   #this adjusts the background style of the plot
     theme_linedraw() +
   # this moves the legend to the bottom of the plot and removes the x axis title
@@ -1300,37 +1250,35 @@ In the above plots, the "Any tobacco product" groups include individuals in the 
 
 We will calculate the mean ever and current usage percentages for students in these two mutually exclusive groups, again using the `group_by()` function and the `summarize()` function. We will again use the `pivot_longer` function to convert our data to long format. We will also again use the `separate()` function of the `tidyr` package to create two variables from one variable. This is done by separating by, in this case, a space. 
 
-AVOCADO: Why the switch from _ to space for the separate command? Also, colors switch order below -- I think it would be better for e-cigarettes to be blue or purple consistently, right? Looks like it would be easier to switch the plots above to be consistent with the main figure.
-
 ```{r}
 
 nyts_data %>%
     dplyr::group_by(year) %>%
-    dplyr::summarize("Ever E-cigarette"=(mean(ecig_only_ever, na.rm = TRUE)*100),
-                     "Current E-cigarette"=(mean(ecig_only_current, na.rm = TRUE)*100),
-                     "Ever Non-e-cigarette" =(mean(non_ecig_only_ever, na.rm = TRUE)*100),
-                     "Current Non-e-cigarette"=(mean(non_ecig_only_current, na.rm = TRUE)*100)) %>%
+    dplyr::summarize("Ever_E-cigarette"=(mean(ecig_only_ever, na.rm = TRUE)*100),
+                     "Current_E-cigarette"=(mean(ecig_only_current, na.rm = TRUE)*100),
+                     "Ever_Non-e-cigarette" =(mean(non_ecig_only_ever, na.rm = TRUE)*100),
+                     "Current_Non-e-cigarette"=(mean(non_ecig_only_current, na.rm = TRUE)*100)) %>%
   pivot_longer(cols = -year, names_to = "User", values_to = "Percentage of students") %>%
-  tidyr::separate(User, into = c("User", "Product"), sep = " ") %>%
+  tidyr::separate(User, into = c("User", "Product"), sep = "_") %>%
   head()
 
 plot1c <- nyts_data %>%
     dplyr::group_by(year) %>%
-    dplyr::summarize("Ever E-cigarette"=(mean(ecig_only_ever, na.rm = TRUE)*100),
-                     "Current E-cigarette"=(mean(ecig_only_current, na.rm = TRUE)*100),
-                     "Ever Non-e-cigarette" =(mean(non_ecig_only_ever, na.rm = TRUE)*100),
-                     "Current Non-e-cigarette"=(mean(non_ecig_only_current, na.rm = TRUE)*100))%>%
+    dplyr::summarize("Ever_E-cigarette"=(mean(ecig_only_ever, na.rm = TRUE)*100),
+                     "Current_E-cigarette"=(mean(ecig_only_current, na.rm = TRUE)*100),
+                     "Ever_Non-e-cigarette" =(mean(non_ecig_only_ever, na.rm = TRUE)*100),
+                     "Current_Non-e-cigarette"=(mean(non_ecig_only_current, na.rm = TRUE)*100))%>%
   pivot_longer(cols = -year, names_to = "User", values_to = "Percentage of students")%>%
-  separate(User, into = c("User", "Product"), sep = " ") %>%
+  separate(User, into = c("User", "Product"), sep = "_") %>%
     ggplot(aes(x=year,y=`Percentage of students`, color = Product)) +
     geom_line(aes(linetype=User)) + 
   geom_point(show.legend = FALSE, size = 2) +
   # this allows us to choose what type of line we want for each line
   scale_linetype_manual(values = c(2,1)) +
   # this allows us to specify how the y-axis should appear
-  # scale_y_continuous(breaks = seq(0,30,by=10),
-  #                      labels = seq(0,30,by=10),
-  #                      limits = c(0,30)) +
+  scale_y_continuous(breaks = seq(0,30,by=10),
+                        labels = seq(0,30,by=10),
+                        limits = c(0,30)) +
   scale_color_manual(values = v_colors)+
   #this adjusts the background style of the plot
     theme_linedraw() +
@@ -1355,9 +1303,7 @@ nyts_data %>%
 ```
 
 We will now make a plot over time of each of these groups. Since we will have 4 total groups, we will use 4 of the viridis colors.
-Notice, that in this case we are grouping by three variables by simply separating the variables that we want to group by with a comma in our `group_by()` function like this: `group_by(Group, year, n)`. We will also rename the `year` variable to be upper case using the `rename()` function of the `tidyr` package. We do this just to make the plot label look nicer.
-
-AVOCADO: The renaming is only for the sake of the plot label, right?
+Notice, that in this case we are grouping by three variables by simply separating the variables that we want to group by with a comma in our `group_by()` function like this: `group_by(Group, year, n)`. 
 
 ```{r}
 
@@ -1373,12 +1319,12 @@ nyts_data %>%
   group_by(Group, year, n) %>%
   summarise(group_count = n()) %>%
   mutate("Percentage of students" = group_count /n*100) %>%
-  rename(Year = year) %>%
-  ggplot(aes(x = Year, y = `Percentage of students`, color = Group))+
+  ggplot(aes(x = year, y = `Percentage of students`, color = Group))+
   geom_point(size = 2)+
   geom_line() +
   scale_color_manual(values = v_colors)+
-  theme_linedraw() 
+  theme_linedraw() +
+  labs(x = "Year")
 
 ```
 
@@ -1392,15 +1338,18 @@ We will further explore the relationship between e-cigarette usage and other tob
 Now we want to look how e-cigarette smoking rates compare between males and females across time. 
 
 
-We will calculate the percent ever and current e-cigarette users for each year and sex category again using the `group_by()` function and the `summarize()` function.  We will again use the `pivot_longer` function to convert our data to long format.
+We will calculate the percent ever and current e-cigarette users for each year and sex category again using the `group_by()` function and the `summarize()` function.  We will again use the `pivot_longer` function to convert our data to long format. Because there are some missing values for the `Sex` variable, we will filter these out; based on the codebook, there is little information about why these values are missing, so our survey data only allows us to consider two reported sex values with confidence.
 
-AVOCADO: There are NA values for Sex; should these be explicitly filtered out? Right now, they are not displayed on the plot I guess because they don't have a color assigned, but there is still an NA in the legend. I would probably just use the filter command to remove them from the data set passed to ggplot. Also, in this plot title e-cigarette is changed to vaping -- is that on purpose? Should we make that change earlier or throughout the case study? Or stick with e-cigarette?
+AVOCADO: Carrie, I am filtering out the NAs for Sex now; can you check/modify the language I included above? I feel like you put it more eloquently on the phone. 
+
+AVOCADO: Also, in this plot title e-cigarette is changed to vaping -- is that on purpose? Should we make that change earlier or throughout the case study? Or stick with e-cigarette?
 
 ```{r}
 
 v_colors =  viridis(6)[c(1,4)]
 
 nyts_data %>%
+     filter(!is.na(Sex)) %>%
      group_by(year, Sex) %>%
      summarize(Ever=(mean(EELCIGT, na.rm = TRUE)*100),
                Current=(mean(CELCIGT, na.rm = TRUE)*100))%>%
@@ -1411,6 +1360,7 @@ nyts_data %>%
      head()
 
 plot2 <- nyts_data %>%
+     filter(!is.na(Sex)) %>%
      group_by(year, Sex) %>%
      summarize(Ever=(mean(EELCIGT, na.rm = TRUE)*100),
                Current=(mean(CELCIGT, na.rm = TRUE)*100))%>%
@@ -1439,11 +1389,9 @@ It looks like the rates are fairly similar between the sexes, however the rate f
 
 ### Question 3
 
-We are also interested in what vaping brands and flavors appear to be used the most frequently. Only the 2019 data set has this information. Therefore, we will filter for just this year using the `filter()` function of  the `dplyr` package. We will use the `summarize()` function slightly differently this time, to calculate the total number of students using each brand using the `n()` function and the `sum()` function to calculate the percent for each brand based on the counts. We will also reorder the factor levels for the brand names so that they are in descending order of percent use, using the `fct_reorder()` function from `dplyr`.
+We are also interested in what vaping brands and flavors appear to be used the most frequently. Only the 2019 data set has this information. Therefore, we will filter for just this year using the `filter()` function of  the `dplyr` package. We will use the `summarize()` function slightly differently this time, to calculate the total number of students using each brand using the `n()` function and the `sum()` function to calculate the percent for each brand based on the counts. We will also reorder the factor levels for the brand names so that they are in descending order of percent use, using the `fct_reorder()` function from `dplyr`. This will make them appear in decreasing order of percent use on the plot.
 
 We will make a bar plot this time by using `geom_bar`. Importantly we assign the `stat` argument to `identity`, so that we are using the percentages that we calculated not the counts which is what is used by default. When color in specified outside of the `aes()` argument, this determines the border color of the bars, which in this case will be black.
-
-AVOCADO: I think it might be worth pointing out the trick of reordering the factor by the values of another variable (which I actually did not know you could do). I added a sentence above.
 
 ```{r}
 
@@ -1543,7 +1491,8 @@ From this plot, we can see that fruit flavors are the most widely used products,
 
 We will now look specifically at the usage of flavored e-cigarette products vs other flavored tobacco products. 
 
-Recall that we made a variable called `Group` that identified students who used either just e-cigarette products, just other tobacco products (besides e-cigarettes), or students who used both e-cigarettes and some other type of tobacco product. We will compare the usage of these flavors for these different groups. We also perform some data summaries to decide how to order the panels (flavors) for display.
+Recall that we made a variable called `Group` that identified students who used either just e-cigarette/vaping products, just other tobacco products (besides e-cigarettes), or students who used both e-cigarettes and some other type of tobacco product. We will compare the usage of these flavors for these different groups. We also perform some data summaries to decide how to order the panels (flavors) for display.
+
 
 
 ```{r}
@@ -1564,9 +1513,12 @@ plot5 <- nyts_data %>%
   #converting all columns between and including Menthol and Other to one column called Flavor
   pivot_longer(cols = Menthol:Other, names_to = "Flavor", values_to = "Percentage of students") %>%
   group_by(Flavor) %>%
+  # calculate the count of students in the year/group combination who used that flavor
   mutate(affirmative=(Respondents * `Percentage of students`)/100) %>%
+  # calculate the fraction of total respondents who used that flavor
   mutate(flavor_mean = sum(affirmative)/sum(Respondents)) %>%
   ungroup() %>%
+  # reorder the levels of Flavor to be in increasing order of percent of students who used that flavor
   mutate(flavor_mean_rank = dense_rank(flavor_mean),
          Flavor = fct_reorder(Flavor, flavor_mean_rank)) %>%
   ggplot(aes(x=year, y=`Percentage of students`, color=Group)) +
@@ -1584,14 +1536,12 @@ plot5 <- nyts_data %>%
 plot5
 ```
 
-AVOCADO: What does the dense_rank function do? I guess something to order the panels by a summary of all the groups? I added a line to the paragraph above mentioning the ordering, but I'm not completely sure how it is done, in case you want to add another note.
-AVOCADO: Why is the Neither group included? Shouldn't all these values be 0?
 
 We can see from this plot that there has been an increase in the number of students reporting using flavored tobacco products. Users who use both e-cigarettes and other tobacco products appear to report using flavored products the most, followed by users who only use e-cigarettes.
 
 ### Question 4
 
-Have vaping rates possibly influenced tobacco use? Now we will investigate the usage of e-cigarettes compared to other tobacco products in greater depth. 
+Is there a relationship between vaping rates and tobacco use? Now we will investigate the usage of e-cigarettes compared to other tobacco products in greater depth. 
 
 First let's take a look at how e-cigarette usage and cigarette usage compare. We will select the data that specifically has to do with these products.
 
@@ -1692,10 +1642,9 @@ plot8 <- nyts_data %>%
 plot8
 ```
 
-Now we will put these plots together using the `plot_grid()` function of the `cowplot` package.  We will also modify the labels using the `ggdraw()` function, which is also part of the `cowplot` package.
+### Putting plots together
 
-AVOCADO: Why is this section header here? I don't think it belongs here.
-### Unweighted Sample
+Now we will put these plots together using the `plot_grid()` function of the `cowplot` package.  We will also modify the labels using the `ggdraw()` function, which is also part of the `cowplot` package.
 
 ```{r, fig.height=10}
 plotA_uw <- plot1 +
@@ -1789,11 +1738,12 @@ We do not need to calculate survey weights for our data as they were already sup
 
 We will now use the `srvyr` package to evaluate our data using survey weights that were provided in the data for each year, as described in the respective codebooks. This package contains functions that allow the user to easily perform calculations from the data that take the survey design into account, withouth having to work out the math by hand.
 
-Within the data you will see that we have three variables related to the survey sampling scheme:  `psu`, `finwgt`, and `stratum`:
+Within the data you will see that we have three variables related to the survey sampling scheme:  `psu`, `finwgt`, and `stratum`. Details about these variables are available, for example, in the [2019 Methodology Report](./docs/2019-nyts-dataset-and-codebook-microsoft-excel/2019-nyts-methodology-report-p.pdf){target="_blank"}. In brief they represent: 
 
 1) `psu`: Surveys like the one used to create the data we are using often sample people based on strata. This is done to ensure that the responses are representative of the population of interest. Thus, often people first think about ensuring that surveys are conducted in a variety of geographical areas. This is often called the **primary sampling unit** or **PSU**. In [this survey](https://web.sph.harvard.edu/mch-data-connect/results/national-youth-tobacco-survey-nyts/){target="_blank"}, the county where the student's school was located was used as the PSU. 
 
 2) `stratum`: A categorical variable that indicates subsets of the data that include respondents from different *PSUs*. In our case, strata are determined by the predominant minority in the PSU (Non-Hispanic Black or Hispanic), whether the PSU is urban or non-urban, and what percent of the students in the PSU fall into the predominant minority group. PSUs are allocated across the 16 possible strata according to the sampling scheme. These strata values allow estimates based on the survey responses to be calculated using different strata allowing for improved precision of the response estimates.
+
 AVOCADO: I added a bunch of details here to the definition of stratum - perhaps give it a quick read. I also think it might be worth including one of the Methodology Reports, which is where I pulled this information from.
 
 3) `finwgt`: The survey weight which was calculated based on a variety of factors.
@@ -1801,7 +1751,6 @@ AVOCADO: I added a bunch of details here to the definition of stratum - perhaps 
 This [link](https://web.sph.harvard.edu/mch-data-connect/results/national-youth-tobacco-survey-nyts/){target="_blank"} and this [link](https://osf.io/n7r32){target="_blank"} have more information about the study design of the data that we are using.
 
 For detailed information on such survey designs in general see [here](http://www.asasrms.org/Proceedings/y2008/Files/301835.pdf){target="_blank"} and [here](http://ocw.jhsph.edu/courses/StatMethodsForSampleSurveys/PDFs/Lecture5.pdf){target="_blank"}.
-AVOCADO: This link does not work -- it looks like two different URLs? I have split it into two.
 
 We will use the `as_survey_design()` function of the `srvyr`package to create a survey object with a specified survey design. This is a special R object that includes information about how the survey was conducted that can be taken into account in the analysis.
 
@@ -1812,7 +1761,7 @@ There are several arguments to pay attention to:
 3) The `weight` argument is the  used to define which variable(s) are the survey weights.
 4) The `nest = TRUE` argument, forces cluster ids (in this case the PSU) to be nested within the strata.
 
-We can then use the `survey_mean()` function to calculate percentages of students who report using tobacco for each year while accounting for the survey design and weights. We will specify that we want [confidence interval](https://en.wikipedia.org/wiki/Confidence_interval) estimates by using the `vartype = "ci"` argument. The confidence intervals in our case give a range of possible values for the true population mean based on the data observed in the survey. We will multiply these values by 100 to get percentages.
+We can then use the `survey_mean()` function to calculate percentages of students who report using tobacco for each year while accounting for the survey design and weights. We will specify that we want [confidence interval](https://en.wikipedia.org/wiki/Confidence_interval) estimates by using the `vartype = "ci"` argument. The confidence intervals in our case give a range of possible values for the true population mean based on the data observed in the survey. We will multiply these values by 100 to get percentages. (Note: We could also have calculated confidence intervals for the unweighted results above by computing them by hand; we leave this as a potential exercise.)
 
 ### Weighted Sample
 ```{r}
@@ -1843,8 +1792,6 @@ nyts_data %>%
 
 
 ```
-
-AVOCADO: Why are we calculating confidence intervals here, but not in the unweighted case? Is it just because the survey_mean function does it automatically? We could calculate it for the unweighted percentages as a statistical lesson (formula for confidence interval for a population proportion).
 
 We will now make a plot using this data. The confidence intervals are included using the `geom_linerange()` function of the `ggplot2` package.
 
@@ -1993,12 +1940,10 @@ plotC_w
 
 Now we will put these plots together again using the `cowplot` package:
 
-AVOCADO: I assume this plot title should change to something like: "What is the relationship between vaping rates and tobacco use?" 
-
 ```{r}
 title_w <- ggdraw() + 
   draw_label(
-    expression("Have e-cigarette rates possibly influenced tobacco use?"),
+    expression("What is the relationship between vaping rates and tobacco use?"),
     fontface = 'bold',
     size=14,
     x = 0,
@@ -2305,6 +2250,7 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>
 <div class = "blue">
 
++ Calculate confidence intervals for the unweighted estimates and add the appropriate error bars to the main figures.
 + Apply survey weights to one of the figures produced in this case study in which weighted estimates were not produced. Include error bars in the updated figure.
     + Does the figure change after the application of survey weights?
     + If so, describe how. 
