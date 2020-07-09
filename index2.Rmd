@@ -738,7 +738,7 @@ nyts_data <- nyts_data %>%
 glimpse(nyts_data)
 ```
 
-We will want to do some of our analysis split by year, so we would like to be sure we have one variable that has the correct value for year. It looks like we just need to remove `"nyts"` from the year variable that we created from the names of the tibbles in our list and we should be all set.
+We will want to do some of our analysis split by year, so we would like to be sure we have one variable that has the correct value for year. It looks like we just need to remove `"nyts"` from the year variable that we created from the names of the tibbles in our list and we should be all set. We will use another function from the `stringr` package to do this. The `str_remove()` function takes a string followed by a pattern and removes the pattern from the string.
 
 ```{r}
 nyts_data <- nyts_data %>%
@@ -1615,7 +1615,7 @@ plot7
 ```
 
 
-Now we will do the same , but for students who reported currently using e-cigarettes or non-e-cigarette products. 
+Now we will do the same, but for students who reported currently using e-cigarettes or non-e-cigarette products. 
 
 
 ```{r}
@@ -1736,9 +1736,11 @@ We do not need to calculate survey weights for our data as they were already sup
 
 ***
 
-We will now use the `srvyr` package to evaluate our data using survey weights that were provided in the data for each year, as described in the respective codebooks. This package contains functions that allow the user to easily perform calculations from the data that take the survey design into account, withouth having to work out the math by hand.
+We will now use the `srvyr` package to evaluate our data using survey weights that were provided in the data for each year, as described in the respective codebooks. This package contains functions that allow the user to easily perform calculations from the data that take the survey design into account, without having to work out the math by hand.
 
-Within the data you will see that we have three variables related to the survey sampling scheme:  `psu`, `finwgt`, and `stratum`. Details about these variables are available, for example, in the [2019 Methodology Report](./docs/2019-nyts-dataset-and-codebook-microsoft-excel/2019-nyts-methodology-report-p.pdf){target="_blank"}. In brief they represent: 
+Within the data you will see that we have three variables related to the survey sampling scheme:  `psu`, `finwgt`, and `stratum`. Details about these variables are available, for example, in the [2019 Methodology Report](./docs/2019-nyts-dataset-and-codebook-microsoft-excel/2019-nyts-methodology-report-p.pdf){target="_blank"}.
+
+In brief they represent: 
 
 1) `psu`: Surveys like the one used to create the data we are using often sample people based on strata. This is done to ensure that the responses are representative of the population of interest. Thus, often people first think about ensuring that surveys are conducted in a variety of geographical areas. This is often called the **primary sampling unit** or **PSU**. In [this survey](https://web.sph.harvard.edu/mch-data-connect/results/national-youth-tobacco-survey-nyts/){target="_blank"}, the county where the student's school was located was used as the PSU. 
 
@@ -1765,6 +1767,8 @@ We can then use the `survey_mean()` function to calculate percentages of student
 
 Since the survey weights are specific to a single year of the survey results, we need to create survey design objects for each year separately. We will use `group_by` and `group_modify`, which is also from the `dplyr` package, to do this. We first write the function that we want to call on each group.
 
+This function will take an input called `currYear`, which will be one set of survey responses for a specific year, and then craetes a survey design based on the `stratum` and `finwgt` specific to that year. It will then calculate the mean for student respondants who have ever tried any tobacco products or are a current user of any tobacco products accounting for the survey design and weights using `survey_mean()` as was just described. The function will then wrangle the data to produce new variables about the type of mean estimate that was given from the `survey_mean` output and the type of user. This 
+
 ### Weighted Sample
 ```{r}
 
@@ -1785,7 +1789,7 @@ surveyMeanA <- function(currYear){
     pivot_longer(everything(), 
                  names_to = "Type", 
                  values_to = "Percentage of students") %>%
-  mutate(Estimate = case_when(grepl("_low", Type) ~ "Lower",
+  mutate(Estimate = case_when(str_detect(Type,"_low") ~ "Lower",
                               grepl("_upp", Type) ~ "Upper",
                           TRUE ~ "Mean"),
          User = case_when(grepl("ever", Type) ~ "Ever",
@@ -1799,6 +1803,10 @@ nyts_data %>%
   group_modify(~surveyMeanA(.x)) %>%
   head()
 
+```
+
+
+```{r}
 ### AVOCADO: Remove rest of chunk from here if you are OK with this way of doing it
 nyts_data %>%
   as_survey_design(strata = stratum, 
