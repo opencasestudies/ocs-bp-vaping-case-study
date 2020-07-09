@@ -1771,6 +1771,32 @@ This function will take an input called `currYear`, which will be one set of sur
 
 ### Weighted Sample
 ```{r}
+surveyMeanA <- function(currYear){
+  options(survey.lonely.psu = "average")
+  currYear %>%
+  as_survey_design(strata = stratum, 
+                      ids = psu, 
+                  weight  = finwgt, 
+                     nest = TRUE) %>%
+   summarize(tobacco_ever = survey_mean(tobacco_ever, 
+                                        vartype = "ci", 
+                                        na.rm = TRUE),
+          tobacco_current = survey_mean(tobacco_current, 
+                                        vartype = "ci", 
+                                        na.rm = TRUE)) }
+
+
+nyts_data %>% 
+  group_by(year) %>%
+  group_modify(~surveyMeanA(.x)) %>%
+  head()
+
+
+
+```
+
+Now let's make the function wrangle the output in a more usable form too:
+```{r}
 
 surveyMeanA <- function(currYear){
   options(survey.lonely.psu = "average")
@@ -1800,11 +1826,9 @@ surveyMeanA <- function(currYear){
 
 nyts_data %>% 
   group_by(year) %>%
-  group_modify(~surveyMeanA(.x)) %>%
-  head()
+  group_modify(~surveyMeanA(.x))
 
 ```
-
 
 ```{r}
 ### AVOCADO: Remove rest of chunk from here if you are OK with this way of doing it
