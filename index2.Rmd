@@ -1763,9 +1763,43 @@ There are several arguments to pay attention to:
 
 We can then use the `survey_mean()` function to calculate percentages of students who report using tobacco for each year while accounting for the survey design and weights. We will specify that we want [confidence interval](https://en.wikipedia.org/wiki/Confidence_interval) estimates by using the `vartype = "ci"` argument. The confidence intervals in our case give a range of possible values for the true population mean based on the data observed in the survey. We will multiply these values by 100 to get percentages. (Note: We could also have calculated confidence intervals for the unweighted results above by computing them by hand; we leave this as a potential exercise.)
 
+Since the survey weights are specific to a single year of the survey results, we need to create survey design objects for each year separately. We will use `group_by` and `group_modify`, which is also from the `dplyr` package, to do this. We first write the function that we want to call on each group.
+
 ### Weighted Sample
 ```{r}
 
+surveyMeanA <- function(currYear){
+  options(survey.lonely.psu = "average")
+  currYear %>%
+  as_survey_design(strata = stratum, 
+                      ids = psu, 
+                  weight  = finwgt, 
+                     nest = TRUE) %>%
+   summarize(tobacco_ever = survey_mean(tobacco_ever, 
+                                        vartype = "ci", 
+                                        na.rm = TRUE),
+          tobacco_current = survey_mean(tobacco_current, 
+                                        vartype = "ci", 
+                                        na.rm = TRUE))  %>%
+  mutate_all( "*", 100) %>%
+    pivot_longer(everything(), 
+                 names_to = "Type", 
+                 values_to = "Percentage of students") %>%
+  mutate(Estimate = case_when(grepl("_low", Type) ~ "Lower",
+                              grepl("_upp", Type) ~ "Upper",
+                          TRUE ~ "Mean"),
+         User = case_when(grepl("ever", Type) ~ "Ever",
+                          grepl("current", Type) ~ "Current",
+                          TRUE ~ "Mean"))
+  
+}
+
+nyts_data %>% 
+  group_by(year) %>%
+  group_modify(~surveyMeanA(.x)) %>%
+  head()
+
+### AVOCADO: Remove rest of chunk from here if you are OK with this way of doing it
 nyts_data %>%
   as_survey_design(strata = stratum, 
                       ids = psu, 
@@ -1796,7 +1830,7 @@ nyts_data %>%
 We will now make a plot using this data. The confidence intervals are included using the `geom_linerange()` function of the `ggplot2` package.
 
 ```{r}
-
+### AVOCADO: Remove this first version of the figure if you are OK with my modifications below
 plotA_w <- nyts_data %>%
   as_survey_design(strata = stratum, 
                       ids = psu, 
@@ -1836,6 +1870,29 @@ plotA_w <- nyts_data %>%
     labs(title = "Tobacco product users more prevalent after 2017",
          y = "% of students")
 plotA_w
+
+## AVOCADO: updated version using group_modify
+plotA_w <- nyts_data %>% 
+  group_by(year) %>%
+  group_modify(~surveyMeanA(.x)) %>%
+  dplyr::select(-Type) %>%
+  pivot_wider(names_from = Estimate, 
+              values_from = `Percentage of students`) %>%
+  ggplot(aes(x=year,y=Mean)) +
+  geom_line(aes(linetype=User)) +
+  geom_linerange(aes(ymin = Lower, ymax = Upper), size = 1, show.legend = FALSE) +
+  scale_linetype_manual(values = c(2,1)) +
+  scale_color_manual(values = v_colors) +
+  scale_y_continuous(breaks = seq(0,70,by=10),
+                       labels = seq(0,70,by=10),
+                       limits = c(0,70)) +
+    theme_linedraw() +
+    theme(legend.position = "none",
+          axis.title.x = element_blank()) +
+    labs(title = "Tobacco product users more prevalent after 2017",
+         y = "% of students")
+plotA_w
+
 ```
 
 Now we can see that we have confidence interval ranges plotted for each value. 
@@ -1843,8 +1900,38 @@ Now we can see that we have confidence interval ranges plotted for each value.
 We will make a similar plot for students who reported ever trying or who currently use e-cigarettes as opposed to tobacco in general.
 
 ```{r}
+surveyMeanB <- function(currYear){
+  options(survey.lonely.psu = "average")
+  currYear %>%
+  as_survey_design(strata = stratum, 
+                      ids = psu, 
+                  weight  = finwgt, 
+                     nest = TRUE) %>%
+  summarize(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
+            non_ecig_ever_year = survey_mean(non_ecig_ever, vartype = "ci", na.rm=TRUE)) %>%  
+  mutate_all("*", 100) %>%
+  pivot_longer(everything(), 
+           names_to = "Category", 
+          values_to = "Percentage of students") %>%
+    mutate(Estimate = case_when(grepl("_low", Category) ~ "Lower",
+                          grepl("_upp", Category) ~ "Upper",
+                          TRUE ~ "Mean"),
+         User = case_when(grepl("ever", Category) ~ "Ever",
+                          grepl("current", Category) ~ "Current"),
+         Product = case_when(grepl("non_ecig", Category) ~ "Other products",
+                          TRUE ~ "E-cigarettes")) %>%
+  dplyr::select(-Category) %>%
+  pivot_wider(names_from = Estimate, 
+              values_from = `Percentage of students`)
 
+}
 
+nyts_data %>% 
+  group_by(year) %>%
+  group_modify(~surveyMeanB(.x)) %>%
+  head()
+
+## AVOCADO: Drop this version of code
 nyts_data %>%
   as_survey_design(strata = stratum, ids = psu, weight  = finwgt, nest=TRUE) %>%
     group_by(year) %>%
@@ -1865,6 +1952,8 @@ nyts_data %>%
               values_from = `Percentage of students`) %>%
   head()
 
+
+## AVOCADO: Drop this version of plot
 plotB_w <- nyts_data %>%
   as_survey_design(strata = stratum, ids = psu, weight  = finwgt, nest=TRUE) %>%
     group_by(year) %>%
@@ -1898,12 +1987,59 @@ summarize(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
          y = "% of students")
 
 plotB_w
+
+plotB_w <- nyts_data %>% 
+  group_by(year) %>%
+  group_modify(~surveyMeanB(.x)) %>%
+  ggplot(aes(x=year,y=Mean, color = Product)) +
+  geom_line() +
+  geom_linerange(aes(ymin = Lower, ymax = Upper), size = 1, show.legend = FALSE) +
+  scale_linetype_manual(values = c(2,1)) +
+  scale_color_manual(values = v_colors) +
+  scale_y_continuous(breaks = seq(0,60,by=10),
+                       labels = seq(0,60,by=10),
+                       limits = c(0,60)) +
+    theme_linedraw() +
+    theme(legend.position = "none",
+          axis.title.x = element_blank()) +
+    labs(title = "% Ever trying e-cigarettes increases &\n% Ever trying other products decreases",
+         y = "% of students")
+
+plotB_w
+
 ```
 
 
 Now we will do the same but for current users:
 
 ```{r}
+surveyMeanC <- function(currYear){
+  options(survey.lonely.psu = "average")
+  currYear %>%
+  as_survey_design(strata = stratum, 
+                      ids = psu, 
+                  weight  = finwgt, 
+                     nest = TRUE) %>%
+       summarize(ecig_current_year = survey_mean(ecig_current, vartype = "ci", na.rm=TRUE),
+            non_ecig_current_year = survey_mean(non_ecig_current, vartype = "ci", na.rm=TRUE)) %>%
+  mutate_all("*", 100) %>%
+  pivot_longer(everything(), 
+           names_to = "Category", 
+          values_to = "Percentage of students") %>%
+    mutate(Estimate = case_when(grepl("_low", Category) ~ "Lower",
+                          grepl("_upp", Category) ~ "Upper",
+                          TRUE ~ "Mean"),
+         User = case_when(grepl("ever", Category) ~ "Ever",
+                          grepl("current", Category) ~ "Current"),
+         Product = case_when(grepl("non_ecig", Category) ~ "Other products",
+                          TRUE ~ "E-cigarettes")) %>%
+  dplyr::select(-Category) %>%
+  pivot_wider(names_from = Estimate, 
+              values_from = `Percentage of students`)
+
+}
+
+#AVOCADO: Drop this version of plot code
 plotC_w <- nyts_data %>%
   as_survey_design(strata = stratum, ids = psu, weight  = finwgt, nest=TRUE) %>%
     group_by(year) %>%
@@ -1935,6 +2071,24 @@ plotC_w <- nyts_data %>%
     labs(title = "% Currently using e-cigarettes increases &\n% Currently using other products decreases",
          y = "% of students")
 plotC_w
+
+plotC_w <- nyts_data %>% 
+  group_by(year) %>%
+  group_modify(~surveyMeanC(.x)) %>%
+    ggplot(aes(x=year,y=Mean, color=Product)) +
+  geom_line(aes(linetype="dashed")) +
+  geom_linerange(aes(ymin = Lower, ymax = Upper), size = 1,  show.legend = FALSE) +
+  scale_linetype_manual(values = c(2,1)) +
+  scale_y_continuous(breaks = seq(0, 60, by = 10), limits = c(0,60)) +
+  scale_color_manual(values = v_colors) +
+    theme_linedraw() +
+    theme(legend.position = "none",
+          axis.title.x = element_blank()) +
+    labs(title = "% Currently using e-cigarettes increases &\n% Currently using other products decreases",
+         y = "% of students")
+plotC_w
+
+
 ```
 
 
@@ -1991,6 +2145,38 @@ All of the data so far has included all 6th-12th graders every year. Now we will
 
 
 ```{r}
+
+surveyMeanCohort <- function(currYear){
+  options(survey.lonely.psu = "average")
+  currYear %>%
+  as_survey_design(strata = stratum, 
+                      ids = psu, 
+                  weight  = finwgt, 
+                     nest = TRUE) %>%
+summarize(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
+            ecig_current_year = survey_mean(ecig_current, vartype = "ci", na.rm=TRUE),
+            non_ecig_ever_year = survey_mean(non_ecig_ever, vartype = "ci", na.rm=TRUE),
+            non_ecig_current_year = survey_mean(non_ecig_current, vartype = "ci", na.rm=TRUE),
+          tobacco_ever_year = survey_mean(tobacco_ever, vartype = "ci", na.rm=TRUE),
+            tobacco_current_year = survey_mean(tobacco_current, vartype = "ci", na.rm=TRUE))%>%
+  mutate_all("*", 100) %>%
+  pivot_longer(everything(), 
+           names_to = "Category", 
+          values_to = "Percentage of students") %>%
+    mutate(Estimate = case_when(grepl("_low", Category) ~ "Lower",
+                          grepl("_upp", Category) ~ "Upper",
+                          TRUE ~ "Mean"),
+         User = case_when(grepl("ever", Category) ~ "Ever",
+                          grepl("current", Category) ~ "Current"),
+         Product = case_when(grepl("non_ecig", Category) ~ "Other products",
+                             grepl("tobacco", Category) ~ "Any tobacco product",
+                          TRUE ~ "E-cigarettes")) %>%
+  dplyr::select(-Category) %>%
+  pivot_wider(names_from = Estimate, 
+              values_from = `Percentage of students`)
+
+}
+
 Cohort_data <-nyts_data %>%
   filter((Grade == "8" & year == 2015) |
          (Grade == "9" & year == 2016) |
@@ -2021,6 +2207,20 @@ summarize(ecig_ever_year = survey_mean(ecig_ever, vartype = "ci", na.rm=TRUE),
               values_from = `Percentage of students`)
 
 head(Cohort_data)
+
+
+Cohort_data <-nyts_data %>%
+  filter((Grade == "8" & year == 2015) |
+         (Grade == "9" & year == 2016) |
+         (Grade == "10" & year == 2017) |
+         (Grade == "11" & year == 2018) |
+          (Grade == "12" & year == 2019) 
+         ) %>%
+  group_by(year) %>%
+ group_modify(~surveyMeanCohort(.x))
+
+head(Cohort_data)
+
 ```
 
 We will now make similar plots to those above for this subset of the data:
