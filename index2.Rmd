@@ -129,9 +129,11 @@ The skills, methods, and concepts that students will be familiar with by the end
 
 Data science skills:
 
-1. Importing data from Excel files
-2. Merging data from multiple similar but not identical data structures
-3. Creating effective longitudinal data visualizations
+1. Import data from Excel files
+2. Merge data from multiple similar but not identical data structures
+3. Create effective longitudinal data visualizations
+4. Write functions in R
+5. Apply functions across data subsets using `purrr` and `dplyr` functionality.
 
 Statistical methods:
 
@@ -494,14 +496,19 @@ nyts_data[["nyts2015"]] <- nyts_data[["nyts2015"]] %>%
 ```
 
 
+
 Ultimately we will be combining the data from each year using the `bind_rows()` function of the `dplyr` package, which will fill in `NA` values for any columns that do not exist for one of the years.
+
+
+avocado move this: To create these new variables, we will use the `mutate` function of the `dplyr` package. The `mutate` function can also be used to change the existing variables and create new variables from the old ones.
+
+
 
 The data for 2016-2018 have many common attributes, so we will want to write code that can be applied to all three data sets. To do this, we will use a `function` in R, which is basically a piece of code that can be applied to similar but different objects in R (e.g., the data tibbles from each of these three years). For more information on functions, see for example [here](https://r4ds.had.co.nz/functions.html){target="_blank"}.
 
-AVOCADO: I added a link to the r4ds chapter on functions; are there other places in the case studies that we discuss functions? Or additional links or resources you want to add?
-
-
 These next 3 years have the same structure for many of the questions we are interested in. For example, they all have flavor questions, but not a brand question. Moreover, their variable names are consistent across the years; for each year, we want to replace the vague question name `Q50A` with the value `menthol` in all three data sets, and the same is true for the other flavor variables.  For each of these years, we also want to create a variable `brand_ecig` that just contains `NA` values.  
+
+AVOCADO: Perhaps expand on function background, definition, arguments, return values, etc. here
 
 Since we want to perform the same modifications on the data from all three years, rather than repeating the same somewhat messy piece of code three times, we can do this more efficiently if we create a function to do all of these steps at once. Then we can use the `map_at()` function of the `purrr` package to apply the function we created (for renaming variables etc.) to the data from 2016-2018. By using `vars()` inside of the `map_at()` function we can specify what tibbles within our `nyts_data` list we want to include or exclude.
 
@@ -545,7 +552,6 @@ nyts_data[["nyts2019"]] <- nyts_data[["nyts2019"]] %>%
            alcoholic_drink=Q62E,
            candy_dessert_sweets=Q62F,
            other=Q62G)
-  #  mutate(no_use="missing")
 ```
 
 
@@ -584,7 +590,7 @@ knitr::include_graphics(here::here("img", "grade.png"))
 
 We also  want to replace the value of `19` for `Age` to be `">18"` and the value of `13` for `Grade` to be replaced with `"Ungraded/Other"` Also according to the codebooks, numeric values of `1` indicate a survey answer of `FALSE`, while a value of `2` indicates `TRUE`. `Sex` needs to be recoded, but it is a bit unclear if it is encoded slightly differently across years.
 
-AVOCADO: For the Sex variable, how did you determine "It's a bit difficult to tell if the encoding was the same across years" -- I don't see documentation of this (i.e., is this missing from the codebook somehow?), so it might be helpful to let the reader know how you figured this out. Carrie says to look at the codebooks and it will make sense; could consider screen shots. I looked at it again; the confusion seems to come from the SEX:RECODE variables, but we aren't using those. Otherwise, I do think this could be dropped.
+AVOCADO: For the Sex variable, how did you determine "It's a bit difficult to tell if the encoding was the same across years" -- I don't see documentation of this (i.e., is this missing from the codebook somehow?), so it might be helpful to let the reader know how you figured this out. Carrie says to look at the codebooks and it will make sense; could consider screen shots. I looked at it again; the confusion seems to come from the SEX:RECODE variables, but we aren't using those. Otherwise, I do think this could be dropped. CONSIDER SWITCHING ALL TO QN2 which is the numeric version.
 
 
 Let's create a function to make all these updates except for `Sex`. We will use the `mutate` function again, as well as `mutate_all` and `recode` to replace specific values of certain variables.
@@ -728,8 +734,6 @@ glimpse(nyts_data)
 
 
 Note that there are several variables where there are similar names, but with a `C` compared to an `E` in the variable name. Those starting with `C` are related to questions about current usage (last 30 days), while those with an `E` are related to usage across the student respondent's whole life ("ever" usage). We will discuss these groups further below.
-
-AVOCADO: I'm not sure where this should go, but I had the thought so I figured I'd include it. Maybe we can be more consistent about how we refer to students, subjects, respondents? Carrie suggests maybe trying to use students where we are talking about this specific data set, but respondents in the general survey weighting section. OK, I think it mostly says students or student respondents everywhere that we are referring to our specific data set. There are a couple places where we use subjects or respondents as general statistical terms. 
 
 
 
@@ -1308,11 +1312,9 @@ We will further explore the relationship between e-cigarette usage and other tob
 Now we want to look how e-cigarette smoking rates compare between males and females across time. 
 
 
-We will calculate the percent ever and current e-cigarette users for each year and sex category again using the `group_by()` function and the `summarize()` function.  We will again use the `pivot_longer` function to convert our data to long format. Because there are some missing values for the `Sex` variable, we will filter these out; based on the codebook, there is little information about why these values are missing, so our survey data only allows us to consider two reported sex values with confidence.
+We will calculate the percent ever and current e-cigarette users for each year and sex category again using the `group_by()` function and the `summarize()` function.  We will again use the `pivot_longer` function to convert our data to long format. 
 
-AVOCADO: Carrie, I am filtering out the NAs for Sex now; can you check/modify the language I included above? I feel like you put it more eloquently on the phone. 
-
-AVOCADO: Also, in this plot title e-cigarette is changed to vaping -- is that on purpose? Should we make that change earlier or throughout the case study? Or stick with e-cigarette?
+As discussed above, we acknowledge that while [gender](https://www.genderspectrum.org/quick-links/understanding-gender/){target="_blank"} and [sex](https://www.who.int/genomics/gender/en/index1.html){target="_blank"} are not actually binary, the data used in this analysis only contain information for groups of individuals who answered the survey questions as male or female. For individuals that have NA values, it is unclear if the question was not answered or if the individual identifies as non-binary. Because of this uncertainty, we will filter these individuals out. 
 
 ```{r}
 
@@ -1321,9 +1323,8 @@ v_colors =  viridis(6)[c(1,4)]
 nyts_data %>%
      filter(!is.na(Sex)) %>%
      group_by(year, Sex) %>%
-     summarize(Ever=(mean(EELCIGT, na.rm = TRUE)*100),
-               Current=(mean(CELCIGT, na.rm = TRUE)*100))%>%
-     #filter(!is.na(Sex)) %>%
+     summarize(Ever=(mean(EELCIGT, na.rm = TRUE) * 100),
+               Current=(mean(CELCIGT, na.rm = TRUE) * 100)) %>%
      pivot_longer(cols = Ever:Current, 
                names_to = "User", 
                values_to = "Percentage of students") %>%
@@ -1332,9 +1333,8 @@ nyts_data %>%
 plot2 <- nyts_data %>%
      filter(!is.na(Sex)) %>%
      group_by(year, Sex) %>%
-     summarize(Ever=(mean(EELCIGT, na.rm = TRUE)*100),
-               Current=(mean(CELCIGT, na.rm = TRUE)*100))%>%
-    # filter(!is.na(Sex)) %>%
+     summarize(Ever=(mean(EELCIGT, na.rm = TRUE) * 100),
+               Current=(mean(CELCIGT, na.rm = TRUE) * 100)) %>%
      pivot_longer(cols = Ever:Current, 
                names_to = "User", 
                values_to = "Percentage of students") %>%
@@ -1342,10 +1342,9 @@ plot2 <- nyts_data %>%
     geom_line(aes(linetype = User)) + 
     geom_point(show.legend = FALSE, size = 2) +
     scale_linetype_manual(values = c(2,1)) +
-    scale_color_manual(values =v_colors)+
+    scale_color_manual(values = v_colors) +
     theme_linedraw() +
     theme(legend.position = "bottom",
-#          axis.text.x = element_text(angle = 90),
           axis.title.x = element_blank()) +
     labs(title = "How do vaping rates compare between males and females?",
          subtitle = "Current and ever users by sex",
@@ -1800,6 +1799,8 @@ nyts_data %>%
   group_modify(~surveyMeanA(.x))
 
 ```
+
+AVOCADO: Replace all grepl with str_detect as seen above
 
 We will now make a plot using this data. The confidence intervals are included using the `geom_linerange()` function of the `ggplot2` package.
 
