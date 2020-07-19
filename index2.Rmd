@@ -125,18 +125,20 @@ We will base this on the following survey questions:
 
 In this case study, we will cover how to import data from multiple files efficiently, how to import data from excel files, and how to make a variety of visualizations to compare multiple groups across time. We will also demonstrate how to work with codebooks. We will cover the concept of survey weighting and introduce the `srvyr` package. We will discuss the difference between pooled cross-sectional data and panel data. We will especially focus on using packages and functions from the [`Tidyverse`](https://www.tidyverse.org/){target="_blank"} for wrangling data, such as `tidyr` and `dplyr` and for visualization, such as as `ggplot2`. The tidyverse is a library of packages created by RStudio. While some students may be familiar with previous R programming packages, these packages make data science in R especially efficient.
 
-
-AVOCADO: I would like these to be more detailed and probably separated into two categories along the lines of data science skills and statistical methods, so that the data import and visualization are in one category and the survey weighting is in another category. This is to help instructors who may be looking for an illustration of a particular tool or method to more readily identify an appropriate case study. More like keywords..... An attempt is below.
+The skills, methods, and concepts that students will be familiar with by the end of this case study are:
 
 Data science skills:
 
-1. Import data from Excel files
-2. Merge data from multiple similar but not identical data structures
-3. Create effective longitudinal data visualizations
+1. Importing data from Excel files
+2. Merging data from multiple similar but not identical data structures
+3. Creating effective longitudinal data visualizations
 
 Statistical methods:
 
-1. Survey weighting
+1. Understanding of different types of longitudinal data 
+2. Usage of code books
+3. Conceptual understanding of survey weighting
+4. Implementing Logistical regression with survey weighting avocado
 
 
 ```{r, out.width = "20%", echo = FALSE, fig.align ="center"}
@@ -358,8 +360,7 @@ tbl_files[["nyts2016"]] <- tbl_files[["nyts2016"]] %>%
                   Q50D, #Chocolate
                   Q50E, #Alcoholic Drink
                   Q50F, #Candy/Desserts/Other Sweets
-                  Q50G, #Some Other Flavor Not Listed Here
-                  Q50H #I Did Not Use Flavored Tobacco Products In the Past
+                  Q50G #Some Other Flavor Not Listed Here
                   ) 
 
 tbl_files[["nyts2017"]] <- tbl_files[["nyts2017"]] %>%
@@ -379,8 +380,7 @@ tbl_files[["nyts2017"]] <- tbl_files[["nyts2017"]] %>%
                   Q50D, #Chocolate
                   Q50E, #Alcoholic Drink
                   Q50F, #Candy/Desserts/Other Sweets
-                  Q50G, #Some Other Flavor Not Listed Here
-                  Q50H #I Did Not Use Flavored Tobacco Products In the Past
+                  Q50G #Some Other Flavor Not Listed Here
                   )
 
 tbl_files[["nyts2018"]] <- tbl_files[["nyts2018"]] %>%
@@ -400,8 +400,7 @@ tbl_files[["nyts2018"]] <- tbl_files[["nyts2018"]] %>%
                   Q50D, #Chocolate
                   Q50E, #Alcoholic Drink
                   Q50F, #Candy/Desserts/Other Sweets
-                  Q50G, #Some Other Flavor Not Listed Here
-                  Q50H #I Did Not Use Flavored Tobacco Products In the Past
+                  Q50G #Some Other Flavor Not Listed Here
                   )
 
 tbl_files[["nyts2019"]] <- tbl_files[["nyts2019"]] %>%
@@ -480,7 +479,7 @@ dplyr::glimpse(nyts_data[["nyts2015"]])
 ### Updating the set of variables and their names
 *** 
 
-The easiest way of making it so that the data from the different years can be combined is by making sure the different data sets all contain the same variables that share the same names. In addition, giving the columns informative names will help make our code more readable. Currently, it isn't very clear what most of the variables indicate since the variable names are uninformative on their own, without the [codebook](./docs/2019-nyts-dataset-and-codebook-microsoft-excel/2019-nyts-codebook-p.pdf){target="_blank"}.
+The easiest way of making it so that the data from the different years can be combined is by making sure that the same type of data in different datasets share the same names. In addition, giving the columns informative names will help make our code more readable. Currently, it isn't very clear what most of the variables indicate since the variable names are uninformative on their own, without the [codebook](./docs/2019-nyts-dataset-and-codebook-microsoft-excel/2019-nyts-codebook-p.pdf){target="_blank"}.
 
 We want to rename variables like `Qn1` to something more meaningful like `Age`.
 
@@ -495,35 +494,7 @@ nyts_data[["nyts2015"]] <- nyts_data[["nyts2015"]] %>%
 ```
 
 
-AVOCADO: I later learned that it is not correct that we need the same variables in the data set when using bind_rows, so why are we creating these dummy variables with NAs here? Won't they be automatically created later in any case?
-
-We also need to add new variables about usage of brands and specific flavors of e-cigarettes, because although later years have questions about this, this year unfortunately only has broad questions about flavors. Eventually we want to put the data from each year together, so we need the same variables for each year. Thus we need to add variables for brand and flavor to the 2015 data set that just contain missing values (`NA`).
-
-To create these new variables, we will use the `mutate` function of the `dplyr` package. The `mutate` function can also be used to change the existing variables and create new variables from the old ones.
-
-```{r}
-nyts_data[["nyts2015"]] <- nyts_data[["nyts2015"]] %>%
-  dplyr::mutate(
-           brand_ecig=NA,
-           menthol=NA,
-           clove_spice=NA,
-           fruit=NA,
-           chocolate=NA,
-           alcoholic_drink=NA,
-           candy_dessert_sweets=NA,
-           other=NA,
-           no_use=NA) 
-```
-
-
-Now we can see how the data has changed:
-
-#### {.scrollable }
-```{r}
-glimpse(nyts_data[["nyts2015"]])
-```
-####
-
+Ultimately we will be combining the data from each year using the `bind_rows()` function of the `dplyr` package, which will fill in `NA` values for any columns that do not exist for one of the years.
 
 The data for 2016-2018 have many common attributes, so we will want to write code that can be applied to all three data sets. To do this, we will use a `function` in R, which is basically a piece of code that can be applied to similar but different objects in R (e.g., the data tibbles from each of these three years). For more information on functions, see for example [here](https://r4ds.had.co.nz/functions.html){target="_blank"}.
 
@@ -533,6 +504,7 @@ AVOCADO: I added a link to the r4ds chapter on functions; are there other places
 These next 3 years have the same structure for many of the questions we are interested in. For example, they all have flavor questions, but not a brand question. Moreover, their variable names are consistent across the years; for each year, we want to replace the vague question name `Q50A` with the value `menthol` in all three data sets, and the same is true for the other flavor variables.  For each of these years, we also want to create a variable `brand_ecig` that just contains `NA` values.  
 
 Since we want to perform the same modifications on the data from all three years, rather than repeating the same somewhat messy piece of code three times, we can do this more efficiently if we create a function to do all of these steps at once. Then we can use the `map_at()` function of the `purrr` package to apply the function we created (for renaming variables etc.) to the data from 2016-2018. By using `vars()` inside of the `map_at()` function we can specify what tibbles within our `nyts_data` list we want to include or exclude.
+
 
 ```{r}
 
@@ -546,9 +518,7 @@ Update_survey <- function(x) { x %>%
            chocolate=Q50D,
            alcoholic_drink=Q50E,
            candy_dessert_sweets=Q50F,
-           other=Q50G,
-           no_use=Q50H) %>%
-    mutate(brand_ecig=NA)
+           other=Q50G)
 }
 
 #few options to apply to the data:
@@ -558,6 +528,9 @@ nyts_data <-nyts_data %>% map_at(vars(-nyts2015, -nyts2019), Update_survey)
 ```
 
 The final year, 2019, has a slightly different data structure compared to these earlier data sets. For example, it actually has a `brand_ecig` variable already, but does not contain a `no_use` variable. So we can't use the same function for this data set, but have to write an individual code chunk.
+
+To create these new variables, we will use the `mutate` function of the `dplyr` package. The `mutate` function can also be used to change the existing variables and create new variables from the old ones.
+
 
 ```{r}
 nyts_data[["nyts2019"]] <- nyts_data[["nyts2019"]] %>%
@@ -571,8 +544,8 @@ nyts_data[["nyts2019"]] <- nyts_data[["nyts2019"]] %>%
            chocolate=Q62D,
            alcoholic_drink=Q62E,
            candy_dessert_sweets=Q62F,
-           other=Q62G) %>%
-    mutate(no_use="missing")
+           other=Q62G)
+  #  mutate(no_use="missing")
 ```
 
 
@@ -585,7 +558,7 @@ map(nyts_data, names)
 ```
 ####
 
-It's looking better! There are still some differences in the set of variables in the different years, but things are much closer.
+It's looking better! The data that overlap across years have the same variable names.
 
 ### Updating Values
 
@@ -690,9 +663,10 @@ Looks good!
 
 The years (2016-2019) that have flavors also need the flavor data to be logical (meaning TRUE or FALSE):
 
+avocado explanation of why .mssing is FALSE?
 ```{r}
 Update_flavors <- function(x){x %>%
-   mutate_at(vars(menthol:no_use),
+   mutate_at(vars(menthol:other),
               list(~recode(.,
                            `1` = TRUE,
                        .default = FALSE,
