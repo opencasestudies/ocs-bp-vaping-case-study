@@ -109,7 +109,7 @@ Gentzke, Andrea S., Melisa Creamer, Karen A. Cullen, Bridget K. Ambrose, Gordon 
 <b><u> Our main question: </u></b>
 
 1) How has tobacco and e-cigarette/vaping use by American youths changed since 2015?
-2) How do vaping rates compare between males and females?
+2) How does e-cigarette use compare between males and females?
 3) What vaping brands and flavors appear to be used the most frequently?  
 We will base this on the following survey questions:   
 > "During the past 30 days, what brand of e-cigarettes did you usually use?"   
@@ -140,7 +140,7 @@ Statistical methods:
 1. Understanding of different types of longitudinal data 
 2. Usage of code books
 3. Conceptual understanding of survey weighting
-4. Implementing Logistical regression with survey weighting avocado
+4. Implementing Logistical regression with survey weighting
 
 
 ```{r, out.width = "20%", echo = FALSE, fig.align ="center"}
@@ -499,59 +499,85 @@ nyts_data[["nyts2015"]] <- nyts_data[["nyts2015"]] %>%
 
 Ultimately we will be combining the data from each year using the `bind_rows()` function of the `dplyr` package, which will fill in `NA` values for any columns that do not exist for one of the years.
 
+The data for 2016-2018 have many common attributes, so we will want to write code that can be applied to all three data sets. To do this, we will use a `function` in R, which is basically a piece of code that can be applied to similar but different objects in R (e.g., the data tibbles from each of these three years). Recall that you are using functions from packages all the time, like the `rename()` function of the `dplyr` package. Now you are going to write your own function! For more information on functions, see [here](https://r4ds.had.co.nz/functions.html){target="_blank"}.
 
-avocado move this: To create these new variables, we will use the `mutate` function of the `dplyr` package. The `mutate` function can also be used to change the existing variables and create new variables from the old ones.
+These next 3 years have the same structure for many of the questions we are interested in. For example, they all have flavor questions, but not a brand question. Moreover, their variable names are consistent across the years; for each year, we want to replace the vague question name `Q50A` with the value `menthol` in all three data sets, and the same is true for the other flavor variables.  
+
+Since we want to perform the same modifications on the data from all three years, rather than repeating the same somewhat messy piece of code three times, we can do this more efficiently if we create a function to do all of these steps at once. Then we can use the `map_at()` function of the `purrr` package, which is an extension of the `map()` function that we used in the [Reading in the excel files] section to apply the function we just created (for renaming variables etc.) specifically to the data from 2016-2018 within the `nyts_data`. By using `vars()` inside of the `map_at()` function we can specify what tibbles within our `nyts_data` list we want to include or exclude. 
 
 
+So how do you create a function?
+You first need to specify that you are creating a functionby usingthe `function()` base function.
+Yes, that's right it as a function for creating functions called function!
 
-The data for 2016-2018 have many common attributes, so we will want to write code that can be applied to all three data sets. To do this, we will use a `function` in R, which is basically a piece of code that can be applied to similar but different objects in R (e.g., the data tibbles from each of these three years). For more information on functions, see for example [here](https://r4ds.had.co.nz/functions.html){target="_blank"}.
+First we specify our input within the parantheses of `function()`. Thus if our function will apply something to an input called `x` then we would use `function(x)`. Really our input can be named whatever we want, but we we need to refer to it consistently within our function to indicate what we want done with the input data. We can actaully have more than one input as well, we would indicate two inputs like this: `function(x, b)`. Here we we would be using both `x` and `b` to do something in our function.
 
-These next 3 years have the same structure for many of the questions we are interested in. For example, they all have flavor questions, but not a brand question. Moreover, their variable names are consistent across the years; for each year, we want to replace the vague question name `Q50A` with the value `menthol` in all three data sets, and the same is true for the other flavor variables.  For each of these years, we also want to create a variable `brand_ecig` that just contains `NA` values.  
+The next part of a function is within defined within curly brackets `{}`. This is where we write what we want done to our inputs.
 
-AVOCADO: Perhaps expand on function background, definition, arguments, return values, etc. here
+<details> <summary> Click here to see a simple example </summary> 
 
-Since we want to perform the same modifications on the data from all three years, rather than repeating the same somewhat messy piece of code three times, we can do this more efficiently if we create a function to do all of these steps at once. Then we can use the `map_at()` function of the `purrr` package to apply the function we created (for renaming variables etc.) to the data from 2016-2018. By using `vars()` inside of the `map_at()` function we can specify what tibbles within our `nyts_data` list we want to include or exclude.
+Our function will be called `simple_function` and it will take the input `x`. It will add 2 to our input.
+```{r}
+x = c(1,2,3,4)
+x
+simple_function <- function(x) {
+  x + 2
+}
 
+simple_function(x)
+```
+
+The name of our input does not need to match like in the above example. Instead we can use an input that is a vector called `y`, and we can rewrite our function to use a more informative input argument like `vector_data`. Now we specify using the argument ` vector_data =` to indicate that `y` is our input that we want to perform the function on.
+
+```{r}
+y = c(1,2,3,4)
+
+simple_function <- function(vector_data) {
+  vector_data + 2
+}
+simple_function(vector_data = y)
+
+```
+
+</details>
+
+In our case we will be applying our function to the variable names for the dataset for each year. Thus our `x` is the dataset for each year. The output of our function is the result of renaming these variables for each year. 
 
 ```{r}
 
 Update_survey <- function(x) { x %>%
-      rename(Age=Q1,
-           Sex=Q2,
-           Grade=Q3,
-           menthol=Q50A,
-           clove_spice=Q50B,
-           fruit=Q50C,
-           chocolate=Q50D,
-           alcoholic_drink=Q50E,
-           candy_dessert_sweets=Q50F,
-           other=Q50G)
+           rename(Age = Q1,
+                  Sex = Q2,
+                Grade = Q3,
+              menthol = Q50A,
+          clove_spice = Q50B,
+                fruit = Q50C,
+            chocolate = Q50D,
+      alcoholic_drink = Q50E,
+ candy_dessert_sweets = Q50F,
+                other = Q50G)
 }
 
-#few options to apply to the data:
+# options to apply the function to the data:
 #nyts_data <-nyts_data %>% map_at(vars(nyts2016, nyts2017, nyts2018), Update_survey)
-#nyts_data <-nyts_data %>% map_at(c("nyts2016", "nyts2017", "nyts2018"), Update_survey)
 nyts_data <-nyts_data %>% map_at(vars(-nyts2015, -nyts2019), Update_survey)
 ```
 
-The final year, 2019, has a slightly different data structure compared to these earlier data sets. For example, it actually has a `brand_ecig` variable already, but does not contain a `no_use` variable. So we can't use the same function for this data set, but have to write an individual code chunk.
-
-To create these new variables, we will use the `mutate` function of the `dplyr` package. The `mutate` function can also be used to change the existing variables and create new variables from the old ones.
-
+The final year, 2019, has a slightly different data structure compared to these earlier data sets. It actually has a `brand_ecig` variable already and different question numbers correspond to our flavor questions of interest. So we will rename the variables in this data set individually. We could also write this as a function, but since we are only applying this one time, there is no need to. Functions are really helpful for repeating the same task repeatedly using different data inputs.
 
 ```{r}
 nyts_data[["nyts2019"]] <- nyts_data[["nyts2019"]] %>%
-    rename(brand_ecig=Q40,
-           Age=Q1,
-           Sex=Q2,
-           Grade=Q3,
-           menthol=Q62A,
-           clove_spice=Q62B,
-           fruit=Q62C,
-           chocolate=Q62D,
-           alcoholic_drink=Q62E,
-           candy_dessert_sweets=Q62F,
-           other=Q62G)
+    rename(brand_ecig = Q40,
+                  Age = Q1,
+                  Sex = Q2,
+                Grade = Q3,
+              menthol = Q62A,
+          clove_spice = Q62B,
+                fruit = Q62C,
+           bchocolate = Q62D,
+      alcoholic_drink = Q62E,
+ candy_dessert_sweets = Q62F,
+                other = Q62G)
 ```
 
 
@@ -588,28 +614,28 @@ knitr::include_graphics(here::here("img", "grade.png"))
 
 **This is why it is so important to always check the codebook!!**
 
-We also  want to replace the value of `19` for `Age` to be `">18"` and the value of `13` for `Grade` to be replaced with `"Ungraded/Other"` Also according to the codebooks, numeric values of `1` indicate a survey answer of `FALSE`, while a value of `2` indicates `TRUE`. `Sex` needs to be recoded, but it is a bit unclear if it is encoded slightly differently across years.
+We also  want to replace the value of `19` for `Age` to be `">18"` and the value of `13` for `Grade` to be replaced with `"Ungraded/Other"` Also according to the codebooks, numeric values of `1` indicate a survey answer of `FALSE`, while a value of `2` indicates `TRUE`. `Sex` also needs to be recoded. If we take a look at the code books carefully (make sure you look at the questions that we pulled, not the recoded values), we will see that males are indicated by `1` and females are indicated by `2`. Finally some values are indicated with `"*"` or`"**"` when they are missing. We want to replace these with `NA`.
 
-AVOCADO: For the Sex variable, how did you determine "It's a bit difficult to tell if the encoding was the same across years" -- I don't see documentation of this (i.e., is this missing from the codebook somehow?), so it might be helpful to let the reader know how you figured this out. Carrie says to look at the codebooks and it will make sense; could consider screen shots. I looked at it again; the confusion seems to come from the SEX:RECODE variables, but we aren't using those. Otherwise, I do think this could be dropped. CONSIDER SWITCHING ALL TO QN2 which is the numeric version.
-
-
-Let's create a function to make all these updates except for `Sex`. We will use the `mutate` function again, as well as `mutate_all` and `recode` to replace specific values of certain variables.
+Let's create a function to make all these updates. We will use the `mutate` function of the `dplyr` package to modify these variables. This function can also be used to create new variables. We will also use the  `recode()` function of the `dplyr` package to replace specific values of certain variables.
 
 ```{r}
 Update_values <- function(x) { x %>%
-      mutate(Age=as.numeric(Age)+8,
-             Grade=as.numeric(Grade)+5)%>%
-      mutate(Age=as.factor(Age),
-         Grade=as.factor(Grade),
+      mutate(Age = as.numeric(Age) + 8,
+           Grade = as.numeric(Grade) + 5)%>%
+      mutate(Age = as.factor(Age),
+           Grade = as.factor(Grade),
+             Sex = as.factor(Sex)) %>%
+      mutate(Sex = recode(Sex,
+                      `1` = "male",
+                      `2` = "female")
          ) %>%
   mutate_all(~ replace(., . %in% c("*", "**"), NA))%>%
-  mutate(Age=recode(Age,
-                    `19` = ">18",
-                    ),
-         Grade=recode(Grade,
+  mutate(Age = recode(Age,
+                    `19` = ">18"),
+       Grade = recode(Grade,
                       `13` = "Ungraded/Other")) %>%
   mutate_at(vars(starts_with("E", ignore.case = FALSE),
-                   starts_with("C", ignore.case = FALSE)),
+                 starts_with("C", ignore.case = FALSE)),
               list(~recode(.,
                            `1` = TRUE,
                            `2` = FALSE,
@@ -622,9 +648,7 @@ nyts_data <-nyts_data %>% map(.,Update_values)
 ```
 
 
-Now let's update the `Sex` encoding:
-
-It's a bit difficult to tell if the encoding was the same across years, so let's check using the `count()` function of the `dplyr` package.
+Now if we wanted to check that everything is expected we could do something like this to check the `Sex` variable using the `count()` function of the `dplyr` package. It is advisable to check your data frequently to make sure that it is as expected!
 
 According to the codebook, we should have:  
 1) 8,958 males in 2015 
@@ -639,43 +663,19 @@ nyts_data %>% map(., count_sex)
 ```
 
 
-Thus, it looks like males were encoded as `1` for each year.
-
-1) 8,958 males in 2015 where 1 = male  
-2) 10,438 males in 2016 where 1 = male
-3) 8,881 males in 2017 where 1 = male  
-4) 10,069 males in 2018 where 1 = male
-5) 9,803 males in 2019 where 1 = male
-
-
-```{r}
-
-  Update_sex <- function(x){x %>%
-      mutate(Sex = as.factor(Sex)) %>%
-         mutate(Sex = recode(Sex,
-                      `1`= "male",
-                      `2` = "female"))
-  }
-
-nyts_data <-nyts_data %>% map(., Update_sex)
-count_sex <-function(x){x %>%count(Sex)}
-nyts_data %>% map(., count_sex)
-
-```
-
 Looks good!
-
-
 
 The years (2016-2019) that have flavors also need the flavor data to be logical (meaning TRUE or FALSE):
 
-avocado explanation of why .mssing is FALSE?
+In this case we also are setting missing values to `FALSE` because then it the `TRUE` values will represent those who reported using a specific flavor out of all users, rather than those that used a specific flavor compared to those who used a different flavor.
+
+
 ```{r}
 Update_flavors <- function(x){x %>%
    mutate_at(vars(menthol:other),
               list(~recode(.,
                            `1` = TRUE,
-                       .default = FALSE,
+                      .default = FALSE,
                       .missing = FALSE))) }
 
 nyts_data  <- nyts_data  %>% map_at(vars(-nyts2015), Update_flavors)
@@ -782,7 +782,6 @@ Variable   | Details
 **alcoholic_drink** | student selected alcoholic drink (such as wine, cognac, margarita, or other cocktails) as the answer to "What flavors of tobacco products have you used in the past 30 days? (choose one or more)"  
 **candy_dessert_sweets** |  student selected candy, desserts or other sweets as the answer to "What flavors of tobacco products have you used in the past 30 days? (choose one or more)" 
 **other** | student selected some other flavor not listed as the answer to "What flavors of tobacco products have you used in the past 30 days? (choose one or more)" 
-**no_use** | student reported that they did not use any flavored tobacco products in the past 30 days or did not answer the question about using flavors
 **EHTP** | student reported having ever tried heated (also known as "heat-not-burn") tobacco products  
 **CHTP** | student reported they used heated tobacco products during the past 30 days  
 </details>
@@ -792,8 +791,8 @@ Variable   | Details
 
 Recall that our main questions were:
 
-1) How has tobacco and e-cigarette use by American youths changed since 2015?
-2) How do vaping rates compare between males and females?
+1) How has tobacco and e-cigarette/vaping use by American youths changed since 2015?
+2) How does e-cigarette use compare between males and females?
 3) What vaping brands and flavors appear to be used the most frequently?  
 We will base this on the following survey questions:   
 > "During the past 30 days, what brand of e-cigarettes did you usually use?"   
@@ -867,7 +866,7 @@ glimpse(nyts_data)
 ```
 ####
 
-We are also interested in e-cigarette usage compared to other tobacco products, so we will create some variables related to the sum of all e-cigarette usage question variables and the sum of all tobacco usage question variables excluding those that are about e-cigarettes. There is only one variable about e-cigarette usage ever (EELCIGT) and one about current usage (CELCIGT).
+We are also interested in e-cigarette/vaping product usage compared to other tobacco products, so we will create some variables related to the sum of all e-cigarette usage question variables and the sum of all tobacco usage question variables excluding those that are about e-cigarettes. There is only one variable about e-cigarette usage ever (EELCIGT) and one about current usage (CELCIGT).
 
 ```{r}
    nyts_data <-nyts_data %>% mutate(ecig_sum_ever = select(., EELCIGT) %>%
@@ -962,9 +961,9 @@ glimpse(test)
 
 Take a minute to check that the values are what we would expect.
 
-OK, now we are going to make a `Group` variable based on the new variables we just made to classify students into one of four mutually exclusive and exhaustive categories. In this case we will have a particular value based on one condition **or** another. This **or** conditional is specified by the `|` symbol. Only one of the conditions needs to exist for that particular value, whereas when we used the `&` symbol, all of the conditions had to be met. If a student has ever tried or currently uses e-cigarettes, but has never tried other tobacco products, the value will be `Only e-cigarettes`. If a student has ever tried or is a current user of other tobacco products, but has never tried e-cigarettes, the value will be `Only other products`. If the value of the `no_use` variable is simply `TRUE`, then the `Group` variable value will be `Neither`. Finally, if a student has tried or currently uses both e-cigarettes and other tobacco products the `Group` variable value will be `Combination of products`. Therefore the values for the usage of the variables based on only using e-cigarettes or only other products will all be `FALSE`. Of course the student will also have had to answer yes to any of the use-based questions, thus the no_use variable would also need to be `FALSE`.
+OK, now we are going to make a `Group` variable based on the new variables we just made to classify students into one of four mutually exclusive and exhaustive categories. In this case we will have a particular value based on one condition **or** another. This **or** conditional is specified by the `|` symbol. Only one of the conditions needs to exist for that particular value, whereas when we used the `&` symbol, all of the conditions had to be met. 
 
-AVOCADO: Consider dropping the last two sentences in the paragraph above? i.e., from "Therefore the values..." to "would also need to be `FALSE`." I'm not sure what they are adding. LEAVE IN FOR CARRIE TO REVIEW.
+If a student has ever tried or currently uses e-cigarettes, but has never tried other tobacco products, the value will be `Only e-cigarettes`. If a student has ever tried or is a current user of other tobacco products, but has never tried e-cigarettes, the value will be `Only other products`. If the value of the `no_use` variable is simply `TRUE`, then the `Group` variable value will be `Neither`. Finally, if a student has tried or currently uses both e-cigarettes and other tobacco products the `Group` variable value will be `Combination of products`. Thus in this case the values for the usage of the variables based on **only** using e-cigarettes or **only** other products will all be `FALSE`. 
 
 ```{R}
 
@@ -1346,7 +1345,7 @@ plot2 <- nyts_data %>%
     theme_linedraw() +
     theme(legend.position = "bottom",
           axis.title.x = element_blank()) +
-    labs(title = "How do vaping rates compare between males and females?",
+    labs(title = "How does e-cigarette usage compare between males and females?",
          subtitle = "Current and ever users by sex",
          y = "% of students")
 
@@ -1510,7 +1509,7 @@ We can see from this plot that there has been an increase in the number of stude
 
 ### Question 4
 
-Is there a relationship between vaping rates and tobacco use? Now we will investigate the usage of e-cigarettes compared to other tobacco products in greater depth. 
+Is there a relationship between e-cigarette use and tobacco use? Now we will investigate the usage of e-cigarettes compared to other tobacco products in greater depth. 
 
 First let's take a look at how e-cigarette usage and cigarette usage compare. We will select the data that specifically has to do with these products.
 
@@ -1639,7 +1638,7 @@ plotC_uw <- plot8 +
 
 title_uw <- ggdraw() + 
   draw_label(
-    "Is there a relationship between vaping rates and tobacco use?",
+    "Is there a relationship between e-cigarette use and tobacco use?",
     fontface = 'bold',
     size=14,
     x = 0,
@@ -1788,10 +1787,10 @@ surveyMeanA <- function(currYear){
                  names_to = "Type", 
                  values_to = "Percentage of students") %>%
   mutate(Estimate = case_when(str_detect(Type,"_low") ~ "Lower",
-                              grepl("_upp", Type) ~ "Upper",
+                              str_detect(Type, "_upp") ~ "Upper",
                           TRUE ~ "Mean"),
-         User = case_when(grepl("ever", Type) ~ "Ever",
-                          grepl("current", Type) ~ "Current",
+         User = case_when(str_detect(Type, "ever") ~ "Ever",
+                          str_detect(Type, "current") ~ "Current",
                           TRUE ~ "Mean"))}
 
 nyts_data %>% 
@@ -1799,8 +1798,6 @@ nyts_data %>%
   group_modify(~surveyMeanA(.x))
 
 ```
-
-AVOCADO: Replace all grepl with str_detect as seen above
 
 We will now make a plot using this data. The confidence intervals are included using the `geom_linerange()` function of the `ggplot2` package.
 
@@ -1846,12 +1843,12 @@ surveyMeanB <- function(currYear){
   pivot_longer(everything(), 
            names_to = "Category", 
           values_to = "Percentage of students") %>%
-  mutate(Estimate = case_when(grepl("_low", Category) ~ "Lower",
-                          grepl("_upp", Category) ~ "Upper",
+  mutate(Estimate = case_when(str_detect(Category, "_low") ~ "Lower",
+                          str_detect(Category, "_upp") ~ "Upper",
                           TRUE ~ "Mean"),
-         User = case_when(grepl("ever", Category) ~ "Ever",
-                          grepl("current", Category) ~ "Current"),
-         Product = case_when(grepl("non_ecig", Category) ~ "Other products",
+         User = case_when(str_detect(Category, "ever") ~ "Ever",
+                          str_detect(Category, "current") ~ "Current"),
+         Product = case_when(str_detect(Category, "non_ecig") ~ "Other products",
                           TRUE ~ "E-cigarettes")) %>%
   dplyr::select(-Category) %>%
   pivot_wider(names_from = Estimate, 
@@ -1901,12 +1898,12 @@ surveyMeanC <- function(currYear){
   pivot_longer(everything(), 
            names_to = "Category", 
           values_to = "Percentage of students") %>%
-  mutate(Estimate = case_when(grepl("_low", Category) ~ "Lower",
-                          grepl("_upp", Category) ~ "Upper",
+  mutate(Estimate = case_when(str_detect(Category, "_low") ~ "Lower",
+                          str_detect(Category, "_upp") ~ "Upper",
                           TRUE ~ "Mean"),
-         User = case_when(grepl("ever", Category) ~ "Ever",
-                          grepl("current", Category) ~ "Current"),
-         Product = case_when(grepl("non_ecig", Category) ~ "Other products",
+         User = case_when(str_detect(Category, "ever") ~ "Ever",
+                          str_detect(Category, "current") ~ "Current"),
+         Product = case_when(str_detect(Category, "non_ecig") ~ "Other products",
                           TRUE ~ "E-cigarettes")) %>%
   dplyr::select(-Category) %>%
   pivot_wider(names_from = Estimate, 
@@ -1938,7 +1935,7 @@ Now we will put these plots together again using the `cowplot` package:
 ```{r}
 title_w <- ggdraw() + 
   draw_label(
-    expression("What is the relationship between vaping rates and tobacco use?"),
+    expression("What is the relationship between e-cigarette use and tobacco use?"),
     fontface = 'bold',
     size=14,
     x = 0,
@@ -2004,13 +2001,13 @@ surveyMeanCohort <- function(currYear){
   pivot_longer(everything(), 
            names_to = "Category", 
           values_to = "Percentage of students") %>%
-  mutate(Estimate = case_when(grepl("_low", Category) ~ "Lower",
-                          grepl("_upp", Category) ~ "Upper",
+  mutate(Estimate = case_when(str_detect(Category, "_low") ~ "Lower",
+                          str_detect(Category, "_upp") ~ "Upper",
                           TRUE ~ "Mean"),
-         User = case_when(grepl("ever", Category) ~ "Ever",
-                          grepl("current", Category) ~ "Current"),
-         Product = case_when(grepl("non_ecig", Category) ~ "Other products",
-                             grepl("tobacco", Category) ~ "Any tobacco product",
+         User = case_when(str_detect(Category, "ever") ~ "Ever",
+                          str_detect(Category, "current") ~ "Current"),
+         Product = case_when(str_detect(Category, "non_ecig") ~ "Other products",
+                             str_detect(Category, "tobacco") ~ "Any tobacco product",
                           TRUE ~ "E-cigarettes")) %>%
   dplyr::select(-Category) %>%
   pivot_wider(names_from = Estimate, 
@@ -2125,7 +2122,7 @@ Finally we will put our plots together to create a plot that describes the relat
 ```{r}
 title_final <- ggdraw() +
   draw_label(
-    expression("What is the relationship between vaping rates and tobacco use?"),
+    expression("What is the relationship between e-cigarette use and tobacco use?"),
     fontface = 'bold',
     size=16,
     x = 0.5) +
@@ -2281,7 +2278,7 @@ In this case study, we used data from the [National Youth Tobacco Survey (NYTS)]
 We used this data to answer the questions:
 
 1) How has tobacco and e-cigarette/vaping use by American youths changed since 2015?
-2) How do vaping rates compare between males and females?
+2) How does e-cigarette use compare between males and females?
 3) What vaping brands and flavors appear to be used the most frequently?  
 We will base this on the following survey questions:   
 > "During the past 30 days, what brand of e-cigarettes did you usually use?"   
@@ -2292,7 +2289,7 @@ We will base this on the following survey questions:
 
 We showed how to work with the data in the format provided (Excel), how to to use the codebooks to decide what variables to use to answer our questions and how to clean and recode the data from the survey for our visualizations and analysis. We made visualizations of our summary statistics over time, to illustrate the trends present in the data for different products and groups of student respondents.
 
-In answer to our questions, we found that tobacco use has gone up slightly overall between 2015 and 2019, with little difference in rates of change comparing males to females. This slight increase is the result of a large increase in e-cigarette/vaping use, coupled with a decrease in use of other tobacco products. The most used brand of vaping/e-cigarette products is Juul, and fruit, menthol and candy/desserts/sweets are the most commonly used flavors.
+In answer to our questions, we found that tobacco use has gone up slightly overall between 2015 and 2019, with little difference in rates of change comparing males to females. This slight increase is the result of a large increase in e-cigarette/vaping use, coupled with a decrease in use of other tobacco products. The most used brand of e-cigarette/vaping products is Juul, and fruit, menthol and candy/desserts/sweets are the most commonly used flavors.
 
 We also introduced the statistical concept of survey weighting, illustrating how to calculate usage percentages using survey-weighted means, and compare the results in the weighted and unweighted cases. 
 
