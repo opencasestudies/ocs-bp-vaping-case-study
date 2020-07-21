@@ -57,6 +57,11 @@ knitr::include_graphics(here::here("img", "final_plot.png"))
 
 **Disclaimer**: The purpose of the [Open Case Studies](https://opencasestudies.github.io){target="_blank"} project is **to demonstrate the use of various data science methods, tools, and software in the context of messy, real-world data**. A given case study does not cover all aspects of the research process, is not claiming to be the most appropriate way to analyze a given data set, and should not be used in the context of making policy decisions without external consultation from scientific experts. 
 
+## {.license_block}
+
+This work is licensed under the Creative Commons Attribution-NonCommercial 3.0 [(CC BY-NC 3.0)](https://creativecommons.org/licenses/by-nc/3.0/us/){target="_blank"}  United States License.
+
+
 ## **Motivation**
 *** 
 According to a recent [report](https://www.cdc.gov/mmwr/volumes/68/wr/mm6806e1.htm?s_cid=mm6806e1_w){target="_blank"}, overall tobacco use **increased** in youths (middle school and high school students) in the United States in 2017 and 2018, despite previous years of declining use.
@@ -125,6 +130,12 @@ We will base this on the following survey questions:
 
 In this case study, we will cover how to import data from multiple files efficiently, how to import data from excel files, and how to make a variety of visualizations to compare multiple groups across time. We will also demonstrate how to work with codebooks. We will cover the concept of survey weighting and introduce the `srvyr` package. We will discuss the difference between pooled cross-sectional data and panel data. We will especially focus on using packages and functions from the [`Tidyverse`](https://www.tidyverse.org/){target="_blank"} for wrangling data, such as `tidyr` and `dplyr` and for visualization, such as as `ggplot2`. The tidyverse is a library of packages created by RStudio. While some students may be familiar with previous R programming packages, these packages make data science in R especially efficient.
 
+```{r, out.width = "20%", echo = FALSE, fig.align ="center"}
+
+include_graphics("https://tidyverse.tidyverse.org/logo.png")
+```
+
+
 The skills, methods, and concepts that students will be familiar with by the end of this case study are:
 
 Data science skills:
@@ -141,12 +152,6 @@ Statistical methods:
 2. Usage of code books
 3. Conceptual understanding of survey weighting
 4. Implementing Logistical regression with survey weighting
-
-
-```{r, out.width = "20%", echo = FALSE, fig.align ="center"}
-
-include_graphics("https://tidyverse.tidyverse.org/logo.png")
-```
 
 
 *** 
@@ -204,7 +209,7 @@ According to the cited [Morbidity and Mortality Weekly Report](https://www.cdc.g
 knitr::include_graphics(here::here("img", "context.png"))
 
 ```
-
+#### [[source](https://www.cdc.gov/mmwr/volumes/68/wr/mm6806e1.htm?s_cid=mm6806e1_w)]{target="_blank"} 
 
 Importantly, the vapors used in e-cigarettes contain harmful chemicals:
 
@@ -255,7 +260,7 @@ knitr::include_graphics(here::here("img", "data.png"))
 ```
 Therefore, since we are using data from **2015-2019**, the data we are interested in are located in 5 different excel files, one for each year, each with its own [codebook](./docs/2019-nyts-dataset-and-codebook-microsoft-excel/2019-nyts-codebook-p.pdf){target="_blank"} (this is the one for 2019).
 
-The codebook contains information describing the data within the excel file. 
+The [codebook](https://www.icpsr.umich.edu/icpsrweb/content/shared/ICPSR/faqs/what-is-a-codebook.html){target="_blank"} contains information describing the data within the excel file. 
 
 As you can see the excel file contains very short variable names and numeric values, and it is not clear what they mean without the codebook:
 
@@ -296,7 +301,7 @@ Since these excel files are so large (each has roughly 20,000 rows), it takes a 
 First we created a vector of file names of all the different excel files. Using the `here()` function of the `here` package, we looked in all the directories of the project.
 The `list.files()` function looked for all files with .xlsx within these sub-directories.
 ```{r}
-excel_files<-list.files(here::here(), recursive = TRUE,
+excel_files <- list.files(here::here(), recursive = TRUE,
                   pattern = "*.xlsx")
 excel_files
 ```
