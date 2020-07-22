@@ -3,7 +3,7 @@ License: CC BY-NC 3.0
 Authors@R: person(given = "Just",
            family = "Placeholder",
            email = "blah@gmail.com")
-Package: ocs.bloomberg.emissions.case.study
+Package: ocs.bloomberg.vaping.case.study
 Type: package
 Title: Open Case Studies
 Version: 0.0.1
@@ -12,17 +12,19 @@ Imports:
     here,
     readxl,
     readr,
-    dplyr,
     magrittr,
     stringr,
+    dplyr,
     purrr,
+    stringr,
     tidyr,
     forcats,
     ggplot2,
-    directlabels,
-    ggrepel,
-    broom,
-    patchwork,
+    scales,
+    viridis,
+    naniar,
+    srvyr,
+    cowplot,
     qpdf,
     Rcpp,
     jpeg, 
