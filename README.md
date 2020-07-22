@@ -2,7 +2,8 @@
 OpenCaseStudies
 ===============
 
-\*\* need to add travis badge\*\*
+[![Build
+Status](https://travis-ci.org/opencasestudies/ocs-bloomberg-vaping-case-study.svg?branch=master)](https://travis-ci.org/opencasestudies/ocs-bloomberg-vaping-case-study)
 
 ### Disclaimer
 
@@ -26,6 +27,11 @@ United States License.
 ### Citation
 
 To cite this case study:
+
+Wright, Carrie, and Ontiveros, Michael and Jager, Leah and Taub,
+Margaret and Hicks, Stephanie. (2020).
+<a href="https://github.com/opencasestudies/ocs-bloomberg-vaping-case-study" class="uri">https://github.com/opencasestudies/ocs-bloomberg-vaping-case-study</a>.
+Vaping Behaviors in American Youth (Version v1.0.0).
 
 ### Title
 
@@ -91,9 +97,8 @@ We also cover how to create new variables using the `mutate()` function
 and the `case_when()` function of the `dplyr` package to represent
 specific subgroups of surveyed students that meet various conditions.
 
-Finally we demonstrate the difference bewteen the `bind_rows()` function
-and the `full_join()` function of the `dplyr` package and how to use
-each to combine data.
+Finally we also demonstrate how to use the `bind_rows()` function and
+the `dplyr` package to combine data.
 
 #### Data Visualization
 
