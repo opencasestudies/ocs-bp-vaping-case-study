@@ -1,0 +1,33 @@
+Description: This is a Description.
+License: CC BY-NC 3.0
+Authors@R: person(given = "Just",
+           family = "Placeholder",
+           email = "blah@gmail.com")
+Package: ocs.bloomberg.emissions.case.study
+Type: package
+Title: Open Case Studies
+Version: 0.0.1
+Depends: R (>= 4.0)
+Imports:
+    here,
+    readxl,
+    readr,
+    dplyr,
+    magrittr,
+    stringr,
+    purrr,
+    tidyr,
+    forcats,
+    ggplot2,
+    directlabels,
+    ggrepel,
+    broom,
+    patchwork,
+    qpdf,
+    Rcpp,
+    jpeg, 
+    png, 
+    testthat, 
+    rmarkdown,
+    knitr
+VignetteBuilder: knitr
