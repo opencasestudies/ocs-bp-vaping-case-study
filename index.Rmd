@@ -175,6 +175,8 @@ library(forcats)
 library(naniar)
 library(srvyr)
 library(cowplot)
+library(broom)
+library(survey)
 ```
 
  Package   | Use                                                                         
@@ -194,6 +196,8 @@ library(cowplot)
 [naniar](https://cran.r-project.org/web/packages/naniar/vignettes/getting-started-w-naniar.html){target="_blank"}  | to make a visualization of missing data
 [syrvr](https://cran.r-project.org/web/packages/srvyr/srvyr.pdf){target="_blank"} | to use survey weights
 [cowplot](https://cran.r-project.org/web/packages/cowplot/vignettes/introduction.html){target="_blank"} | to allow plots to be combined 
+[broom](https://cran.r-project.org/web/packages/broom/vignettes/broom.html){target="_blank"} | to create nicely formatted model output
+[survey](http://r-survey.r-forge.r-project.org/survey/index.html){target="_blank"} | to fit survey-weighted logistic regression
 
 
 The first time we use a function, we will use the `::` to indicate which package we are using. Unless we have overlapping function names, this is not necessary, but we will include it here to be informative about where the functions we will use come from.
@@ -2245,18 +2249,44 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 ## **Data Analysis**
 *** 
 
-See Suggested Homework for some ideas of data analysis exercises to perform with this data.
-
-AVOCADO: I know this section is a total mess; I am just outlining it before cleaning it up and making it better.
-
 As an extension, we will include some material here on logistic regression and survey-weighted logistic regression that would be appropriate for answering Question 2 for a single year using statistical inference, rather than just data visualizations.
 
-We can look at the final figure in the section on Question 2 and see that among both current and ever users of e-cigarettes, a higher percentage of males than females use or have used e-cigarettes. But what if we wanted to quantify this effect? This is where the tool of logistic regression can come in handy.
+We can look at the final figure in the section on Question 2 and see that among both current and ever users of e-cigarettes, a higher percentage of males than females use or have used e-cigarettes. But what if we wanted to quantify this effect and assess whether this difference can be considered statistically significant? This is where the tool of logistic regression can come in handy.
+
+### Logistic regression motivation
+
+Here, we will approach the topic of logistic regression assuming some prior knowledge of simple and multiple linear regression. These have been covered in other case studies, for example (XXX) AVOCADO: Link to other case studies?
+
+As a brief reminder, a linear regression model allows us to estimate the relationship between an outcome variable, call it $Y$, and a set of one or more input variables, $X_1, X_2, ..., X_n$. We can write a simple linear regression model as:
+
+$$ E(Y) = \beta_0 + \beta_1 X_1$$
+
+where the $E(Y)$ means the expected value of $Y$, i.e., our model gives us an estimate of the mean value of $Y$ given a particular input $X_1$. Here, $\beta_1$ quantifies the expected difference in $Y$ comparing two indviduals who are one unit apart in $X_1$.
+
+Similarly, we can include more than one predictor so that our equation might look like:
+
+$$ E(Y) = \beta_0 + \beta_1 X_1 + \beta_2 X_2$$
+
+Here, $\beta_1$ quantifies the expected difference in $Y$ comparing two indviduals who are one unit apart in $X_1$, holding $X_2$ at a fixed value. Again, this material is covered in more detail elsewhere. AVOCADO: Link
+
+In the case of our question of interest for this case study, however, our outcome variable is of a particular type: it is a Yes-No or *binary* outcome, since each student respondent either is or is not a current user of e-cigarettes. This means in our setting $Y$ only takes on two values: TRUE or FALSE, which we can also think of as 1 and 0. For this kind of outcome variable, we need a special kind of regression, called *logistic regression*. And instead of using a linear model to estimate $Y$ itself for a given set of input variables, we will use a linear model to estimate the *log odds that Y=1* for a given set of input variables.
+
+If we define $p=P(Y=1)=E(Y)$, the standard simple logistic regression equation can be written as:
+
+$$logit(p)= log_e (\frac{p}{1-p})= \beta_0 + \beta_1 X$$  
+
+In our case, we would define $p$ as the probability that a student respondent is a current e-cigarette user, since $Y$ is the binary variable that is 1 when a student respondent is a current e-cigarette user and 0 if not. The value $\frac{p}{1-p}$ is called the *odds* that $Y$ is equal to 1.
+
+This *logit* function is short for *log odds*. While it may feel like working with the log odds that our outcome variable is equal to 1 is a strange thing to do, there are some intuitive reasons why it makes sense to do this from the point of view of fitting a line to our data and interpreting the results. The log odds can take any value on the real number line, allowing us to estimate our model parameters with no constraints. If we instead tried to use say $p$ as the outcome variable, we would somehow need to constrain $\beta_0 + \beta_1 X$ to be between 0 and 1, since this is the only possible range of values for a probability. A second, more technical reason is that working on the log odds scale gives us a nice formulation of our *likelihood*, i.e., a function of our unknown parameters that incorporates our observed data. We use this likelihood function to estimate our unknown parameters (here, $\beta_0$ and $\beta_1$) and this formulation gives us a nice way to calculate the maximium likelihood estimates of these parameters.
+
+The intuitive explanation of logistic regression then is that we are fitting a line to the log odds of $Y$, as it varies with different values of $X$. We will work through an example below to illustrate and hopefully clarify this.
+
+
+### Logistic regression "by hand" and by model
 
 For simplicity, we will consider just the set of current users of e-cigarettes in 2015. How much more likely is a male student to be a current e-cigarette user than a female smoker?
 
-
-We can get a first look at the answer by calculating the percent of females and percent of males: 
+We can get a first look at the answer by calculating the percent of females and percent of males who are current e-cigarette users or not: 
 ```{r}
 nyts_data %>% 
   filter(year == 2015, !is.na(Sex)) %>%
@@ -2274,46 +2304,104 @@ We can see that the percentage is lower for females than for males. Another way 
 |Total                            |      8958|   8622| 17580|
 
 
-One important ingredient in understanding the output of logistic regression is understanding the concept of an odds and an odds ratio. We can ask, among males who responded to the survey in 2015, what are the odds of being a current e-cigarette user? How about for females? How do these odds compare?
-
-Why is it better to use odds rather than probability? This is a bit of a technical question, but it is an important ingredient of how logistic regression works. We will explain more down below.
-
-OK, now we can introduce the idea of logistic regression.
+As discussed above, one important ingredient in understanding the output of logistic regression is understanding the concept of an odds and an odds ratio. We can ask, among males who responded to the survey in 2015, what are the odds of being a current e-cigarette user? How about for females? How do these odds compare? The *odds ratio* is a tool frequently used in public health to compare the odds between two groups. 
 
 In this case:
 
 * Odds of current e-cigarette use for males: 1171 / 7787 = 0.150
 * Odds of current e-cigarette use for females: 772 / 7850 = 0.098
-* Odds ratio of e-cigarette use for males as compared to females: $$OR = \frac{odds \ for \ males}{odds \ for \ females} = \frac{1171 / 7787}{772 / 7850} = 1.53$$
-* Log odds ratio: $log_e(OR) = log(1.53) = 0.42$
+* Odds ratio of e-cigarette use for females as compared to males: $$OR = \frac{odds \ for \ females}{odds \ for \ males} = \frac{772 / 7850}{1171 / 7787} = 0.65$$
+* Log odds ratio: $log_e(OR) = log(1.53) = -0.42$
+
+We would interpret these values by saying that the odds of being a current e-cigarette user for women are around 0.65 times the odds of being a current e-cigarette user for men, or 35% lower for women. This matches what we can see in our data visualizations for Question 2.
 
 We could also answer this question using logistic regression:
 
 $$log(odds \ of \ current \ e-cigarette \ use) = \beta_0 + \beta_1 \cdot Sex$$
 
+Here is how we would fit our logistic regression model, using the `glm` function from base R. We also use the `tidy` function from the `broom` package to create a tibble of the model output.
 
 ```{r}
 dat2015 <- nyts_data %>% 
   filter(year == 2015, !is.na(Sex))
 
-summary(glm(ecig_current ~ Sex, data = dat2015))
-
+currEcigSex <- glm(ecig_current ~ Sex, data = dat2015, family = binomial(link = "logit"))
+currEcigSexTidy <- broom::tidy(currEcigSex)
+currEcigSexTidy
 ```
 
-From this output we can interpret as follows:
+Looking at this output, our estimated logistic regression equation is
 
-* $1.86 = \beta_1 = \log(OR)$
-* The log odds of death, comparing twins to singleton births, is 1.86.
-* $6.41 = e^{1.86} = e^{\beta_1} = OR$
-* The odds of death for twins is 6.42 times the odds of death for singleton births.
-* The odds of death is 542% higher for twins than for singleton births.
+$$log(odds \ of \ current \ e-cigarette \ use) = \beta_0 + \beta_1 \cdot Sex = -1.89 - 0.425 \cdot (Sex == female)$$
+
+Our $\beta_1$ parameter tells us that the log odds of being a current e-cigarette user are 0.425 lower for females compared to males, i.e., the difference in log odds of being a current e-cigarette user for females compared to males is -0.425. And we can notice that this value matches the log odds ratio that we calculated by hand from the 2x2 table above. This is because a difference in log odds is the same as a log odds ratio -- remember your rules of logs!
+
+We can interpret this output as follows:
+
+* $-0.425 = \beta_1 = \log(OR)$
+* The log odds of being a current e-cigarette user is 0.425 lower for females compared to males
+* $0.65 = e^{-0.425} = e^{\beta_1} = OR$
+* The odds of being a current e-cigarette user for females is 0.65 times the odds for males.
+* The odds of being a current e-cigarette user for females is 35% lower than the odds for males.
+
+We can also look at the other columns of the model output to assess whether our data indicate that $\beta_1$ is statistically significantly different from 0. The p-value for the `Sex` variable in our model is `r format(currEcigSexTidy %>% filter(term == "Sexfemale") %>% pull(p.value), digits = 3)`. Since this value is < 0.05, we would reject the null hypothesis that $\beta_1 = 0$ based on our model output.
+
+Simple logistic regression can be extended to include additional variables in the model, for example to adjust for potential confounding variables such as age or grade. For example, suppose we want to estimate the effect of Sex on current e-cigarette use, holding age constant. We could fit the model:
+
+$$log(odds \ of \ current \ e-cigarette \ use) = \beta_0 + \beta_1 \cdot Sex + \beta_2 \cdot Age$$
 
 
-Logistic regression is widely used to when the response variable is binary; in our case, the binary response is whether an individual is a current e-cigarette user.  The standard logistic regression equation can be written as:
+```{r}
+currEcigSexAge <- glm(ecig_current ~ Sex + Age, 
+                      data = dat2015, 
+                      family = binomial(link = "logit"))
+tidy(currEcigSexAge)
+```
 
-$logit(p)= log(\frac{p}{1-p})= \beta_0 + \beta_1 X$, where $p=P(Y=1)=E(Y)$ 
+Now our $\beta_1$ parameter tells us that the log odds of being an current e-cigarette user are 0.385 lower for females compared to males, within an age group, or holding age constant.
 
-where we define p as the probability that a student respondent is a current e-cigarette user, and Y is the binary variable that is 1 when a student respondent is a current e-cigarette user. 
+### Survey weighted logistic regression
+
+As discussed elsewhere in this case study, our data come from a survey, where individuals were not necessarily sampled in direct proportion to their population representation, so it is necessary to incorporate survey weights into our analysis to perform inference about the population of interest. Luckily, there are implementations of survey-weighted logistic regression in R that can do this for us.
+
+We first create our survey design object using the `as_survey_design` function from the `srvyr` package, and then use the `svyglm` function from the `survey` package to fit our logistic regression model.
+
+```{r}
+dat2015_survey_design <- dat2015 %>%
+                          as_survey_design(strata = stratum,
+                                            ids = psu,
+                                            weight  = finwgt,
+                                            nest = TRUE)
+
+
+currEcigSex_svy <- survey::svyglm(ecig_current ~ Sex,
+                      family = quasibinomial(link = 'logit'), 
+                      design = dat2015_survey_design)
+tidy(currEcigSex_svy)
+```
+
+Note that in this case, we use the quasibinomial family rather than the binomial family, which allows the data to not necessarily look like a sample from a binomial distribution. This is because by incorporating our survey weights, it is as if each individual does not have a 0 or 1 as their outcome variable, so we get a warning if we do not use this value for family.
+
+From this model output, we can see that the estimate incorporating survey weights is a little different. The interpretation is as follows:
+
+* $-0.383 = \beta_1 = \log(OR)$
+* The log odds of being a current e-cigarette user is 0.383 lower for females than for males, taking survey weights into account.
+* $0.68 = e^{-0.383} = e^{\beta_1} = OR$
+* The odds of being a current e-cigarette user for females is 0.68 times the odds for males, taking survey weights into account.
+* The odds of being a current e-cigarette user for females is 32% lower than the odds for males, taking survey weights into account.
+
+
+As above, we can also fit a more complicated model with additional covariates.
+
+```{r}
+currEcigSexAge_svy <- survey::svyglm(ecig_current ~ Sex + Age,
+                      family = quasibinomial(link = 'logit'), 
+                      design = dat2015_survey_design)
+tidy(currEcigSexAge_svy)
+```
+
+In this case, we can see that our estimated difference in log odds for females compared to males, -0.380, is not much different whether we are holding age constant or not.
+
 
 ## **Summary**
 *** 
