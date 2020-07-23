@@ -2249,15 +2249,30 @@ See Suggested Homework for some ideas of data analysis exercises to perform with
 
 AVOCADO: I know this section is a total mess; I am just outlining it before cleaning it up and making it better.
 
-As an extension, we will include some material here on logistic regression and survey-weighted logistic regression that would be appropriate for answering Question 2 using statistical inference, rather than just data visualizations.
+As an extension, we will include some material here on logistic regression and survey-weighted logistic regression that would be appropriate for answering Question 2 for a single year using statistical inference, rather than just data visualizations.
 
 We can look at the final figure in the section on Question 2 and see that among both current and ever users of e-cigarettes, a higher percentage of males than females use or have used e-cigarettes. But what if we wanted to quantify this effect? This is where the tool of logistic regression can come in handy.
 
 For simplicity, we will consider just the set of current users of e-cigarettes in 2015. How much more likely is a male student to be a current e-cigarette user than a female smoker?
 
+
+We can get a first look at the answer by calculating the percent of females and percent of males: 
 ```{r}
-# 2x2 table showing males and females by current vs not-current
+nyts_data %>% 
+  filter(year == 2015, !is.na(Sex)) %>%
+  group_by(Sex, ecig_current) %>%
+  summarize(n = n()) %>%
+  mutate(pct = n / sum(n))
 ```
+
+We can see that the percentage is lower for females than for males. Another way of organizing this data would be to make a 2x2 table, a data summarization frequently used in public health settings.
+
+|                                 | Male     | Female| Total|
+|:--------------------------------|---------:|------:|-----:|
+|Current e-cigarette user         |      1171|    772|  1943|
+|Not current e-cigarette user     |      7787|   7850| 15637|
+|Total                            |      8958|   8622| 17580|
+
 
 One important ingredient in understanding the output of logistic regression is understanding the concept of an odds and an odds ratio. We can ask, among males who responded to the survey in 2015, what are the odds of being a current e-cigarette user? How about for females? How do these odds compare?
 
@@ -2265,34 +2280,24 @@ Why is it better to use odds rather than probability? This is a bit of a technic
 
 OK, now we can introduce the idea of logistic regression.
 
-We could answer this question using a 2x2 table:
-
-|                                 | Male     | Female| Total|
-|:--------------------------------|---------:|------:|-----:|
-|Current e-cigarette user         |      8899|    187|  9086|
-|Not current e-cigarette user     |       526|     71|   597|
-|Total                            |      9425|    258|  9683|
-
 In this case:
 
-* Odds of death for twins: 71/187 = 0.38
-* Odds of death for singletons: 526/8899 = 0.059
-* Odds ratio of death for twins as compared to singletons: $$OR = \frac{odds \ for \ twins}{odds \ for \ singletons} = \frac{71/187}{526/8899} = 6.42$$
-* Log odds ratio: $log_e(OR) = log(6.42) = 1.86$
+* Odds of current e-cigarette use for males: 1171 / 7787 = 0.150
+* Odds of current e-cigarette use for females: 772 / 7850 = 0.098
+* Odds ratio of e-cigarette use for males as compared to females: $$OR = \frac{odds \ for \ males}{odds \ for \ females} = \frac{1171 / 7787}{772 / 7850} = 1.53$$
+* Log odds ratio: $log_e(OR) = log(1.53) = 0.42$
 
 We could also answer this question using logistic regression:
 
-$$log(odds \ of \ current e-cigarette use) = \beta_0 + \beta_1 \cdot sex$$
-
-$$twin = \left\{
-\begin{matrix}
-1 & if \ twin\\
-0 & if \ not \ twin
-\end{matrix}
-\right.$$
+$$log(odds \ of \ current \ e-cigarette \ use) = \beta_0 + \beta_1 \cdot Sex$$
 
 
 ```{r}
+dat2015 <- nyts_data %>% 
+  filter(year == 2015, !is.na(Sex))
+
+summary(glm(ecig_current ~ Sex, data = dat2015))
+
 ```
 
 From this output we can interpret as follows:
@@ -2306,9 +2311,9 @@ From this output we can interpret as follows:
 
 Logistic regression is widely used to when the response variable is binary; in our case, the binary response is whether an individual is a current e-cigarette user.  The standard logistic regression equation can be written as:
 
-$logit(p)= log(\frac{p}{1-p})=X^{T}\beta$, where $p=P(Y=1)=E(Y)$ 
+$logit(p)= log(\frac{p}{1-p})= \beta_0 + \beta_1 X$, where $p=P(Y=1)=E(Y)$ 
 
-where we define p as the probability that a student respondent is a current e-cigarette user, and Y is the binary variable that is 1 when a student respondent is a current e-cigarette user. Here, we are trying to measure the relationship between some input variables $X$ and the outcome $Y$ using a linear 
+where we define p as the probability that a student respondent is a current e-cigarette user, and Y is the binary variable that is 1 when a student respondent is a current e-cigarette user. 
 
 ## **Summary**
 *** 
