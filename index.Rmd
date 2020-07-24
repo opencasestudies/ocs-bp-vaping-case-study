@@ -128,7 +128,7 @@ We will base this on the following survey questions:
 ## **Learning Objectives** 
 *** 
 
-In this case study, we will cover how to import data from multiple files efficiently, how to import data from excel files, and how to make a variety of visualizations to compare multiple groups across time. We will also demonstrate how to work with codebooks. We will cover the concept of survey weighting and introduce the `srvyr` package. We will discuss the difference between pooled cross-sectional data and panel data. We will especially focus on using packages and functions from the [`Tidyverse`](https://www.tidyverse.org/){target="_blank"} for wrangling data, such as `tidyr` and `dplyr` and for visualization, such as as `ggplot2`. The tidyverse is a library of packages created by RStudio. While some students may be familiar with previous R programming packages, these packages make data science in R especially efficient.
+In this case study, we will cover how to import data from multiple files efficiently, how to import data from excel files, and how to make a variety of visualizations to compare multiple groups across time. We will also demonstrate how to work with codebooks. We will cover the concept of survey weighting and introduce the `srvyr` package. We will discuss the difference between pooled cross-sectional data and panel data. We will especially focus on using packages and functions from the [`Tidyverse`](https://www.tidyverse.org/){target="_blank"} for wrangling data, such as `tidyr` and `dplyr` and for visualization, such as as `ggplot2`. The Tidyverse is a library of packages created by RStudio. While some students may be familiar with previous R programming packages, these packages make data science in R especially efficient.
 
 ```{r, out.width = "20%", echo = FALSE, fig.align ="center"}
 
@@ -513,10 +513,10 @@ Since we want to perform the same modifications on the data from all three years
 
 
 So how do you create a function?
-You first need to specify that you are creating a functionby usingthe `function()` base function.
+You first need to specify that you are creating a function by using the `function()` base function.
 Yes, that's right it as a function for creating functions called function!
 
-First we specify our input within the parantheses of `function()`. Thus if our function will apply something to an input called `x` then we would use `function(x)`. Really our input can be named whatever we want, but we we need to refer to it consistently within our function to indicate what we want done with the input data. We can actaully have more than one input as well, we would indicate two inputs like this: `function(x, b)`. Here we we would be using both `x` and `b` to do something in our function.
+First we specify our input within the parentheses of `function()`. Thus if our function will apply something to an input called `x` then we would use `function(x)`. Really our input can be named whatever we want, but we we need to refer to it consistently within our function to indicate what we want done with the input data. We can actually have more than one input as well, we would indicate two inputs like this: `function(x, b)`. Here we we would be using both `x` and `b` to do something in our function.
 
 The next part of a function is within defined within curly brackets `{}`. This is where we write what we want done to our inputs.
 
@@ -736,7 +736,9 @@ glimpse(nyts_data)
 
 Note that there are several variables where there are similar names, but with a `C` compared to an `E` in the variable name. Those starting with `C` are related to questions about current usage (last 30 days), while those with an `E` are related to usage across the student respondent's whole life ("ever" usage). We will discuss these groups further below.
 
-
+```{r, echo = FALSE, eval = FALSE}
+save(nyts_data, file = here::here("data", "wrangled_data.rda"))
+```
 
 ### Variable Table
 <details><summary> Click here to see a table about the final variables in our data set. </summary>
@@ -846,6 +848,11 @@ F. I have never tried any of the products listed above
 We will sum across the variables that relate to ever or current tobacco usage questions to determine if the student answered yes to any of the ever or current questions. To do this we will use the base `rowSums` function.
 
 We will then use the `case_when()` function of the `dplyr` package to convert the sum values to `TRUE` or `FALSE` based on the threshold of zero. If the sum is greater than zero, then we know the student answered yes to at least one question. 
+
+```{r, echo = FALSE}
+#in case you are starting at this section- need to load the data:
+load(here::here("data", "wrangled_data.rda"))
+```
 
 ```{r}
 nyts_data %<>%
@@ -1034,7 +1041,16 @@ nyts_data %<>% add_count(year)
 glimpse(nyts_data)
 ```
 
+```{r, echo = FALSE, eval = FALSE}
+save(nyts_data, file = here::here("data", "wrangled_data_with_var_for_plots.rda"))
+```
+
 ### Question 1 
+
+```{r, echo = FALSE}
+# If instructors want to start here, we need to load the data:
+load(here::here("data", "wrangled_data_with_var_for_plots.rda"))
+```
 
 Recall that we are interested in investigating how vaping product use has compared with other tobacco use over time. To answer this, we first want to get a sense of how tobacco use has changed in general since 2015. 
 
@@ -1663,8 +1679,12 @@ figure_uw
 
 
 ### Survey Weighting
-
-It turns out that our analysis thus far has been brushing an important statistical concept under the rug, related to how our data were collected. Our data come from responses to a survey, which may have a particular sampling scheme to capture data about the population we are interested in. For example, the survey may be designed to capture a set of individuals who reflect the characteristics of the population that we are interested in drawing conclusions about. However, only a fraction of the individuals who were contacted about taking the survey may have completed it, and this fraction of individuals may no longer be representative of the population. Or the survey may be designed to over-sample a particular group of interest so that individuals from that group show up more often as survey respondents than are present in the population overall. In order to account for the fact that the survey respondents may not reflect the composition of the population we want to generalize to, we can emply a technique called [survey weighting](http://www.applied-survey-methods.com/weight.html){target="_blank"}.
+```{r, echo = FALSE}
+#If instructors start here, we need to load the data:
+load(here::here("data", "wrangled_data_with_var_for_plots.rda"))
+```
+  
+It turns out that our analysis thus far has been brushing an important statistical concept under the rug, related to how our data were collected. Our data come from responses to a survey, which may have a particular sampling scheme to capture data about the population we are interested in. For example, the survey may be designed to capture a set of individuals who reflect the characteristics of the population that we are interested in drawing conclusions about. However, only a fraction of the individuals who were contacted about taking the survey may have completed it, and this fraction of individuals may no longer be representative of the population. Or the survey may be designed to over-sample a particular group of interest so that individuals from that group show up more often as survey respondents than are present in the population overall. In order to account for the fact that the survey respondents may not reflect the composition of the population we want to generalize to, we can employ a technique called [survey weighting](http://www.applied-survey-methods.com/weight.html){target="_blank"}.
 
 Survey weighting is a common technique used in survey data analysis because often the individuals that take a survey are not necessarily representative of the population that we are trying to gather information about. For example, we may have more females that respond to the survey than males because perhaps female students were more willing to participate. In this case, the proportion of data values in our data will be smaller for the males than the proportion of actual male students and larger for the females than the true proportion of actual female students. To get a better estimate of overall e-cigarette smoking rates, the data from the males can be weighted based on the true proportion of male students to amplify the contribution of the responses from the males that did participate. Conversely, the female data can be weighted to diminish the contribution if their responses to the overall picture. We will see if using survey weighting changes the general trends that we see in our data. 
 
@@ -1796,7 +1816,6 @@ plotA_w <- nyts_data %>%
   geom_line(aes(linetype = User)) +
   geom_linerange(aes(ymin = Lower, ymax = Upper), size = 1, show.legend = FALSE) +
   scale_linetype_manual(values = c(2, 1)) +
-  scale_color_manual(values = v_colors) +
   scale_y_continuous(breaks = seq(0, 70, by = 10),
                        labels = seq(0, 70, by = 10),
                        limits = c(0, 70)) +
@@ -1813,6 +1832,8 @@ Now we can see that we have confidence interval ranges plotted for each value.
 We will make a similar plot for students who reported ever trying or who currently use e-cigarettes as opposed to tobacco in general.
 
 ```{r}
+v_colors =  viridis(6)[c(1, 4)]
+
 surveyMeanB <- function(currYear) {
   options(survey.lonely.psu = "adjust")
   currYear %>%
@@ -1908,6 +1929,40 @@ plotC_w <- nyts_data %>%
          y = "% of students")
 plotC_w
 ```
+
+```{r, echo = FALSE}
+#code to create proper legend for instructors starting at survey weighting section
+
+
+plot1c <- nyts_data %>%
+    dplyr::group_by(year) %>%
+    dplyr::summarize("Ever_E-cigarette" = (mean(ecig_only_ever, na.rm = TRUE) * 100),
+                     "Current_E-cigarette" = (mean(ecig_only_current, na.rm = TRUE) * 100),
+                     "Ever_Non-e-cigarette" = (mean(non_ecig_only_ever, na.rm = TRUE) * 100),
+                     "Current_Non-e-cigarette" = (mean(non_ecig_only_current, na.rm = TRUE) * 100)) %>%
+  pivot_longer(cols = -year, names_to = "User", values_to = "Percentage of students") %>%
+  separate(User, into = c("User", "Product"), sep = "_") %>%
+    ggplot(aes(x = year, y = `Percentage of students`, color = Product)) +
+    geom_line(aes(linetype = User)) +
+  geom_point(show.legend = FALSE, size = 2) +
+  # this allows us to choose what type of line we want for each line
+  scale_linetype_manual(values = c(2, 1)) +
+  # this allows us to specify how the y-axis should appear
+  scale_y_continuous(breaks = seq(0, 30, by = 10),
+                        labels = seq(0, 30, by = 10),
+                        limits = c(0, 30)) +
+  scale_color_manual(values = v_colors) +
+  # this adjusts the background style of the plot
+    theme_linedraw() +
+  # this moves the legend to the bottom of the plot and removes the x axis title
+    theme(legend.position = "bottom",
+          axis.title.x = element_blank()) +
+    labs(title = "How has use of only e-cigarettes and \n only tobacco products besides e-cigarettes varied over time?",
+         y = "% of students")
+
+```
+
+
 
 
 Now we will put these plots together again using the `cowplot` package:
@@ -2099,6 +2154,11 @@ figure_w_8
 ## **Data Analysis**
 *** 
 
+```{r, echo = FALSE}
+#If instructors start here, we need to load the data:
+load(here::here("data", "wrangled_data_with_var_for_plots.rda"))
+```
+
 As an extension, we will include some material here on logistic regression and survey-weighted logistic regression that would be appropriate for answering Question 2 for a single year using statistical inference, rather than just data visualizations.
 
 We can look at the final figure in the section on Question 2 and see that among both current and ever users of e-cigarettes, a higher percentage of males than females use or have used e-cigarettes. But what if we wanted to quantify this effect and assess whether this difference can be considered statistically significant? This is where the tool of logistic regression can come in handy.
@@ -2111,13 +2171,13 @@ As a brief reminder, a linear regression model allows us to estimate the relatio
 
 $$ E(Y) = \beta_0 + \beta_1 X_1$$
 
-where the $E(Y)$ means the expected value of $Y$, i.e., our model gives us an estimate of the mean value of $Y$ given a particular input $X_1$. Here, $\beta_1$ quantifies the expected difference in $Y$ comparing two indviduals who are one unit apart in $X_1$.
+where the $E(Y)$ means the expected value of $Y$, i.e., our model gives us an estimate of the mean value of $Y$ given a particular input $X_1$. Here, $\beta_1$ quantifies the expected difference in $Y$ comparing two individuals who are one unit apart in $X_1$.
 
 Similarly, we can include more than one predictor so that our equation might look like:
 
 $$ E(Y) = \beta_0 + \beta_1 X_1 + \beta_2 X_2$$
 
-Here, $\beta_1$ quantifies the expected difference in $Y$ comparing two indviduals who are one unit apart in $X_1$, holding $X_2$ at a fixed value. Again, this material is covered in more detail elsewhere. AVOCADO: Link
+Here, $\beta_1$ quantifies the expected difference in $Y$ comparing two individuals who are one unit apart in $X_1$, holding $X_2$ at a fixed value. Again, this material is covered in more detail elsewhere. AVOCADO: Link
 
 In the case of our question of interest for this case study, however, our outcome variable is of a particular type: it is a Yes-No or *binary* outcome, since each student respondent either is or is not a current user of e-cigarettes. This means in our setting $Y$ only takes on two values: TRUE or FALSE, which we can also think of as 1 and 0. For this kind of outcome variable, we need a special kind of regression, called *logistic regression*. And instead of using a linear model to estimate $Y$ itself for a given set of input variables, we will use a linear model to estimate the *log odds that Y=1* for a given set of input variables.
 
@@ -2127,7 +2187,7 @@ $$logit(p)= log_e (\frac{p}{1-p})= \beta_0 + \beta_1 X$$
 
 In our case, we would define $p$ as the probability that a student respondent is a current e-cigarette user, since $Y$ is the binary variable that is 1 when a student respondent is a current e-cigarette user and 0 if not. The value $\frac{p}{1-p}$ is called the *odds* that $Y$ is equal to 1.
 
-This *logit* function is short for *log odds*. While it may feel like working with the log odds that our outcome variable is equal to 1 is a strange thing to do, there are some intuitive reasons why it makes sense to do this from the point of view of fitting a line to our data and interpreting the results. The log odds can take any value on the real number line, allowing us to estimate our model parameters with no constraints. If we instead tried to use say $p$ as the outcome variable, we would somehow need to constrain $\beta_0 + \beta_1 X$ to be between 0 and 1, since this is the only possible range of values for a probability. A second, more technical reason is that working on the log odds scale gives us a nice formulation of our *likelihood*, i.e., a function of our unknown parameters that incorporates our observed data. We use this likelihood function to estimate our unknown parameters (here, $\beta_0$ and $\beta_1$) and this formulation gives us a nice way to calculate the maximium likelihood estimates of these parameters.
+This *logit* function is short for *log odds*. While it may feel like working with the log odds that our outcome variable is equal to 1 is a strange thing to do, there are some intuitive reasons why it makes sense to do this from the point of view of fitting a line to our data and interpreting the results. The log odds can take any value on the real number line, allowing us to estimate our model parameters with no constraints. If we instead tried to use say $p$ as the outcome variable, we would somehow need to constrain $\beta_0 + \beta_1 X$ to be between 0 and 1, since this is the only possible range of values for a probability. A second, more technical reason is that working on the log odds scale gives us a nice formulation of our *likelihood*, i.e., a function of our unknown parameters that incorporates our observed data. We use this likelihood function to estimate our unknown parameters (here, $\beta_0$ and $\beta_1$) and this formulation gives us a nice way to calculate the maximum likelihood estimates of these parameters.
 
 The intuitive explanation of logistic regression then is that we are fitting a line to the log odds of $Y$, as it varies with different values of $X$. We will work through an example below to illustrate and hopefully clarify this.
 
@@ -2447,7 +2507,7 @@ For more information on survey designs see [here](http://www.asasrms.org/Proceed
 
 For more information on survey analysis in R [here](https://r-survey.r-forge.r-project.org/survey/exmample-lonely.html){target="_blank"} and [here](http://r-survey.r-forge.r-project.org/survey/html/surveyoptions.html){target="_blank"}.   
 
-If you are intersted in an infographic summarization of the 2019 findings, and links to many more resources about this topic and data set, see the FDA's website [here](https://www.fda.gov/tobacco-products/youth-and-tobacco/youth-tobacco-use-results-national-youth-tobacco-survey){target="_blank"}.
+If you are interested in an info-graphic summary of the 2019 findings, and links to many more resources about this topic and data set, see the FDA's website [here](https://www.fda.gov/tobacco-products/youth-and-tobacco/youth-tobacco-use-results-national-youth-tobacco-survey){target="_blank"}.
 
 <u>Packages used in this case study:</u>
 

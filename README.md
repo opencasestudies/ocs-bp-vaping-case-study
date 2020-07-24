@@ -40,7 +40,7 @@ Vaping Behaviors in American Youth
 ### Motivation
 
 Recent research suggests that overall use of tobacco by youths (middle
-shcool and high school aged students) has increased in the last few
+school and high school aged students) has increased in the last few
 years, despite longer trends of declined use in previous years. This
 increase has been attributed to a rapid and dramatic increase in the use
 of e-cigarettes and other vaping products starting in 2017. This case
@@ -99,14 +99,14 @@ Statistical concepts and methods:
 
 #### Data import
 
-In this case study we cover data import using the tidyverse `readxl`
+In this case study we cover data import using the Tidyverse `readxl`
 package to import the excel files for each year of the survey. We also
-use the `map()` function of the tidyverse `purrr` package to efficiently
-perform the data imporation on all the files we one command.
+use the `map()` function of the Tidyverse `purrr` package to efficiently
+perform the data importation on all the files we one command.
 
 #### Data wrangling
 
-Ths case study goes into great detail about using codebooks to select
+This case study goes into great detail about using codebooks to select
 the survey questions of interest and to recode the numeric data using
 the `recode` function of the `dplyr` package to reflect the responses of
 the students surveyed. As multiple questions needed to be similarly
@@ -124,7 +124,7 @@ the `dplyr` package to combine data.
 #### Data Visualization
 
 This case study particularly focuses on creating effective
-visualizations to compare groups over time using the tidyverse `ggplot2`
+visualizations to compare groups over time using the Tidyverse `ggplot2`
 package.
 
 We also cover how to add confidence intervals error bars to
@@ -166,9 +166,9 @@ For more information on survey analysis in R
 and
 <a href="http://r-survey.r-forge.r-project.org/survey/html/surveyoptions.html" target="_blank">here</a>.
 
-If you are intersted in an infographic summarization of the 2019
-findings, and links to many more resources about this topic and data
-set, see the FDA’s website
+If you are interested in an info-graphic summary of the 2019 findings,
+and links to many more resources about this topic and data set, see the
+FDA’s website
 <a href="https://www.fda.gov/tobacco-products/youth-and-tobacco/youth-tobacco-use-results-national-youth-tobacco-survey" target="_blank">here</a>.
 
 #### For users
@@ -180,9 +180,14 @@ markdown file (`README.md`).
 
 #### For instructors
 
+Instructors can start at the Data Visualization section or at the Survey
+Weighting section. However, if instructors choose to start at the Survey
+Weighting section, then they need to comment out or delete the Summary
+Plot section.
+
 #### Target audience
 
-For individules or classes with some familiarity with regression. See
+For individuals or classes with some familiarity with regression. See
 this
 <a href="https://opencasestudies.github.io/ocs-bp-diet/" target="_blank">case study</a>
 for an introduction to regression.
