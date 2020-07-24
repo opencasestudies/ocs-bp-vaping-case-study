@@ -441,9 +441,9 @@ This was done all at once using the `map()` function.
 
 ```{r, eval = FALSE}
 #
-dir.create("docs/data_reduced")
+dir.create("data/data_reduced")
 
-names(tbl_files) %>% map(~ write_csv(tbl_files[[.]], path = paste0("docs/data_reduced/", ., ".csv")))
+names(tbl_files) %>% map(~ write_csv(tbl_files[[.]], path = paste0("data/data_reduced/", ., ".csv")))
 ```
 
 </details>
