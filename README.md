@@ -147,14 +147,32 @@ function of the `srvyr` package. AVOCADO this might change?
 
 ### Other notes and resources
 
-<a href="https://www.tidyverse.org/" target="_blank"><code>Tidyverse</code></a>  
+<a href="https://www.tidyverse.org/" target="_blank">Tidyverse</a>  
 <a href="https://r4ds.had.co.nz/functions.html" target="_blank">Writing functions</a>  
 <a href="https://www.lib.ncsu.edu/data/icpsrfaq#whatare" target="_blank">Codebooks</a>  
 <a href="https://www.bmj.com/about-bmj/resources-readers/publications/epidemiology-uninitiated/7-longitudinal-studies" target="_blank">Longitudinal studies</a>  
 <a href="https://en.wikipedia.org/wiki/Panel_data" target="_blank">Panel data</a>  
 <a href="https://en.wikipedia.org/wiki/Cross-sectional_data" target="_blank">Cross-sectional data</a>  
 <a href="http://www.applied-survey-methods.com/weight.html" target="_blank">Survey weighting</a>  
-<a href="https://en.wikipedia.org/wiki/Confidence_interval" target="_blank">Confidence intervals</a>
+<a href="https://en.wikipedia.org/wiki/Confidence_interval" target="_blank">Confidence intervals</a>  
+<a href="https://www.mathsisfun.com/algebra/logarithms.html" target="_blank">Introduction to Logarithms</a>  
+<a href="https://en.wikipedia.org/wiki/Logarithm" target="_blank">Logarithm</a>
+<a href="https://www.rapidtables.com/math/algebra/Logarithm.html#log-rules" target="_blank">Rules of logs</a>
+<a href="https://en.wikipedia.org/wiki/Odds_ratio" target="_blank">Odds ratio</a>  
+<a href="https://en.wikipedia.org/wiki/Logit" target="_blank">Log odds</a>  
+<a href="https://en.wikipedia.org/wiki/Contingency_table" target="_blank">2x2 table</a>  
+<a href="https://en.wikipedia.org/wiki/Probability" target="_blank">Probability</a>  
+<a href="https://en.wikipedia.org/wiki/Likelihood_function" target="_blank">Likelihood function</a>  
+<a href="https://en.wikipedia.org/wiki/Maximum_likelihood_estimation" target="_blank">Maximum likelihood estimates</a>  
+<a href="https://en.wikipedia.org/wiki/Linear_regression" target="_blank">Linear regression model</a>  
+<a href="https://en.wikipedia.org/wiki/Logistic_regression" target="_blank">Logistic regression</a>  
+<a href="https://en.wikipedia.org/wiki/Quasi-likelihood" target="_blank">Quasi-likelihood</a>  
+<a href="https://en.wikipedia.org/wiki/Binomial_distribution" target="_blank">Binomial distribution</a>
+
+For more information on linear regression see this
+<a href="https://rafalab.github.io/dsbook/linear-models.html#linear-regression-in-the-tidyverse" target="_blank">book</a>
+and this
+<a href="https://opencasestudies.github.io/ocs-bp-diet/" target="_blank">case study</a>.
 
 For more information on survey designs see
 <a href="http://www.asasrms.org/Proceedings/y2008/Files/301835.pdf" target="_blank">here</a>

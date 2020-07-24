@@ -100,14 +100,28 @@ We also perform a logistic regression analysis comparing vaping rates among male
 
 ### Other notes and resources 
 
-[`Tidyverse`](https://www.tidyverse.org/){target="_blank"}  
+[Tidyverse](https://www.tidyverse.org/){target="_blank"}  
 [Writing functions](https://r4ds.had.co.nz/functions.html){target="_blank"}   
 [Codebooks](https://www.lib.ncsu.edu/data/icpsrfaq#whatare){target="_blank"}  
 [Longitudinal studies](https://www.bmj.com/about-bmj/resources-readers/publications/epidemiology-uninitiated/7-longitudinal-studies){target="_blank"}   
 [Panel data](https://en.wikipedia.org/wiki/Panel_data){target="_blank"}    
 [Cross-sectional data](https://en.wikipedia.org/wiki/Cross-sectional_data){target="_blank"}    
 [Survey weighting](http://www.applied-survey-methods.com/weight.html){target="_blank"}  
-[Confidence intervals](https://en.wikipedia.org/wiki/Confidence_interval){target="_blank"}  
+[Confidence intervals](https://en.wikipedia.org/wiki/Confidence_interval){target="_blank"}   
+[Introduction to Logarithms](https://www.mathsisfun.com/algebra/logarithms.html){target="_blank"}   
+[Logarithm](https://en.wikipedia.org/wiki/Logarithm){target="_blank"} 
+[Rules of logs](https://www.rapidtables.com/math/algebra/Logarithm.html#log-rules){target="_blank"} [Odds ratio](https://en.wikipedia.org/wiki/Odds_ratio){target="_blank"}    
+[Log odds](https://en.wikipedia.org/wiki/Logit){target="_blank"}   
+[2x2 table](https://en.wikipedia.org/wiki/Contingency_table){target="_blank"}  
+[Probability](https://en.wikipedia.org/wiki/Probability){target="_blank"}   
+[Likelihood function](https://en.wikipedia.org/wiki/Likelihood_function){target="_blank"}   
+[Maximum likelihood estimates](https://en.wikipedia.org/wiki/Maximum_likelihood_estimation){target="_blank"}   
+[Linear regression model](https://en.wikipedia.org/wiki/Linear_regression){target="_blank"}   
+[Logistic regression](https://en.wikipedia.org/wiki/Logistic_regression){target="_blank"}   
+[Quasi-likelihood](https://en.wikipedia.org/wiki/Quasi-likelihood){target="_blank"}   
+[Binomial distribution](https://en.wikipedia.org/wiki/Binomial_distribution){target="_blank"}   
+
+For more information on linear regression see this [book](https://rafalab.github.io/dsbook/linear-models.html#linear-regression-in-the-tidyverse){target="_blank"} and this [case study](https://opencasestudies.github.io/ocs-bp-diet/){target="_blank"}.
 
 For more information on survey designs see [here](http://www.asasrms.org/Proceedings/y2008/Files/301835.pdf){target="_blank"} and [here](http://ocw.jhsph.edu/courses/StatMethodsForSampleSurveys/PDFs/Lecture5.pdf){target="_blank"}.  
 

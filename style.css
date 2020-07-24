@@ -2,6 +2,16 @@ li.toctree-l2:first-child {
     display: none;
 }
 
+.license_block {
+    margin: .2em;
+    padding: .2em;
+    border: 1px solid black;
+    border-radius: 5px;
+    background: black;
+    color: white;
+    font-weight: bold;
+}
+
 .reference_block {
     margin: .2em;
     padding: .2em;

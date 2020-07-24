@@ -61,6 +61,12 @@ knitr::include_graphics(here::here("img", "final_plot.png"))
 This work is licensed under the Creative Commons Attribution-NonCommercial 3.0 [(CC BY-NC 3.0)](https://creativecommons.org/licenses/by-nc/3.0/us/){target="_blank"}  United States License.
 
 
+## {.reference_block}
+
+To cite this case study please use:
+
+Wright, Carrie, and Ontiveros, Michael and Jager, Leah and Taub, Margaret and Hicks, Stephanie. (2020). https://github.com/opencasestudies/ocs-bloomberg-vaping-case-study. Vaping Behaviors in American Youth (Version v1.0.0).
+
 ## **Motivation**
 *** 
 According to a recent [report](https://www.cdc.gov/mmwr/volumes/68/wr/mm6806e1.htm?s_cid=mm6806e1_w){target="_blank"}, overall tobacco use **increased** in youths (middle school and high school students) in the United States in 2017 and 2018, despite previous years of declining use.
@@ -1393,6 +1399,9 @@ plot2
 
 It looks like the rates are fairly similar between the sexes, however the rate for males appears to be consistently higher across time.
 
+```{r, echo=FALSE, include=FALSE}
+ggsave(here::here("img", "plot2.png"))
+```
 
 ### Question 3
 
@@ -2246,15 +2255,21 @@ figure_w_8
 load(here::here("data", "wrangled_data_with_var_for_plots.rda"))
 ```
 
-As an extension, we will include some material here on logistic regression and survey-weighted logistic regression that would be appropriate for answering Question 2 for a single year using statistical inference, rather than just data visualizations.
+As an extension, we will include some material here on [logistic regression](https://en.wikipedia.org/wiki/Logistic_regression){target="_blank"} and survey-weighted logistic regression that would be appropriate for answering Question 2 ("How does e-cigarette use compare between males and females?") for a single year using statistical inference, rather than just data visualizations.
 
-We can look at the final figure in the section on Question 2 and see that among both current and ever users of e-cigarettes, a higher percentage of males than females use or have used e-cigarettes. But what if we wanted to quantify this effect and assess whether this difference can be considered statistically significant? This is where the tool of logistic regression can come in handy.
+We can look at the final figure in the section on Question 2 and see that among both current and ever users of e-cigarettes, a higher percentage of males than females use or have used e-cigarettes.'
+
+```{r, echo = FALSE, out.width = "800 px"}
+knitr::include_graphics(here::here("img", "plot2.png"))
+```
+
+But what if we wanted to quantify this effect and assess whether this difference can be considered statistically significant? This is where the tool of logistic regression can come in handy.
 
 ### Logistic regression motivation
 
-Here, we will approach the topic of logistic regression assuming some prior knowledge of simple and multiple linear regression. These have been covered in other case studies, for example (XXX) AVOCADO: Link to other case studies?
+Here, we will approach the topic of [logistic regression](https://en.wikipedia.org/wiki/Logistic_regression){target="_blank"} assuming some prior knowledge of simple and multiple linear regression. These have been covered in other case studies, for example (XXX) AVOCADO: Link to other case studies?
 
-As a brief reminder, a linear regression model allows us to estimate the relationship between an outcome variable, call it $Y$, and a set of one or more input variables, $X_1, X_2, ..., X_n$. We can write a simple linear regression model as:
+As a brief reminder, a [linear regression model](https://en.wikipedia.org/wiki/Linear_regression){target="_blank"} allows us to estimate the relationship between an outcome variable, call it $Y$, and a set of one or more input variables, $X_1, X_2, ..., X_n$. We can write a simple linear regression model as:
 
 $$ E(Y) = \beta_0 + \beta_1 X_1$$
 
@@ -2264,7 +2279,7 @@ Similarly, we can include more than one predictor so that our equation might loo
 
 $$ E(Y) = \beta_0 + \beta_1 X_1 + \beta_2 X_2$$
 
-Here, $\beta_1$ quantifies the expected difference in $Y$ comparing two individuals who are one unit apart in $X_1$, holding $X_2$ at a fixed value. Again, this material is covered in more detail elsewhere. AVOCADO: Link
+Here, $\beta_1$ quantifies the expected difference in $Y$ comparing two individuals who are one unit apart in $X_1$, holding $X_2$ at a fixed value. This material is covered in more detail [elsewhere](https://rafalab.github.io/dsbook/linear-models.html#linear-regression-in-the-tidyverse){target="_blank"} and in [another case study](https://opencasestudies.github.io/ocs-bp-diet/){target="_blank"}.
 
 In the case of our question of interest for this case study, however, our outcome variable is of a particular type: it is a Yes-No or *binary* outcome, since each student respondent either is or is not a current user of e-cigarettes. This means in our setting $Y$ only takes on two values: TRUE or FALSE, which we can also think of as 1 and 0. For this kind of outcome variable, we need a special kind of regression, called *logistic regression*. And instead of using a linear model to estimate $Y$ itself for a given set of input variables, we will use a linear model to estimate the *log odds that Y=1* for a given set of input variables.
 
@@ -2274,7 +2289,9 @@ $$logit(p)= log_e (\frac{p}{1-p})= \beta_0 + \beta_1 X$$
 
 In our case, we would define $p$ as the probability that a student respondent is a current e-cigarette user, since $Y$ is the binary variable that is 1 when a student respondent is a current e-cigarette user and 0 if not. The value $\frac{p}{1-p}$ is called the *odds* that $Y$ is equal to 1.
 
-This *logit* function is short for *log odds*. While it may feel like working with the log odds that our outcome variable is equal to 1 is a strange thing to do, there are some intuitive reasons why it makes sense to do this from the point of view of fitting a line to our data and interpreting the results. The log odds can take any value on the real number line, allowing us to estimate our model parameters with no constraints. If we instead tried to use say $p$ as the outcome variable, we would somehow need to constrain $\beta_0 + \beta_1 X$ to be between 0 and 1, since this is the only possible range of values for a probability. A second, more technical reason is that working on the log odds scale gives us a nice formulation of our *likelihood*, i.e., a function of our unknown parameters that incorporates our observed data. We use this likelihood function to estimate our unknown parameters (here, $\beta_0$ and $\beta_1$) and this formulation gives us a nice way to calculate the maximum likelihood estimates of these parameters.
+This *logit* function is short for *log odds*. 
+
+While it may feel strange working with the log odds that our outcome variable is equal to 1, there are some intuitive reasons why it makes sense to do this from the point of view of fitting a line to our data and interpreting the results. The [log odds](https://en.wikipedia.org/wiki/Logit){target="_blank"} can take any value on the real number line, allowing us to estimate our model parameters with no constraints. If we instead tried to use say $p$ as the outcome variable, we would somehow need to constrain $\beta_0 + \beta_1 X$ to be between 0 and 1, since this is the only possible range of values for a [probability](https://en.wikipedia.org/wiki/Probability){target="_blank"}. A second, more technical reason is that working on the log odds scale gives us a nice formulation of our *likelihood*, i.e., a function of our unknown parameters that incorporates our observed data. We use this [likelihood function](https://en.wikipedia.org/wiki/Likelihood_function){target="_blank"} to estimate our unknown parameters (here, $\beta_0$ and $\beta_1$) and this formulation gives us a nice way to calculate the [maximum likelihood estimates](https://en.wikipedia.org/wiki/Maximum_likelihood_estimation){target="_blank"} of these parameters.
 
 The intuitive explanation of logistic regression then is that we are fitting a line to the log odds of $Y$, as it varies with different values of $X$. We will work through an example below to illustrate and hopefully clarify this.
 
@@ -2284,6 +2301,7 @@ The intuitive explanation of logistic regression then is that we are fitting a l
 For simplicity, we will consider just the set of current users of e-cigarettes in 2015. How much more likely is a male student to be a current e-cigarette user than a female smoker?
 
 We can get a first look at the answer by calculating the percent of females and percent of males who are current e-cigarette users or not: 
+
 ```{r}
 nyts_data %>% 
   filter(year == 2015, !is.na(Sex)) %>%
@@ -2292,7 +2310,7 @@ nyts_data %>%
   mutate(pct = n / sum(n))
 ```
 
-We can see that the percentage is lower for females than for males. Another way of organizing this data would be to make a 2x2 table, a data summarization frequently used in public health settings.
+We can see that the percentage is lower for females than for males. Another way of organizing this data would be to make a [2x2 table](https://en.wikipedia.org/wiki/Contingency_table){target="_blank"}, a data summarization frequently used in public health settings.
 
 |                                 | Male     | Female| Total|
 |:--------------------------------|---------:|------:|-----:|
@@ -2301,7 +2319,7 @@ We can see that the percentage is lower for females than for males. Another way 
 |Total                            |      8958|   8622| 17580|
 
 
-As discussed above, one important ingredient in understanding the output of logistic regression is understanding the concept of an odds and an odds ratio. We can ask, among males who responded to the survey in 2015, what are the odds of being a current e-cigarette user? How about for females? How do these odds compare? The *odds ratio* is a tool frequently used in public health to compare the odds between two groups. 
+As discussed above, one important ingredient in understanding the output of logistic regression is understanding the concept of an odds and an odds ratio. We can ask, among males who responded to the survey in 2015, what are the odds of being a current e-cigarette user? How about for females? How do these odds compare? The [odds ratio](https://en.wikipedia.org/wiki/Odds_ratio){target="_blank"} is a tool frequently used in public health to compare the odds between two groups. 
 
 In this case:
 
@@ -2311,6 +2329,10 @@ In this case:
 * Log odds ratio: $log_e(OR) = log(1.53) = -0.42$
 
 We would interpret these values by saying that the odds of being a current e-cigarette user for women are around 0.65 times the odds of being a current e-cigarette user for men, or 35% lower for women. This matches what we can see in our data visualizations for Question 2.
+
+```{r, echo = FALSE, out.width = "800 px"}
+knitr::include_graphics(here::here("img", "plot2.png"))
+```
 
 We could also answer this question using logistic regression:
 
@@ -2327,11 +2349,11 @@ currEcigSexTidy <- broom::tidy(currEcigSex)
 currEcigSexTidy
 ```
 
-Looking at this output, our estimated logistic regression equation is
+Looking at this output, our estimated logistic regression equation is:
 
 $$log(odds \ of \ current \ e-cigarette \ use) = \beta_0 + \beta_1 \cdot Sex = -1.89 - 0.425 \cdot (Sex == female)$$
 
-Our $\beta_1$ parameter tells us that the log odds of being a current e-cigarette user are 0.425 lower for females compared to males, i.e., the difference in log odds of being a current e-cigarette user for females compared to males is -0.425. And we can notice that this value matches the log odds ratio that we calculated by hand from the 2x2 table above. This is because a difference in log odds is the same as a log odds ratio -- remember your rules of logs!
+Our $\beta_1$ parameter tells us that the log odds of being a current e-cigarette user are 0.425 lower for females compared to males, i.e., the difference in log odds of being a current e-cigarette user for females compared to males is -0.425. And we can notice that this value matches the log odds ratio that we calculated by hand from the 2x2 table above. This is because a difference in log odds is the same as a log odds ratio -- remember your [rules of logs](https://www.rapidtables.com/math/algebra/Logarithm.html#log-rules){target="_blank"}!
 
 We can interpret this output as follows:
 
@@ -2343,7 +2365,7 @@ We can interpret this output as follows:
 
 We can also look at the other columns of the model output to assess whether our data indicate that $\beta_1$ is statistically significantly different from 0. The p-value for the `Sex` variable in our model is `r format(currEcigSexTidy %>% filter(term == "Sexfemale") %>% pull(p.value), digits = 3)`. Since this value is < 0.05, we would reject the null hypothesis that $\beta_1 = 0$ based on our model output.
 
-Simple logistic regression can be extended to include additional variables in the model, for example to adjust for potential confounding variables such as age or grade. For example, suppose we want to estimate the effect of Sex on current e-cigarette use, holding age constant. We could fit the model:
+Simple logistic regression can be extended to include additional variables in the model, for example to adjust for potential confounding variables such as `Age` or `Grade`. For example, suppose we want to estimate the effect of `Sex` on current e-cigarette use, holding `Age` constant. We could fit the model:
 
 $$log(odds \ of \ current \ e-cigarette \ use) = \beta_0 + \beta_1 \cdot Sex + \beta_2 \cdot Age$$
 
@@ -2355,7 +2377,7 @@ currEcigSexAge <- glm(ecig_current ~ Sex + Age,
 tidy(currEcigSexAge)
 ```
 
-Now our $\beta_1$ parameter tells us that the log odds of being an current e-cigarette user are 0.385 lower for females compared to males, within an age group, or holding age constant.
+Now our $\beta_1$ parameter tells us that the log odds of being an current e-cigarette user are 0.385 lower for females compared to males, within an age group, or holding `Age` constant.
 
 ### Survey weighted logistic regression
 
@@ -2377,7 +2399,7 @@ currEcigSex_svy <- survey::svyglm(ecig_current ~ Sex,
 tidy(currEcigSex_svy)
 ```
 
-Note that in this case, we use the quasibinomial family rather than the binomial family, which allows the data to not necessarily look like a sample from a binomial distribution. This is because by incorporating our survey weights, it is as if each individual does not have a 0 or 1 as their outcome variable, so we get a warning if we do not use this value for family.
+Note that in this case, we use the [quasi](https://en.wikipedia.org/wiki/Quasi-likelihood){target="_blank"}-binomial family rather than the binomial family, which allows the data to not necessarily look like a sample from a [binomial distribution](https://en.wikipedia.org/wiki/Binomial_distribution){target="_blank"}. This is because by incorporating our survey weights, it is as if each individual does not have a 0 or 1 as their outcome variable, so we get a warning if we do not use this value for family.
 
 From this model output, we can see that the estimate incorporating survey weights is a little different. The interpretation is as follows:
 
@@ -2397,7 +2419,7 @@ currEcigSexAge_svy <- survey::svyglm(ecig_current ~ Sex + Age,
 tidy(currEcigSexAge_svy)
 ```
 
-In this case, we can see that our estimated difference in log odds for females compared to males, -0.380, is not much different whether we are holding age constant or not.
+In this case, we can see that our estimated difference in log odds for females compared to males, -0.380, is not much different whether we are holding `Age` constant or not.
 
 
 ## **Summary**
@@ -2556,7 +2578,7 @@ We showed how to work with the data in the format provided (Excel), how to to us
 
 In answer to our questions, we found that tobacco use has gone up slightly overall between 2015 and 2019, with little difference in rates of change comparing males to females. This slight increase is the result of a large increase in e-cigarette/vaping use, coupled with a decrease in use of other tobacco products. The most used brand of e-cigarette/vaping products is Juul, and fruit, menthol and candy/desserts/sweets are the most commonly used flavors.
 
-We also introduced the statistical concept of survey weighting, illustrating how to calculate usage percentages using survey-weighted means, and compare the results in the weighted and unweighted cases. 
+We then introduced the statistical concept of survey weighting, illustrating how to calculate usage percentages using survey-weighted means, and compare the results in the weighted and unweighted cases. We also introduced the topic of logistic regression and we performed a survey-weighted logistic regression analysis to compare the vaping rates of male and female students. 
 
 ## **Homework**
 *** 
@@ -2581,14 +2603,28 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 
 ### Helpful Links
 
-[`Tidyverse`](https://www.tidyverse.org/){target="_blank"}  
+[Tidyverse](https://www.tidyverse.org/){target="_blank"}  
 [Writing functions](https://r4ds.had.co.nz/functions.html){target="_blank"}   
 [Codebooks](https://www.lib.ncsu.edu/data/icpsrfaq#whatare){target="_blank"}  
 [Longitudinal studies](https://www.bmj.com/about-bmj/resources-readers/publications/epidemiology-uninitiated/7-longitudinal-studies){target="_blank"}   
 [Panel data](https://en.wikipedia.org/wiki/Panel_data){target="_blank"}    
 [Cross-sectional data](https://en.wikipedia.org/wiki/Cross-sectional_data){target="_blank"}    
 [Survey weighting](http://www.applied-survey-methods.com/weight.html){target="_blank"}  
-[Confidence intervals](https://en.wikipedia.org/wiki/Confidence_interval){target="_blank"}  
+[Confidence intervals](https://en.wikipedia.org/wiki/Confidence_interval){target="_blank"}   
+[Introduction to Logarithms](https://www.mathsisfun.com/algebra/logarithms.html){target="_blank"}   
+[Logarithm](https://en.wikipedia.org/wiki/Logarithm){target="_blank"} 
+[Rules of logs](https://www.rapidtables.com/math/algebra/Logarithm.html#log-rules){target="_blank"} [Odds ratio](https://en.wikipedia.org/wiki/Odds_ratio){target="_blank"}    
+[Log odds](https://en.wikipedia.org/wiki/Logit){target="_blank"}   
+[2x2 table](https://en.wikipedia.org/wiki/Contingency_table){target="_blank"}  
+[Probability](https://en.wikipedia.org/wiki/Probability){target="_blank"}   
+[Likelihood function](https://en.wikipedia.org/wiki/Likelihood_function){target="_blank"}   
+[Maximum likelihood estimates](https://en.wikipedia.org/wiki/Maximum_likelihood_estimation){target="_blank"}   
+[Linear regression model](https://en.wikipedia.org/wiki/Linear_regression){target="_blank"}   
+[Logistic regression](https://en.wikipedia.org/wiki/Logistic_regression){target="_blank"}   
+[Quasi-likelihood](https://en.wikipedia.org/wiki/Quasi-likelihood){target="_blank"}   
+[Binomial distribution](https://en.wikipedia.org/wiki/Binomial_distribution){target="_blank"}   
+
+For more information on linear regression see this [book](https://rafalab.github.io/dsbook/linear-models.html#linear-regression-in-the-tidyverse){target="_blank"} and this [case study](https://opencasestudies.github.io/ocs-bp-diet/){target="_blank"}.
 
 For more information on survey designs see [here](http://www.asasrms.org/Proceedings/y2008/Files/301835.pdf){target="_blank"} and [here](http://ocw.jhsph.edu/courses/StatMethodsForSampleSurveys/PDFs/Lecture5.pdf){target="_blank"}.  
 
