@@ -25,6 +25,8 @@ Imports:
     naniar,
     srvyr,
     cowplot,
+    broom,
+    survey,
     qpdf,
     Rcpp,
     jpeg, 
