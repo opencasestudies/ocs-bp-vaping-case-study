@@ -1,6 +1,5 @@
 ---
 title: "Open Case Studies : Vaping Behaviors in American Youth"
-author: "Michael Ontiveros, Carrie Wright, PhD. "
 
 css: style.css
 output:
