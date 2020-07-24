@@ -118,7 +118,7 @@ Gentzke, Andrea S., Melisa Creamer, Karen A. Cullen, Bridget K. Ambrose, Gordon 
 3) What vaping brands and flavors appear to be used the most frequently?  
 We will base this on the following survey questions:   
 > "During the past 30 days, what brand of e-cigarettes did you usually use?"   
->" What flavors of tobacco products have you used in the past
+> "What flavors of tobacco products have you used in the past
 30 days?" 
 
 4) Is there a relationship between e-cigarette/vaping use and other tobacco use?
@@ -238,7 +238,7 @@ See [here](https://www.cdc.gov/tobacco/basic_information/e-cigarettes/Quick-Fact
 *** 
 There are some important considerations regarding this data analysis to keep in mind: 
 
-1) The [National Youth Tobacco Survey (NYTS)](https://www.cdc.gov/tobacco/data_statistics/surveys/nyts/index.htm){target="_blank"} does not follow the same individual student respondents over time.  A [longitudinal study](https://www.bmj.com/about-bmj/resources-readers/publications/epidemiology-uninitiated/7-longitudinal-studies){target="_blank"} that does follow the same individuals over time collects data called [panel data](https://en.wikipedia.org/wiki/Panel_data). The data in this study is called pooled [cross-sectional data](https://en.wikipedia.org/wiki/Cross-sectional_data), and is obtained from random collection of observations across time.
+1) The [National Youth Tobacco Survey (NYTS)](https://www.cdc.gov/tobacco/data_statistics/surveys/nyts/index.htm){target="_blank"} does not follow the same individual student respondents over time.  A [longitudinal study](https://www.bmj.com/about-bmj/resources-readers/publications/epidemiology-uninitiated/7-longitudinal-studies){target="_blank"} that does follow the same individuals over time collects data called [panel data](https://en.wikipedia.org/wiki/Panel_data){target="_blank"}. The data in this study is called pooled [cross-sectional data](https://en.wikipedia.org/wiki/Cross-sectional_data){target="_blank"}, and is obtained from random collection of observations across time.
 
 According to Wikipedia:
 
@@ -843,23 +843,23 @@ E. Bidis (small brown cigarettes wrapped in a leaf)
 F. I have never tried any of the products listed above   
  
  
-We will sum across the variables that relate to ever or current tobacco usage questions to determine if the student answered yes to any of the ever or current questions. 
+We will sum across the variables that relate to ever or current tobacco usage questions to determine if the student answered yes to any of the ever or current questions. To do this we will use the base `rowSums` function.
 
 We will then use the `case_when()` function of the `dplyr` package to convert the sum values to `TRUE` or `FALSE` based on the threshold of zero. If the sum is greater than zero, then we know the student answered yes to at least one question. 
- 
+
 ```{r}
-nyts_data <- nyts_data %>%
-    mutate(tobacco_sum_ever = select(., starts_with("E", ignore.case = FALSE)) %>%
-               base::apply(1, sum, na.rm = TRUE),
-           tobacco_sum_current = select(., starts_with("C", ignore.case = FALSE)) %>%
-               apply(1, sum, na.rm = TRUE)) %>%
-    mutate(tobacco_ever = case_when(tobacco_sum_ever > 0 ~ TRUE,
-                                    tobacco_sum_ever == 0 ~ FALSE),
-           tobacco_current = case_when(tobacco_sum_current > 0 ~ TRUE,
-                                    tobacco_sum_current == 0 ~ FALSE))
+nyts_data %<>%
+  mutate(tobacco_sum_ever = rowSums(select(., starts_with("E", 
+                                    ignore.case = FALSE)), na.rm = TRUE),
+      tobacco_sum_current = rowSums(select(., starts_with("C", 
+                                    ignore.case = FALSE)), na.rm = TRUE)) %>%
+      mutate(tobacco_ever = case_when(tobacco_sum_ever > 0 ~ TRUE,
+                                      tobacco_sum_ever == 0 ~ FALSE),
+          tobacco_current = case_when(tobacco_sum_current > 0 ~ TRUE,
+                                      tobacco_sum_current == 0 ~ FALSE))
 ```
-
-
+ 
+ 
 #### {.scrollable}
 ```{r}
 glimpse(nyts_data)
@@ -868,28 +868,26 @@ glimpse(nyts_data)
 
 We are also interested in e-cigarette/vaping product usage compared to other tobacco products, so we will create some variables related to the sum of all e-cigarette usage question variables and the sum of all tobacco usage question variables excluding those that are about e-cigarettes. There is only one variable about e-cigarette usage ever (EELCIGT) and one about current usage (CELCIGT).
 
+
 ```{r}
-nyts_data <- nyts_data %>% mutate(ecig_sum_ever = select(., EELCIGT) %>%
-               apply(1, sum, na.rm = TRUE),
-           ecig_sum_current = select(., CELCIGT) %>%
-               apply(1, sum, na.rm = TRUE),
-           non_ecig_sum_ever = select(., starts_with("E", ignore.case = FALSE)) %>%
-               select(., -EELCIGT) %>%
-               apply(1, sum, na.rm = TRUE),
-           non_ecig_sum_current = select(., starts_with("C", ignore.case = FALSE)) %>%
-               select(., -CELCIGT) %>%
-               apply(1, sum, na.rm = TRUE)) %>%
-    mutate(ecig_ever = case_when(ecig_sum_ever > 0 ~ TRUE,
-                                    ecig_sum_ever == 0 ~ FALSE),
-           ecig_current = case_when(ecig_sum_current > 0 ~ TRUE,
-                                    ecig_sum_current == 0 ~ FALSE),
-           non_ecig_ever = case_when(non_ecig_sum_ever > 0 ~ TRUE,
-                                    non_ecig_sum_ever == 0 ~ FALSE),
-           non_ecig_current = case_when(non_ecig_sum_current > 0 ~ TRUE,
-                                    non_ecig_sum_current == 0 ~ FALSE))
-```
-
-
+nyts_data <- nyts_data %>% 
+  mutate(ecig_sum_ever = rowSums(select(., EELCIGT), na.rm = TRUE),
+      ecig_sum_current = rowSums(select(., CELCIGT), na.rm = TRUE),
+     non_ecig_sum_ever = rowSums(select(., starts_with("E", 
+                                           ignore.case = FALSE), 
+                                           -EELCIGT), na.rm = TRUE),
+  non_ecig_sum_current = rowSums(select(., starts_with("C",
+                                           ignore.case = FALSE), 
+                                           -CELCIGT), na.rm = TRUE)) %>%
+      mutate(ecig_ever = case_when(ecig_sum_ever > 0 ~ TRUE,
+                                   ecig_sum_ever == 0 ~ FALSE),
+          ecig_current = case_when(ecig_sum_current > 0 ~ TRUE,
+                                   ecig_sum_current == 0 ~ FALSE),
+         non_ecig_ever = case_when(non_ecig_sum_ever > 0 ~ TRUE,
+                                   non_ecig_sum_ever == 0 ~ FALSE),
+      non_ecig_current = case_when(non_ecig_sum_current > 0 ~ TRUE,
+                                   non_ecig_sum_current == 0 ~ FALSE))
+```                       
 
 #### {.scrollable}
 ```{r}
@@ -2096,154 +2094,6 @@ figure_w_8 <- plot_grid(title_w_8,
 figure_w_8
 ```
 
-### Final Figure
-
-Finally we will put our plots together to create a plot that describes the relationship between e-cigarette usage and overall tobacco use, combining both our first set of unweighted results, and those calculated using the `srvyr` package.
-
-```{r}
-title_final <- ggdraw() +
-  draw_label(
-    expression("What is the relationship between e-cigarette use and tobacco use?"),
-    fontface = 'bold',
-    size = 16,
-    x = 0.5) +
-  theme(
-    plot.margin = margin(0, 0, 0, 0)
-  )
-
-subtitle_uw_final <- ggdraw() +
-  draw_label(
-    expression(~ 6^th ~ "-" ~ 12^th ~ "graders, unweighted"),
-    size = 12,
-    x = 0.5) +
-  theme(
-    plot.margin = margin(0, 0, 0, 0)
-  )
-
-subtitle_w_final <- ggdraw() +
-  draw_label(
-    expression(~ 6^th ~ "-" ~ 12^th ~ "graders, weighted"),
-    fontface = 'bold',
-    size = 12,
-    x = 0.5) +
-  theme(
-    plot.margin = margin(0, 0, 0, 0)
-  )
-
-subtitle_w_8_final <- ggdraw() +
-  draw_label(
-    expression("Approximate graduating \n class of 2019, weighted"),
-    fontface = 'bold',
-    size = 12,
-    x = 0.5) +
-  theme(
-    plot.margin = margin(0, 0, 0, 0)
-  )
-
-subtitle_final <- plot_grid(subtitle_uw_final,
-                            subtitle_w_final,
-                            subtitle_w_8_final,
-                            ncol = 3)
-
-plotsA_title_final <- ggdraw() +
-  draw_label(
-    expression("Prevalence of any tobacco product use by user type"),
-    size = 14,
-    x = 0.5) +
-  theme(
-    plot.margin = margin(0, 0, 0, 0)
-  )
-
-plotsA_final <- plot_grid(plotA_uw + theme(plot.title = element_blank()),
-                          plotA_w + theme(plot.title = element_blank()),
-                          plotA_w_8 + theme(plot.title = element_blank()),
-                          ncol = 3,
-                          align = "v",
-                          axis = "bt")
-
-plotsB_title_final <- ggdraw() +
-  draw_label(
-    expression("Prevalence of ever trying by product type"),
-    size = 14,
-    x = 0.5) +
-  theme(
-    plot.margin = margin(0, 0, 0, 0)
-  )
-
-plotsB_final <- plot_grid(plotB_uw + theme(plot.title = element_blank()),
-                          plotB_w + theme(plot.title = element_blank()),
-                          plotB_w_8 + theme(plot.title = element_blank()),
-                          ncol = 3,
-                          align = "v",
-                          axis = "bt")
-
-plotsC_title_final <- ggdraw() +
-  draw_label(
-    expression("Prevalence of current use by product type"),
-    size = 14,
-    x = 0.5) +
-  theme(
-    plot.margin = margin(0, 0, 0, 0)
-  )
-
-plotsC_final <- plot_grid(plotC_uw + theme(plot.title = element_blank()),
-                          plotC_w + theme(plot.title = element_blank()),
-                          plotC_w_8 + theme(plot.title = element_blank()),
-                          ncol = 3,
-                          align = "v",
-                          axis = "bt")
-
-legend_final <- get_legend(plot1c +
-                             theme(legend.position = "bottom",
-                             legend.direction = "horizontal"))
-
-final_plot <- plot_grid(title_final,
-          plotsA_title_final,
-          subtitle_final,
-          plotsA_final,
-          plotsB_title_final,
-          subtitle_final,
-          plotsB_final,
-          plotsC_title_final,
-          subtitle_final,
-          plotsC_final,
-          legend_final,
-          ncol = 1,
-          rel_heights = c(0.2,
-                          0.2,
-                          0.1,
-                          1,
-                          0.2,
-                          0.1,
-                          1,
-                          0.2,
-                          0.1,
-                          1,
-                          0.1))
-
-final_plot
-```
-
-```{r, echo=FALSE, include=FALSE}
-ggsave(here::here("img", "final_plot.png"))
-```
-
-## **Suggested Homework**
-*** 
-
-<style>
-div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
-</style>
-<div class = "blue">
-
-+ Calculate confidence intervals for the unweighted estimates and add the appropriate error bars to the main figures.
-+ Apply survey weights to one of the figures produced in this case study in which weighted estimates were not produced. Include error bars in the updated figure.
-    + Does the figure change after the application of survey weights?
-    + If so, describe how. 
-+ Reproduce `final_plot` above for a different cohort of your choice.
-+ Focusing on a single year of data, explore demographic factors that contribute to tobacco use of some kind. Compare results of unweighted and weighted analysis (for example, using the `svyglm` function to calculate survey-weighted logistic regression estimates).
-
-</div>
 
 
 ## **Data Analysis**
@@ -2406,16 +2256,151 @@ In this case, we can see that our estimated difference in log odds for females c
 ## **Summary**
 *** 
 
+
+### Summary Plot
+
+Finally we will put our plots together to create a plot that describes the relationship between e-cigarette usage and overall tobacco use, combining both our first set of unweighted results, and those calculated using the `srvyr` package.
+
+```{r}
+title_final <- ggdraw() +
+  draw_label(
+    expression("What is the relationship between e-cigarette use and tobacco use?"),
+    fontface = 'bold',
+    size = 16,
+    x = 0.5) +
+  theme(
+    plot.margin = margin(0, 0, 0, 0)
+  )
+
+subtitle_uw_final <- ggdraw() +
+  draw_label(
+    expression(~ 6^th ~ "-" ~ 12^th ~ "graders, unweighted"),
+    size = 12,
+    x = 0.5) +
+  theme(
+    plot.margin = margin(0, 0, 0, 0)
+  )
+
+subtitle_w_final <- ggdraw() +
+  draw_label(
+    expression(~ 6^th ~ "-" ~ 12^th ~ "graders, weighted"),
+    fontface = 'bold',
+    size = 12,
+    x = 0.5) +
+  theme(
+    plot.margin = margin(0, 0, 0, 0)
+  )
+
+subtitle_w_8_final <- ggdraw() +
+  draw_label(
+    expression("Approximate graduating \n class of 2019, weighted"),
+    fontface = 'bold',
+    size = 12,
+    x = 0.5) +
+  theme(
+    plot.margin = margin(0, 0, 0, 0)
+  )
+
+subtitle_final <- plot_grid(subtitle_uw_final,
+                            subtitle_w_final,
+                            subtitle_w_8_final,
+                            ncol = 3)
+
+plotsA_title_final <- ggdraw() +
+  draw_label(
+    expression("Prevalence of any tobacco product use by user type"),
+    size = 14,
+    x = 0.5) +
+  theme(
+    plot.margin = margin(0, 0, 0, 0)
+  )
+
+plotsA_final <- plot_grid(plotA_uw + theme(plot.title = element_blank()),
+                          plotA_w + theme(plot.title = element_blank()),
+                          plotA_w_8 + theme(plot.title = element_blank()),
+                          ncol = 3,
+                          align = "v",
+                          axis = "bt")
+
+plotsB_title_final <- ggdraw() +
+  draw_label(
+    expression("Prevalence of ever trying by product type"),
+    size = 14,
+    x = 0.5) +
+  theme(
+    plot.margin = margin(0, 0, 0, 0)
+  )
+
+plotsB_final <- plot_grid(plotB_uw + theme(plot.title = element_blank()),
+                          plotB_w + theme(plot.title = element_blank()),
+                          plotB_w_8 + theme(plot.title = element_blank()),
+                          ncol = 3,
+                          align = "v",
+                          axis = "bt")
+
+plotsC_title_final <- ggdraw() +
+  draw_label(
+    expression("Prevalence of current use by product type"),
+    size = 14,
+    x = 0.5) +
+  theme(
+    plot.margin = margin(0, 0, 0, 0)
+  )
+
+plotsC_final <- plot_grid(plotC_uw + theme(plot.title = element_blank()),
+                          plotC_w + theme(plot.title = element_blank()),
+                          plotC_w_8 + theme(plot.title = element_blank()),
+                          ncol = 3,
+                          align = "v",
+                          axis = "bt")
+
+legend_final <- get_legend(plot1c +
+                             theme(legend.position = "bottom",
+                             legend.direction = "horizontal"))
+
+final_plot <- plot_grid(title_final,
+          plotsA_title_final,
+          subtitle_final,
+          plotsA_final,
+          plotsB_title_final,
+          subtitle_final,
+          plotsB_final,
+          plotsC_title_final,
+          subtitle_final,
+          plotsC_final,
+          legend_final,
+          ncol = 1,
+          rel_heights = c(0.2,
+                          0.2,
+                          0.1,
+                          1,
+                          0.2,
+                          0.1,
+                          1,
+                          0.2,
+                          0.1,
+                          1,
+                          0.1))
+
+final_plot
+```
+
+```{r, echo=FALSE, include=FALSE}
+ggsave(here::here("img", "final_plot.png"))
+```
+
+### Synopsis
+
 In this case study, we used data from the [National Youth Tobacco Survey (NYTS)](https://www.cdc.gov/tobacco/data_statistics/surveys/nyts/index.htm){target="_blank"}, an annual survey that asks students in high school and middle school (grades 6-12) about tobacco usage in the United States of America. We used data from **2015-2019** due to the fact that these years are the most recent that asked questions regarding e-cigarette usage.
 
-We used this data to answer the questions:
+We used this data to answer these questions:
 
 1) How has tobacco and e-cigarette/vaping use by American youths changed since 2015?
 2) How does e-cigarette use compare between males and females?
 3) What vaping brands and flavors appear to be used the most frequently?  
 We will base this on the following survey questions:   
 > "During the past 30 days, what brand of e-cigarettes did you usually use?"   
->" What flavors of tobacco products have you used in the past
+> "What flavors of tobacco products have you used in the past
 30 days?" 
 
 4) Is there a relationship between e-cigarette/vaping use and other tobacco use?
@@ -2426,15 +2411,68 @@ In answer to our questions, we found that tobacco use has gone up slightly overa
 
 We also introduced the statistical concept of survey weighting, illustrating how to calculate usage percentages using survey-weighted means, and compare the results in the weighted and unweighted cases. 
 
-
-
-## **Helpful Links**
+## **Homework**
 *** 
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
++ Calculate confidence intervals for the unweighted estimates and add the appropriate error bars to the main figures.
++ Apply survey weights to one of the figures produced in this case study in which weighted estimates were not produced. Include error bars in the updated figure.
+    + Does the figure change after the application of survey weights?
+    + If so, describe how. 
++ Reproduce `final_plot` above for a different cohort of your choice.
++ Focusing on a single year of data, explore demographic factors that contribute to tobacco use of some kind. Compare results of unweighted and weighted analysis (for example, using the `svyglm` function to calculate survey-weighted logistic regression estimates).
+
+</div>
+
+
+## **Additional Information**
+*** 
+
+### Helpful Links
+
+[`Tidyverse`](https://www.tidyverse.org/){target="_blank"}  
+[Writing functions](https://r4ds.had.co.nz/functions.html){target="_blank"}   
+[Codebooks](https://www.lib.ncsu.edu/data/icpsrfaq#whatare){target="_blank"}  
+[Longitudinal studies](https://www.bmj.com/about-bmj/resources-readers/publications/epidemiology-uninitiated/7-longitudinal-studies){target="_blank"}   
+[Panel data](https://en.wikipedia.org/wiki/Panel_data){target="_blank"}    
+[Cross-sectional data](https://en.wikipedia.org/wiki/Cross-sectional_data){target="_blank"}    
+[Survey weighting](http://www.applied-survey-methods.com/weight.html){target="_blank"}  
+[Confidence intervals](https://en.wikipedia.org/wiki/Confidence_interval){target="_blank"}  
+
+For more information on survey designs see [here](http://www.asasrms.org/Proceedings/y2008/Files/301835.pdf){target="_blank"} and [here](http://ocw.jhsph.edu/courses/StatMethodsForSampleSurveys/PDFs/Lecture5.pdf){target="_blank"}.  
+
+For more information on survey analysis in R [here](https://r-survey.r-forge.r-project.org/survey/exmample-lonely.html){target="_blank"} and [here](http://r-survey.r-forge.r-project.org/survey/html/surveyoptions.html){target="_blank"}.   
 
 If you are intersted in an infographic summarization of the 2019 findings, and links to many more resources about this topic and data set, see the FDA's website [here](https://www.fda.gov/tobacco-products/youth-and-tobacco/youth-tobacco-use-results-national-youth-tobacco-survey){target="_blank"}.
 
-## **Session info**
-***
+<u>Packages used in this case study:</u>
+
+Package   | Use                                                                         
+---------- |-------------
+[here](https://github.com/jennybc/here_here){target="_blank"}       | to easily load and save data  
+[readxl](https://readxl.tidyverse.org/){target="_blank"}      | to import the data in the excel files 
+[magrittr](https://cran.r-project.org/web/packages/magrittr/vignettes/magrittr.html){target="_blank"} | to use the compound assignment pipe operator `%<>%`
+[stringr](https://stringr.tidyverse.org/articles/stringr.html){target="_blank"}    | to manipulate the character strings within the data  
+[purrr](https://purrr.tidyverse.org/){target="_blank"}   | to import the data in all the different excel and csv files efficiently
+[dplyr](https://dplyr.tidyverse.org/){target="_blank"}      | to arrange/filter/select/compare specific subsets of the data  
+[readr](https://readr.tidyverse.org/){target="_blank"}      | to import the CSV file data
+[tidyr](https://tidyr.tidyverse.org/){target="_blank"}      | to rearrange data in wide and long formats 
+[ggplot2](https://ggplot2.tidyverse.org/){target="_blank"}    | to make visualizations with multiple layers
+[scales](https://cran.r-project.org/web/packages/scales/scales.pdf){target="_blank"}    | to allow us to look at the colors within the viridis package
+[viridis](https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html){target="_blank"}    | to make plots with a color palette that is compatible with color blindness
+[forcats](https://forcats.tidyverse.org/){target="_blank"}    | to allow for reordering of factors in plots
+[naniar](https://cran.r-project.org/web/packages/naniar/vignettes/getting-started-w-naniar.html){target="_blank"}  | to make a visualization of missing data
+[syrvr](https://cran.r-project.org/web/packages/srvyr/srvyr.pdf){target="_blank"} | to use survey weights
+[cowplot](https://cran.r-project.org/web/packages/cowplot/vignettes/introduction.html){target="_blank"} | to allow plots to be combined 
+[broom](https://cran.r-project.org/web/packages/broom/vignettes/broom.html){target="_blank"} | to create nicely formatted model output
+[survey](http://r-survey.r-forge.r-project.org/survey/index.html){target="_blank"} | to fit survey-weighted logistic regression
+
+### Session info 
+
 
 ```{r}
 sessionInfo()

@@ -63,8 +63,8 @@ years that asked questions about e-cigarette usage.
     This is based on the following survey questions:  
     &gt; “During the past 30 days, what brand of e-cigarettes did you
     usually use?”  
-    &gt;" What flavors of tobacco products have you used in the past 30
-    days?"
+    &gt; “What flavors of tobacco products have you used in the past 30
+    days?”
 
 4.  Is there a relationship between e-cigarette/vaping use and other
     tobacco use?
@@ -76,6 +76,27 @@ Survey data from the
 for 2015, 2016, 2017, 2018, and 2019. Each year has it’s own code book
 and excel file. Questions were slightly different for each year.
 
+#### Learning Objectives
+
+The skills, methods, and concepts that students will be familiar with by
+the end of this case study are:
+
+Data science skills:
+
+1.  Import data from Excel files
+2.  Merge data from multiple similar but not identical data structures
+3.  Create effective longitudinal data visualizations
+4.  Write functions in R
+5.  Apply functions across data subsets using `purrr` and `dplyr`
+    functionality.
+
+Statistical concepts and methods:
+
+1.  Understanding of different types of longitudinal data
+2.  Usage of code books
+3.  Conceptual understanding of survey weighting
+4.  Implementing logistic regression with survey weighting
+
 #### Data import
 
 In this case study we cover data import using the tidyverse `readxl`
@@ -83,7 +104,7 @@ package to import the excel files for each year of the survey. We also
 use the `map()` function of the tidyverse `purrr` package to efficiently
 perform the data imporation on all the files we one command.
 
-#### Data wrangling and exploration
+#### Data wrangling
 
 Ths case study goes into great detail about using codebooks to select
 the survey questions of interest and to recode the numeric data using
@@ -109,7 +130,7 @@ package.
 We also cover how to add confidence intervals error bars to
 `geom_line()` plots using `geom_segment()`.
 
-#### Data Analysis
+### Analysis
 
 This case study covers the use of the `srvyr` package to calculate
 survey weighted means of various groups using information about the
@@ -124,16 +145,31 @@ We also perform a logistic regression analysis comparing vaping rates
 among males and females using survey weighting using the `svyglm`
 function of the `srvyr` package. AVOCADO this might change?
 
-#### Statistical concepts
-
-We provide an introduction of the following concepts:
-
-1.  Understanding of different types of longitudinal data
-2.  Usage of code books
-3.  Conceptual understanding of survey weighting
-4.  Implementing logistic regression with survey weighting
-
 ### Other notes and resources
+
+<a href="https://www.tidyverse.org/" target="_blank"><code>Tidyverse</code></a>  
+<a href="https://r4ds.had.co.nz/functions.html" target="_blank">Writing functions</a>  
+<a href="https://www.lib.ncsu.edu/data/icpsrfaq#whatare" target="_blank">Codebooks</a>  
+<a href="https://www.bmj.com/about-bmj/resources-readers/publications/epidemiology-uninitiated/7-longitudinal-studies" target="_blank">Longitudinal studies</a>  
+<a href="https://en.wikipedia.org/wiki/Panel_data" target="_blank">Panel data</a>  
+<a href="https://en.wikipedia.org/wiki/Cross-sectional_data" target="_blank">Cross-sectional data</a>  
+<a href="http://www.applied-survey-methods.com/weight.html" target="_blank">Survey weighting</a>  
+<a href="https://en.wikipedia.org/wiki/Confidence_interval" target="_blank">Confidence intervals</a>
+
+For more information on survey designs see
+<a href="http://www.asasrms.org/Proceedings/y2008/Files/301835.pdf" target="_blank">here</a>
+and
+<a href="http://ocw.jhsph.edu/courses/StatMethodsForSampleSurveys/PDFs/Lecture5.pdf" target="_blank">here</a>.
+
+For more information on survey analysis in R
+<a href="https://r-survey.r-forge.r-project.org/survey/exmample-lonely.html" target="_blank">here</a>
+and
+<a href="http://r-survey.r-forge.r-project.org/survey/html/surveyoptions.html" target="_blank">here</a>.
+
+If you are intersted in an infographic summarization of the 2019
+findings, and links to many more resources about this topic and data
+set, see the FDA’s website
+<a href="https://www.fda.gov/tobacco-products/youth-and-tobacco/youth-tobacco-use-results-national-youth-tobacco-survey" target="_blank">here</a>.
 
 #### For users
 
@@ -164,27 +200,3 @@ Focusing on a single year of data, explore demographic factors that
 contribute to tobacco use of some kind. Compare results of unweighted
 and weighted analysis (for example, using the `svyglm` function to
 calculate survey-weighted logistic regression estimates).
-
-#### Learning Objectives
-
-Avocado… should we maybe add a learning objectives section to the readme
-files? Then we might want to replace the statistical concepts section.
-
-The skills, methods, and concepts that students will be familiar with by
-the end of this case study are:
-
-Data science skills:
-
-1.  Import data from Excel files
-2.  Merge data from multiple similar but not identical data structures
-3.  Create effective longitudinal data visualizations
-4.  Write functions in R
-5.  Apply functions across data subsets using `purrr` and `dplyr`
-    functionality.
-
-Statistical methods:
-
-1.  Understanding of different types of longitudinal data
-2.  Usage of code books
-3.  Conceptual understanding of survey weighting
-4.  Implementing logistic regression with survey weighting
