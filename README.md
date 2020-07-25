@@ -33,6 +33,17 @@ Margaret and Hicks, Stephanie. (2020).
 <a href="https://github.com/opencasestudies/ocs-bloomberg-vaping-case-study" class="uri">https://github.com/opencasestudies/ocs-bloomberg-vaping-case-study</a>.
 Vaping Behaviors in American Youth (Version v1.0.0).
 
+### Acknowledgements
+
+We would like to acknowledge [Renee
+Johnson](https://www.jhsph.edu/faculty/directory/profile/2848/renee-m-johnson)
+and [Brendan
+Saloner](https://www.jhsph.edu/faculty/directory/profile/2929/brendan-saloner)
+for assisting in framing the major direction of the case study.
+
+We would also like to acknowledge the [Bloomberg American Health
+Initiative](https://americanhealth.jhu.edu/) for funding this work.
+
 ### Title
 
 Vaping Behaviors in American Youth
