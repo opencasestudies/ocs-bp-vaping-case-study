@@ -38,8 +38,7 @@ Vaping Behaviors in American Youth (Version v1.0.0).
 We would like to acknowledge [Renee
 Johnson](https://www.jhsph.edu/faculty/directory/profile/2848/renee-m-johnson)
 for assisting in framing the major direction of the case study and for
-reviewing the case study for reviewing the case study for subject matter
-content.
+reviewing the case study for subject matter content.
 
 We would also like to acknowledge the [Bloomberg American Health
 Initiative](https://americanhealth.jhu.edu/) for funding this work.
