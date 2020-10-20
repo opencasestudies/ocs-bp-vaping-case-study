@@ -153,7 +153,7 @@ the respective survey years.
 
 We also perform a logistic regression analysis comparing vaping rates
 among males and females using survey weighting using the `svyglm`
-function of the `srvyr` package. AVOCADO this might change?
+function of the `srvyr` package.
 
 ### Other notes and resources
 

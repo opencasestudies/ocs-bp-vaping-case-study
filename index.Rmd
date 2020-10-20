@@ -2267,7 +2267,7 @@ But what if we wanted to quantify this effect and assess whether this difference
 
 ### Logistic regression motivation
 
-Here, we will approach the topic of [logistic regression](https://en.wikipedia.org/wiki/Logistic_regression){target="_blank"} assuming some prior knowledge of simple and multiple linear regression. These have been covered in other case studies, for example (XXX) AVOCADO: Link to other case studies?
+Here, we will approach the topic of [logistic regression](https://en.wikipedia.org/wiki/Logistic_regression){target="_blank"} assuming some prior knowledge of simple and multiple linear regression. These have been covered in [another case study](https://opencasestudies.github.io/ocs-bp-diet/).
 
 As a brief reminder, a [linear regression model](https://en.wikipedia.org/wiki/Linear_regression){target="_blank"} allows us to estimate the relationship between an outcome variable, call it $Y$, and a set of one or more input variables, $X_1, X_2, ..., X_n$. We can write a simple linear regression model as:
 

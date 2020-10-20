@@ -102,7 +102,7 @@ We also cover how to add confidence intervals error bars to `geom_line()` plots 
 
 This case study covers the use of the `srvyr` package to calculate survey weighted means of various groups using information about the survey design, strata, survey weights, and Primary Sampling Unit (PSU) from the [codebooks](https://www.cdc.gov/tobacco/data_statistics/surveys/nyts/index.htm){target="_blank"} and [Methodology Reports](./docs/2019-nyts-dataset-and-codebook-microsoft-excel/2019-nyts-methodology-report-p.pdf){target="_blank"}.for the respective survey years.
 
-We also perform a logistic regression analysis comparing vaping rates among males and females using survey weighting using the `svyglm` function of the `srvyr` package. AVOCADO this might change?
+We also perform a logistic regression analysis comparing vaping rates among males and females using survey weighting using the `svyglm` function of the `srvyr` package.
 
 ### Other notes and resources 
 
