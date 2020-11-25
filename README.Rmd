@@ -135,6 +135,28 @@ For more information on survey analysis in R [here](https://r-survey.r-forge.r-p
 
 If you are interested in an info-graphic summary of the 2019 findings, and links to many more resources about this topic and data set, see the FDA's website [here](https://www.fda.gov/tobacco-products/youth-and-tobacco/youth-tobacco-use-results-national-youth-tobacco-survey){target="_blank"}.
 
+<u>Packages used in this case study:</u>
+
+Package   | Use                                                                         
+---------- |-------------
+[here](https://github.com/jennybc/here_here){target="_blank"}       | to easily load and save data  
+[readxl](https://readxl.tidyverse.org/){target="_blank"}      | to import the data in the excel files 
+[magrittr](https://cran.r-project.org/web/packages/magrittr/vignettes/magrittr.html){target="_blank"} | to use the compound assignment pipe operator `%<>%`
+[stringr](https://stringr.tidyverse.org/articles/stringr.html){target="_blank"}    | to manipulate the character strings within the data  
+[purrr](https://purrr.tidyverse.org/){target="_blank"}   | to import the data in all the different excel and csv files efficiently
+[dplyr](https://dplyr.tidyverse.org/){target="_blank"}      | to arrange/filter/select/compare specific subsets of the data  
+[readr](https://readr.tidyverse.org/){target="_blank"}      | to import the CSV file data
+[tidyr](https://tidyr.tidyverse.org/){target="_blank"}      | to rearrange data in wide and long formats 
+[ggplot2](https://ggplot2.tidyverse.org/){target="_blank"}    | to make visualizations with multiple layers
+[scales](https://cran.r-project.org/web/packages/scales/scales.pdf){target="_blank"}    | to allow us to look at the colors within the viridis package
+[viridis](https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html){target="_blank"}    | to make plots with a color palette that is compatible with color blindness
+[forcats](https://forcats.tidyverse.org/){target="_blank"}    | to allow for reordering of factors in plots
+[naniar](https://cran.r-project.org/web/packages/naniar/vignettes/getting-started-w-naniar.html){target="_blank"}  | to make a visualization of missing data
+[syrvr](https://cran.r-project.org/web/packages/srvyr/srvyr.pdf){target="_blank"} | to use survey weights
+[cowplot](https://cran.r-project.org/web/packages/cowplot/vignettes/introduction.html){target="_blank"} | to allow plots to be combined 
+[broom](https://cran.r-project.org/web/packages/broom/vignettes/broom.html){target="_blank"} | to create nicely formatted model output
+[survey](http://r-survey.r-forge.r-project.org/survey/index.html){target="_blank"} | to fit survey-weighted logistic regression
+
 #### For users 
 
 There is a [`Makefile`](Makefile) in this folder that allows you to type `make` to knit the case study contained in the `index.Rmd` to `index.html` and it will also knit the [`README.Rmd`](README.Rmd) to a markdown file (`README.md`). 
