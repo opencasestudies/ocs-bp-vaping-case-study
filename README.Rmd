@@ -135,9 +135,9 @@ For more information on survey analysis in R [here](https://r-survey.r-forge.r-p
 
 If you are interested in an info-graphic summary of the 2019 findings, and links to many more resources about this topic and data set, see the FDA's website [here](https://www.fda.gov/tobacco-products/youth-and-tobacco/youth-tobacco-use-results-national-youth-tobacco-survey){target="_blank"}.
 
-<u>Packages used in this case study:</u>
+<u>**Packages used in this case study:**</u>
 
-Package   | Use                                                                         
+Package   | Use in this case study 
 ---------- |-------------
 [here](https://github.com/jennybc/here_here){target="_blank"}       | to easily load and save data  
 [readxl](https://readxl.tidyverse.org/){target="_blank"}      | to import the data in the excel files 

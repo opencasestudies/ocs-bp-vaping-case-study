@@ -199,7 +199,7 @@ and links to many more resources about this topic and data set, see the
 FDA’s website
 <a href="https://www.fda.gov/tobacco-products/youth-and-tobacco/youth-tobacco-use-results-national-youth-tobacco-survey" target="_blank">here</a>.
 
-<u>Packages used in this case study:</u>
+<u>**Packages used in this case study:**</u>
 
 <table>
 <colgroup>
@@ -209,7 +209,7 @@ FDA’s website
 <thead>
 <tr class="header">
 <th>Package</th>
-<th>Use</th>
+<th>Use in this case study</th>
 </tr>
 </thead>
 <tbody>
