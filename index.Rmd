@@ -19,7 +19,7 @@ output:
 ---
 <style>
 #TOC {
-  background: url("https://opencasestudies.github.io/img/logo.jpg");
+ background: url("https://opencasestudies.github.io/img/icon-bahi.png");
   background-size: contain;
   padding-top: 240px !important;
   background-repeat: no-repeat;
@@ -65,7 +65,7 @@ This work is licensed under the Creative Commons Attribution-NonCommercial 3.0 [
 
 To cite this case study please use:
 
-Wright, Carrie, and Ontiveros, Michael and Jager, Leah and Taub, Margaret and Hicks, Stephanie. (2020). https://github.com/opencasestudies/ocs-bloomberg-vaping-case-study. Vaping Behaviors in American Youth (Version v1.0.0).
+Wright, Carrie and Ontiveros, Michael and Jager, Leah and Taub, Margaret and Hicks, Stephanie. (2020). https://github.com/opencasestudies/ocs-bloomberg-vaping-case-study. Vaping Behaviors in American Youth (Version v1.0.0).
 
 ## **Motivation**
 *** 
@@ -143,7 +143,7 @@ include_graphics("https://tidyverse.tidyverse.org/logo.png")
 
 The skills, methods, and concepts that students will be familiar with by the end of this case study are:
 
-Data science skills:
+<u>**Data Science Learning Objectives:**</u>
 
 1. Import data from Excel files
 2. Merge data from multiple similar but not identical data structures
@@ -151,7 +151,7 @@ Data science skills:
 4. Write functions in R
 5. Apply functions across data subsets using `purrr` and `dplyr` functionality.
 
-Statistical methods:
+<u>**Statistical Learning Objectives:**</u> 
 
 1. Understanding of different types of longitudinal data 
 2. Usage of code books
@@ -302,7 +302,7 @@ The data in this survey are pooled cross-sectional data. In this study design, d
 ## **Data Import**
 *** 
 
-### Reading in the excel files
+### **Reading in the excel files**
 ***
 Since these excel files are so large (each has roughly 20,000 rows), it takes a bit of time for the data to load. To make the process faster, we previously imported these files, selected only the columns relevant to our questions of interest, and saved these data subsets as comma-separated (.csv) files. 
 
@@ -459,7 +459,7 @@ names(tbl_files) %>% map(~ write_csv(tbl_files[[.]], path = paste0("data/data_re
 
 Now we will show how to read in the data from the five csv files that were created from the five different Excel files.
 
-### Reading in the CSV files
+### **Reading in the CSV files**
 ***
 
 
@@ -491,7 +491,7 @@ dplyr::glimpse(nyts_data[["nyts2015"]])
 ```
 ####
 
-### Updating the set of variables and their names
+### **Updating the set of variables and their names**
 *** 
 
 The easiest way of making it so that the data from the different years can be combined is by making sure that the same type of data in different datasets share the same names. In addition, giving the columns informative names will help make our code more readable. Currently, it isn't very clear what most of the variables indicate since the variable names are uninformative on their own, without the [codebook](./docs/2019-nyts-dataset-and-codebook-microsoft-excel/2019-nyts-codebook-p.pdf){target="_blank"}.
@@ -604,8 +604,8 @@ map(nyts_data, names)
 
 It's looking better! The data that overlap across years have the same variable names.
 
-### Updating Values
-
+### **Updating Values**
+***
 Now that we have made some progress on the selection and names of the variables themselves, we will work on the values contained in the different variables.
 
 We can start with updating the values for `Age` and `Grade`, so that they are more understandable. 
@@ -747,7 +747,8 @@ Note that there are several variables where there are similar names, but with a 
 save(nyts_data, file = here::here("data", "wrangled_data.rda"))
 ```
 
-### Variable Table
+### **Variable Table**
+***
 <details><summary> Click here to see a table about the final variables in our data set. </summary>
 
 value 1 = yes, value 2 = no
@@ -1057,7 +1058,8 @@ glimpse(nyts_data)
 save(nyts_data, file = here::here("data", "wrangled_data_with_var_for_plots.rda"))
 ```
 
-### Question 1 
+### **Question 1**
+***
 
 ```{r, echo = FALSE}
 # If instructors want to start here, we need to load the data:
@@ -1353,7 +1355,8 @@ We can see that the majority of students did not report using any tobacco produc
 We will further explore the relationship between e-cigarette usage and other tobacco products a bit later in the case study.
 
 
-### Question 2
+### **Question 2**
+***
 
 Now we want to look how e-cigarette smoking rates compare between males and females across time. 
 
@@ -1405,7 +1408,8 @@ It looks like the rates are fairly similar between the sexes, however the rate f
 ggsave(here::here("img", "plot2.png"))
 ```
 
-### Question 3
+### **Question 3**
+***
 
 We are also interested in what vaping brands and flavors appear to be used the most frequently. Only the 2019 data set has this information. Therefore, we will filter for just this year using the `filter()` function of  the `dplyr` package. We will use the `summarize()` function slightly differently this time, to calculate the total number of students using each brand using the `n()` function and the `sum()` function to calculate the percent for each brand based on the counts. We will also reorder the factor levels for the brand names so that they are in descending order of percent use, using the `fct_reorder()` function from `dplyr`. This will make them appear in decreasing order of percent use on the plot.
 
@@ -1562,7 +1566,8 @@ plot5
 
 We can see from this plot that there has been an increase in the number of students reporting using flavored tobacco products. Users who use both e-cigarettes and other tobacco products appear to report using flavored products the most, followed by users who only use e-cigarettes.
 
-### Question 4
+### **Question 4**
+***
 
 Is there a relationship between e-cigarette use and tobacco use? Now we will investigate the usage of e-cigarettes compared to other tobacco products in greater depth. 
 
@@ -1680,7 +1685,8 @@ compare to currently using other products over time?",
 plot8
 ```
 
-### Putting plots together
+### **Putting plots together**
+***
 
 Now we will put these plots together using the `plot_grid()` function of the `cowplot` package.  We will also modify the labels using the `ggdraw()` function, which is also part of the `cowplot` package.
 
@@ -1746,7 +1752,8 @@ figure_uw
 ```
 
 
-### Survey Weighting
+### **Survey Weighting***
+***
 ```{r, echo = FALSE}
 #If instructors start here, we need to load the data:
 load(here::here("data", "wrangled_data_with_var_for_plots.rda"))
@@ -1813,7 +1820,8 @@ This function takes an input called `currYear`, which will be one set of survey 
 
 One technical note: since some years have strata with a single PSU, we need to tell the survey weighting package how to handle estimating within strata variances. The line `options(survey.lonely.psu = "adjust")` tells R to center the stratum with the single PSU on the sample grand mean, a conservative approach to solving the problem. See further information [here](https://r-survey.r-forge.r-project.org/survey/exmample-lonely.html){target="_blank"} and [here](http://r-survey.r-forge.r-project.org/survey/html/surveyoptions.html){target="_blank"}.
 
-### Weighted Sample
+### **Weighted Sample**
+***
 
 First, we show the basic output of the `survey_mean` function by year. Since we include the argument `vartype = "ci"`, we get a mean and upper and lower confidence interval bounds for the mean.
 
@@ -2102,7 +2110,8 @@ figure_w
 
 We can see that these figures look quite similar to the ones generated without using the survey weights.
 
-### Artificial Cohort
+### **Artificial Cohort**
+***
 
 Although the survey design does not allow specific individuals to be followed over time, we will use certain subsets of the data from each year to construct an artificial cohort where we follow students of the same age group as they get older. This will allow us to look at how tobacco usage changed for students who were in 8th grade in 2015 as they aged. 
 
@@ -2267,7 +2276,8 @@ knitr::include_graphics(here::here("img", "plot2.png"))
 
 But what if we wanted to quantify this effect and assess whether this difference can be considered statistically significant? This is where the tool of logistic regression can come in handy.
 
-### Logistic regression motivation
+### **Logistic regression motivation**
+***
 
 Here, we will approach the topic of [logistic regression](https://en.wikipedia.org/wiki/Logistic_regression){target="_blank"} assuming some prior knowledge of simple and multiple linear regression. These have been covered in [another case study](https://opencasestudies.github.io/ocs-bp-diet/).
 
@@ -2298,7 +2308,8 @@ While it may feel strange working with the log odds that our outcome variable is
 The intuitive explanation of logistic regression then is that we are fitting a line to the log odds of $Y$, as it varies with different values of $X$. We will work through an example below to illustrate and hopefully clarify this.
 
 
-### Logistic regression "by hand" and by model
+### **Logistic regression "by hand" and by model**
+***
 
 For simplicity, we will consider just the set of current users of e-cigarettes in 2015. How much more likely is a male student to be a current e-cigarette user than a female smoker?
 
@@ -2381,7 +2392,8 @@ tidy(currEcigSexAge)
 
 Now our $\beta_1$ parameter tells us that the log odds of being an current e-cigarette user are 0.385 lower for females compared to males, within an age group, or holding `Age` constant.
 
-### Survey weighted logistic regression
+### **Survey weighted logistic regression**
+***
 
 As discussed elsewhere in this case study, our data come from a survey, where individuals were not necessarily sampled in direct proportion to their population representation, so it is necessary to incorporate survey weights into our analysis to perform inference about the population of interest. Luckily, there are implementations of survey-weighted logistic regression in R that can do this for us.
 
@@ -2428,7 +2440,8 @@ In this case, we can see that our estimated difference in log odds for females c
 *** 
 
 
-### Summary Plot
+### **Summary Plot**
+***
 
 Finally we will put our plots together to create a plot that describes the relationship between e-cigarette usage and overall tobacco use, combining both our first set of unweighted results, and those calculated using the `srvyr` package.
 
@@ -2560,7 +2573,8 @@ final_plot
 ggsave(here::here("img", "final_plot.png"))
 ```
 
-### Synopsis
+### **Synopsis**
+***
 
 In this case study, we used data from the [National Youth Tobacco Survey (NYTS)](https://www.cdc.gov/tobacco/data_statistics/surveys/nyts/index.htm){target="_blank"}, an annual survey that asks students in high school and middle school (grades 6-12) about tobacco usage in the United States of America. We used data from **2015-2019** due to the fact that these years are the most recent that asked questions regarding e-cigarette usage.
 
@@ -2603,7 +2617,8 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 ## **Additional Information**
 *** 
 
-### Helpful Links
+### **Helpful Links**
+***
 
 [Tidyverse](https://www.tidyverse.org/){target="_blank"}  
 [Writing functions](https://r4ds.had.co.nz/functions.html){target="_blank"}   
@@ -2656,14 +2671,16 @@ Package   | Use in this case study
 [broom](https://cran.r-project.org/web/packages/broom/vignettes/broom.html){target="_blank"} | to create nicely formatted model output
 [survey](http://r-survey.r-forge.r-project.org/survey/index.html){target="_blank"} | to fit survey-weighted logistic regression
 
-### Session info 
+### **Session info**
+***
 
 
 ```{r}
 sessionInfo()
 ```
 
-### Acknowledgements
+### **Acknowledgements**
+***
 
 We would like to acknowledge [Renee Johnson](https://www.jhsph.edu/faculty/directory/profile/2848/renee-m-johnson) for assisting in framing the major direction of the case study and for reviewing the case study for subject matter content.
 

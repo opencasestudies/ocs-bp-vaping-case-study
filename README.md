@@ -28,8 +28,8 @@ United States License.
 
 To cite this case study:
 
-Wright, Carrie, and Ontiveros, Michael and Jager, Leah and Taub,
-Margaret and Hicks, Stephanie. (2020).
+Wright, Carrie and Ontiveros, Michael and Jager, Leah and Taub, Margaret
+and Hicks, Stephanie. (2020).
 <a href="https://github.com/opencasestudies/ocs-bloomberg-vaping-case-study" class="uri">https://github.com/opencasestudies/ocs-bloomberg-vaping-case-study</a>.
 Vaping Behaviors in American Youth (Version v1.0.0).
 
@@ -91,16 +91,13 @@ and excel file. Questions were slightly different for each year.
 The skills, methods, and concepts that students will be familiar with by
 the end of this case study are:
 
-Data science skills:
+<u>**Data Science Learning Objectives:**</u> 1. Import data from Excel
+files 2. Merge data from multiple similar but not identical data
+structures 3. Create effective longitudinal data visualizations 4. Write
+functions in R 5. Apply functions across data subsets using `purrr` and
+`dplyr` functionality.
 
-1.  Import data from Excel files
-2.  Merge data from multiple similar but not identical data structures
-3.  Create effective longitudinal data visualizations
-4.  Write functions in R
-5.  Apply functions across data subsets using `purrr` and `dplyr`
-    functionality.
-
-Statistical concepts and methods:
+<u>**Statistical Learning Objectives:**</u>
 
 1.  Understanding of different types of longitudinal data
 2.  Usage of code books
