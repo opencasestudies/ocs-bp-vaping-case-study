@@ -52,20 +52,28 @@ knitr::include_graphics(here::here("img", "final_plot.png"))
 
 
 
-## {.disclaimer_block}
+#### {.disclaimer_block}
 
 **Disclaimer**: The purpose of the [Open Case Studies](https://opencasestudies.github.io){target="_blank"} project is **to demonstrate the use of various data science methods, tools, and software in the context of messy, real-world data**. A given case study does not cover all aspects of the research process, is not claiming to be the most appropriate way to analyze a given data set, and should not be used in the context of making policy decisions without external consultation from scientific experts. 
+####
 
-## {.license_block}
+#### {.license_block}
 
 This work is licensed under the Creative Commons Attribution-NonCommercial 3.0 [(CC BY-NC 3.0)](https://creativecommons.org/licenses/by-nc/3.0/us/){target="_blank"}  United States License.
 
+#### 
 
-## {.reference_block}
+#### {.reference_block}
 
 To cite this case study please use:
 
-Wright, Carrie and Ontiveros, Michael and Jager, Leah and Taub, Margaret and Hicks, Stephanie. (2020). https://github.com/opencasestudies/ocs-bloomberg-vaping-case-study. Vaping Behaviors in American Youth (Version v1.0.0).
+Wright, Carrie and Ontiveros, Michael and Jager, Leah and Taub, Margaret and Hicks, Stephanie. (2020). https://github.com/opencasestudies/ocs-bp-vaping-case-study. Vaping Behaviors in American Youth (Version v1.0.0).
+
+####
+
+To access the GitHub Repository for this case study see here: https://github.com/opencasestudies/ocs-bp-vaping-case-study
+
+This case study is part of a series of public health case studies for the [Bloomberg American Health  Initiative](https://americanhealth.jhu.edu/open-case-studies).
 
 ## **Motivation**
 *** 
@@ -1752,7 +1760,7 @@ figure_uw
 ```
 
 
-### **Survey Weighting***
+### **Survey Weighting**
 ***
 ```{r, echo = FALSE}
 #If instructors start here, we need to load the data:

@@ -8,6 +8,13 @@ output: md_document
 
 [![Build Status](https://travis-ci.org/opencasestudies/ocs-bloomberg-vaping-case-study.svg?branch=master)](https://travis-ci.org/opencasestudies/ocs-bloomberg-vaping-case-study)
 
+### Important links 
+
+- HTML: https://www.opencasestudies.org/ocs-bp-vaping-case-study/
+- GitHub: https://github.com/opencasestudies/ocs-bp-vaping-case-study/
+- Bloomberg American Health Initiative: https://americanhealth.jhu.edu/open-case-studies
+
+
 ### Disclaimer 
 
 The purpose of the [Open Case
@@ -28,7 +35,7 @@ This work is licensed under the Creative Commons Attribution-NonCommercial 3.0 (
 
 To cite this case study:
 
-Wright, Carrie and Ontiveros, Michael and Jager, Leah and Taub, Margaret and Hicks, Stephanie. (2020). https://github.com/opencasestudies/ocs-bloomberg-vaping-case-study. Vaping Behaviors in American Youth (Version v1.0.0).
+Wright, Carrie and Ontiveros, Michael and Jager, Leah and Taub, Margaret and Hicks, Stephanie. (2020). https://github.com/opencasestudies/ocs-bp-vaping-case-study. Vaping Behaviors in American Youth (Version v1.0.0).
 
 ### Acknowledgements
 
