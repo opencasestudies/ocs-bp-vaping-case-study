@@ -1,4 +1,5 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+
 OpenCaseStudies
 ===============
 
@@ -42,7 +43,7 @@ and Hicks, Stephanie. (2020).
 <a href="https://github.com/opencasestudies/ocs-bp-vaping-case-study" class="uri">https://github.com/opencasestudies/ocs-bp-vaping-case-study</a>.
 Vaping Behaviors in American Youth (Version v1.0.0).
 
-### Acknowledgements
+### Acknowledgments
 
 We would like to acknowledge [Renee
 Johnson](https://www.jhsph.edu/faculty/directory/profile/2848/renee-m-johnson)
@@ -76,7 +77,9 @@ years that asked questions about e-cigarette usage.
 
 1.  How has tobacco and e-cigarette/vaping use by American youths
     changed since 2015?
+
 2.  How does e-cigarette use compare between males and females?
+
 3.  What vaping brands and flavors appear to be used the most
     frequently?  
     This is based on the following survey questions:  

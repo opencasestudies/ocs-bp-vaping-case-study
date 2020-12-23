@@ -1,9 +1,11 @@
 ---
-title: "Open Case Studies : Vaping Behaviors in American Youth"
+title: "Open Case Studies: Vaping Behaviors in American Youth"
 
 css: style.css
 output:
   html_document:
+    includes:
+       in_header: GA_Script.Rhtml
     self_contained: yes
     code_download: yes
     highlight: tango
@@ -1340,7 +1342,7 @@ Notice, that in this case we are grouping by three variables by simply separatin
 
 nyts_data %>%
   group_by(Group, year, n) %>%
-  summarise(group_count = n()) %>%
+  summarize(group_count = n()) %>%
   mutate("Percentage of students" = group_count / n * 100) %>%
   head()
 
@@ -1348,7 +1350,7 @@ v_colors =  viridis(5)[1:4]
 
 nyts_data %>%
   group_by(Group, year, n) %>%
-  summarise(group_count = n()) %>%
+  summarize(group_count = n()) %>%
   mutate("Percentage of students" = group_count / n * 100) %>%
   ggplot(aes(x = year, y = `Percentage of students`, color = Group)) +
   geom_point(size = 2) +
@@ -2604,7 +2606,7 @@ In answer to our questions, we found that tobacco use has gone up slightly overa
 
 We then introduced the statistical concept of survey weighting, illustrating how to calculate usage percentages using survey-weighted means, and compare the results in the weighted and unweighted cases. We also introduced the topic of logistic regression and we performed a survey-weighted logistic regression analysis to compare the vaping rates of male and female students. 
 
-## **Homework**
+## **Suggested Homework**
 *** 
 
 <style>
@@ -2682,14 +2684,16 @@ Package   | Use in this case study
 ### **Session info**
 ***
 
-
 ```{r}
 sessionInfo()
 ```
 
-### **Acknowledgements**
+### **Acknowledgments**
 ***
 
 We would like to acknowledge [Renee Johnson](https://www.jhsph.edu/faculty/directory/profile/2848/renee-m-johnson) for assisting in framing the major direction of the case study and for reviewing the case study for subject matter content.
 
 We would also like to acknowledge the [Bloomberg American Health Initiative](https://americanhealth.jhu.edu/) for funding this work. 
+
+<script type='text/javascript' id='clustrmaps' src='//cdn.clustrmaps.com/map_v2.js?cl=080808&w=a&t=tt&d=tygDY_TbG7XE2HVUC6Eox6Z74i2E5MUBqCA83PgJ9SY&co=ffffff&cmo=3acc3a&cmn=ff5353&ct=808080'></script>
+
