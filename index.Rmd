@@ -5,7 +5,7 @@ css: style.css
 output:
   html_document:
     includes:
-       in_header: GA_Script.Rhtml
+      in_header: GA_Script.Rhtml
     self_contained: yes
     code_download: yes
     highlight: tango
