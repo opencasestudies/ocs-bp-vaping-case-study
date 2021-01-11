@@ -1,9 +1,19 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+
 OpenCaseStudies
 ===============
 
 [![Build
 Status](https://travis-ci.org/opencasestudies/ocs-bloomberg-vaping-case-study.svg?branch=master)](https://travis-ci.org/opencasestudies/ocs-bloomberg-vaping-case-study)
+
+### Important links
+
+-   HTML:
+    <a href="https://www.opencasestudies.org/ocs-bp-vaping-case-study/" class="uri">https://www.opencasestudies.org/ocs-bp-vaping-case-study/</a>
+-   GitHub:
+    <a href="https://github.com/opencasestudies/ocs-bp-vaping-case-study/" class="uri">https://github.com/opencasestudies/ocs-bp-vaping-case-study/</a>
+-   Bloomberg American Health Initiative:
+    <a href="https://americanhealth.jhu.edu/open-case-studies" class="uri">https://americanhealth.jhu.edu/open-case-studies</a>
 
 ### Disclaimer
 
@@ -28,12 +38,12 @@ United States License.
 
 To cite this case study:
 
-Wright, Carrie, and Ontiveros, Michael and Jager, Leah and Taub,
-Margaret and Hicks, Stephanie. (2020).
-<a href="https://github.com/opencasestudies/ocs-bloomberg-vaping-case-study" class="uri">https://github.com/opencasestudies/ocs-bloomberg-vaping-case-study</a>.
+Wright, Carrie and Ontiveros, Michael and Jager, Leah and Taub, Margaret
+and Hicks, Stephanie. (2020).
+<a href="https://github.com/opencasestudies/ocs-bp-vaping-case-study" class="uri">https://github.com/opencasestudies/ocs-bp-vaping-case-study</a>.
 Vaping Behaviors in American Youth (Version v1.0.0).
 
-### Acknowledgements
+### Acknowledgments
 
 We would like to acknowledge [Renee
 Johnson](https://www.jhsph.edu/faculty/directory/profile/2848/renee-m-johnson)
@@ -67,7 +77,9 @@ years that asked questions about e-cigarette usage.
 
 1.  How has tobacco and e-cigarette/vaping use by American youths
     changed since 2015?
+
 2.  How does e-cigarette use compare between males and females?
+
 3.  What vaping brands and flavors appear to be used the most
     frequently?  
     This is based on the following survey questions:  
@@ -91,16 +103,13 @@ and excel file. Questions were slightly different for each year.
 The skills, methods, and concepts that students will be familiar with by
 the end of this case study are:
 
-Data science skills:
+<u>**Data Science Learning Objectives:**</u> 1. Import data from Excel
+files 2. Merge data from multiple similar but not identical data
+structures 3. Create effective longitudinal data visualizations 4. Write
+functions in R 5. Apply functions across data subsets using `purrr` and
+`dplyr` functionality.
 
-1.  Import data from Excel files
-2.  Merge data from multiple similar but not identical data structures
-3.  Create effective longitudinal data visualizations
-4.  Write functions in R
-5.  Apply functions across data subsets using `purrr` and `dplyr`
-    functionality.
-
-Statistical concepts and methods:
+<u>**Statistical Learning Objectives:**</u>
 
 1.  Understanding of different types of longitudinal data
 2.  Usage of code books
@@ -153,7 +162,7 @@ the respective survey years.
 
 We also perform a logistic regression analysis comparing vaping rates
 among males and females using survey weighting using the `svyglm`
-function of the `srvyr` package. AVOCADO this might change?
+function of the `srvyr` package.
 
 ### Other notes and resources
 
@@ -198,6 +207,91 @@ If you are interested in an info-graphic summary of the 2019 findings,
 and links to many more resources about this topic and data set, see the
 FDA’s website
 <a href="https://www.fda.gov/tobacco-products/youth-and-tobacco/youth-tobacco-use-results-national-youth-tobacco-survey" target="_blank">here</a>.
+
+<u>**Packages used in this case study:**</u>
+
+<table>
+<colgroup>
+<col style="width: 43%" />
+<col style="width: 56%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Package</th>
+<th>Use in this case study</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="https://github.com/jennybc/here_here" target="_blank">here</a></td>
+<td>to easily load and save data</td>
+</tr>
+<tr class="even">
+<td><a href="https://readxl.tidyverse.org/" target="_blank">readxl</a></td>
+<td>to import the data in the excel files</td>
+</tr>
+<tr class="odd">
+<td><a href="https://cran.r-project.org/web/packages/magrittr/vignettes/magrittr.html" target="_blank">magrittr</a></td>
+<td>to use the compound assignment pipe operator <code>%&lt;&gt;%</code></td>
+</tr>
+<tr class="even">
+<td><a href="https://stringr.tidyverse.org/articles/stringr.html" target="_blank">stringr</a></td>
+<td>to manipulate the character strings within the data</td>
+</tr>
+<tr class="odd">
+<td><a href="https://purrr.tidyverse.org/" target="_blank">purrr</a></td>
+<td>to import the data in all the different excel and csv files efficiently</td>
+</tr>
+<tr class="even">
+<td><a href="https://dplyr.tidyverse.org/" target="_blank">dplyr</a></td>
+<td>to arrange/filter/select/compare specific subsets of the data</td>
+</tr>
+<tr class="odd">
+<td><a href="https://readr.tidyverse.org/" target="_blank">readr</a></td>
+<td>to import the CSV file data</td>
+</tr>
+<tr class="even">
+<td><a href="https://tidyr.tidyverse.org/" target="_blank">tidyr</a></td>
+<td>to rearrange data in wide and long formats</td>
+</tr>
+<tr class="odd">
+<td><a href="https://ggplot2.tidyverse.org/" target="_blank">ggplot2</a></td>
+<td>to make visualizations with multiple layers</td>
+</tr>
+<tr class="even">
+<td><a href="https://cran.r-project.org/web/packages/scales/scales.pdf" target="_blank">scales</a></td>
+<td>to allow us to look at the colors within the viridis package</td>
+</tr>
+<tr class="odd">
+<td><a href="https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html" target="_blank">viridis</a></td>
+<td>to make plots with a color palette that is compatible with color blindness</td>
+</tr>
+<tr class="even">
+<td><a href="https://forcats.tidyverse.org/" target="_blank">forcats</a></td>
+<td>to allow for reordering of factors in plots</td>
+</tr>
+<tr class="odd">
+<td><a href="https://cran.r-project.org/web/packages/naniar/vignettes/getting-started-w-naniar.html" target="_blank">naniar</a></td>
+<td>to make a visualization of missing data</td>
+</tr>
+<tr class="even">
+<td><a href="https://cran.r-project.org/web/packages/srvyr/srvyr.pdf" target="_blank">syrvr</a></td>
+<td>to use survey weights</td>
+</tr>
+<tr class="odd">
+<td><a href="https://cran.r-project.org/web/packages/cowplot/vignettes/introduction.html" target="_blank">cowplot</a></td>
+<td>to allow plots to be combined</td>
+</tr>
+<tr class="even">
+<td><a href="https://cran.r-project.org/web/packages/broom/vignettes/broom.html" target="_blank">broom</a></td>
+<td>to create nicely formatted model output</td>
+</tr>
+<tr class="odd">
+<td><a href="http://r-survey.r-forge.r-project.org/survey/index.html" target="_blank">survey</a></td>
+<td>to fit survey-weighted logistic regression</td>
+</tr>
+</tbody>
+</table>
 
 #### For users
 
