@@ -42,9 +42,11 @@ library(here)
 <p>&nbsp;</p>
 
 #### {.outline }
+
 ```{r, echo = FALSE, out.width = "800 px"}
 knitr::include_graphics("www/img/final_plot.png")
 ```
+
 ####
 
 
@@ -54,6 +56,7 @@ knitr::include_graphics("www/img/final_plot.png")
 
 
 **Disclaimer**: The purpose of the [Open Case Studies](https://opencasestudies.github.io){target="_blank"} project is **to demonstrate the use of various data science methods, tools, and software in the context of messy, real-world data**. A given case study does not cover all aspects of the research process, is not claiming to be the most appropriate way to analyze a given data set, and should not be used in the context of making policy decisions without external consultation from scientific experts. 
+
 ####
 
 
@@ -231,14 +234,14 @@ According to the cited [Morbidity and Mortality Weekly Report](https://www.cdc.g
 
 knitr::include_graphics("www/img/context.png")
 ```
+
 #### [[source](https://www.cdc.gov/mmwr/volumes/68/wr/mm6806e1.htm?s_cid=mm6806e1_w)]{target="_blank"} 
 
 
 Importantly, the vapors used in e-cigarettes contain harmful chemicals:
 
 ```{r, echo = FALSE, fig.align ="center"}
-
-knitr::include_graphics("https://www.cdc.gov/tobacco/basic_information/e-cigarettes/images/e-cigarette-aerosol-can-contain-harmful-ingredients-desktop-700.jpg")
+include_graphics("www/img/e-cigarette-aerosol-can-contain-harmful-ingredients.jpg")
 ```
 
 #### [[source](https://www.cdc.gov/tobacco/basic_information/e-cigarettes/images/e-cigarette-aerosol-can-contain-harmful-ingredients-desktop-700.jpg)]{target="_blank"} 
