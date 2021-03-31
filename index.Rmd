@@ -1,7 +1,8 @@
 ---
-title: "Open Case Studies: Vaping Behaviors in American Youth"
-
-css: style.css
+title: |
+  ![](https://opencasestudies.github.io/img/icon-bahi.png){width=140px align=left}   
+  Vaping Behaviors in American Youth
+css: www/style.css
 output:
   html_document:
     includes:
@@ -17,16 +18,9 @@ output:
     toc: yes
   word_document:
     toc: yes
-
+runtime: shiny_prerendered
 ---
-<style>
-#TOC {
- background: url("https://opencasestudies.github.io/img/icon-bahi.png");
-  background-size: contain;
-  padding-top: 240px !important;
-  background-repeat: no-repeat;
-}
-</style>
+
 
 ```{r, echo=FALSE}
 knit_time_start <- Sys.time()
@@ -40,14 +34,16 @@ knitr::opts_chunk$set(fig.width = 10, fig.height = 8, dpi = 300)
 knitr::opts_chunk$set(include = TRUE, comment = NA, echo = TRUE,
                       message = FALSE, warning = FALSE, cache = FALSE,
                       fig.align = "center", out.width = '90%')
-library(here)
 library(knitr)
+library(learnr)
+library(here)
 ```
 
+<p>&nbsp;</p>
 
 #### {.outline }
 ```{r, echo = FALSE, out.width = "800 px"}
-knitr::include_graphics(here::here("img", "final_plot.png"))
+knitr::include_graphics("www/img/final_plot.png")
 ```
 ####
 
@@ -233,7 +229,7 @@ According to the cited [Morbidity and Mortality Weekly Report](https://www.cdc.g
 
 ```{r, echo = FALSE, fig.align ="center", out.width = "800 px"}
 
-knitr::include_graphics(here::here("img", "context.png"))
+knitr::include_graphics("www/img/context.png")
 ```
 #### [[source](https://www.cdc.gov/mmwr/volumes/68/wr/mm6806e1.htm?s_cid=mm6806e1_w)]{target="_blank"} 
 
@@ -242,7 +238,7 @@ Importantly, the vapors used in e-cigarettes contain harmful chemicals:
 
 ```{r, echo = FALSE, fig.align ="center"}
 
-include_graphics("https://www.cdc.gov/tobacco/basic_information/e-cigarettes/images/e-cigarette-aerosol-can-contain-harmful-ingredients-desktop-700.jpg")
+knitr::include_graphics("https://www.cdc.gov/tobacco/basic_information/e-cigarettes/images/e-cigarette-aerosol-can-contain-harmful-ingredients-desktop-700.jpg")
 ```
 
 #### [[source](https://www.cdc.gov/tobacco/basic_information/e-cigarettes/images/e-cigarette-aerosol-can-contain-harmful-ingredients-desktop-700.jpg)]{target="_blank"} 
@@ -251,7 +247,7 @@ E-cigarette usage has also been associated with [lung injury]((https://www.front
 
 ```{r, echo = FALSE, fig.align ="center", out.width = "800 px"}
 
-knitr::include_graphics(here::here("img", "lung.png"))
+knitr::include_graphics("www/img/lung.png")
 ```
 
 #### [[source](https://www.frontiersin.org/articles/10.3389/fphar.2019.01619/full)]{target="_blank"} 
@@ -283,7 +279,7 @@ Each year includes documentation, such as a [codebook](https://www.lib.ncsu.edu/
 
 ```{r, echo = FALSE, fig.align ="center", out.width = "600 px"}
 
-knitr::include_graphics(here::here("img", "data.png"))
+knitr::include_graphics("www/img/data.png")
 ```
 Therefore, since we are using data from **2015-2019**, the data we are interested in are located in 5 different excel files, one for each year, each with its own [codebook](./docs/2019-nyts-dataset-and-codebook-microsoft-excel/2019-nyts-codebook-p.pdf){target="_blank"} (this is the one for 2019).
 
@@ -293,20 +289,20 @@ As you can see the excel file contains very short variable names and numeric val
 
 ```{r, echo = FALSE, fig.align ="center", out.width = "600 px"}
 
-knitr::include_graphics(here::here("img", "excel.png"))
+knitr::include_graphics("www/img/excel.png")
 ```
 
 The codebook explains what the variables (the columns) are:
 ```{r, echo = FALSE, fig.align ="center", out.width = "600 px"}
 
-knitr::include_graphics(here::here("img", "variables.png"))
+knitr::include_graphics("www/img/variables.png")
 ```
 
 And the codebook explains what the values for each variable are:
 
 ```{r, echo = FALSE, fig.align ="center", out.width = "600 px"}
 
-knitr::include_graphics(here::here("img", "qn1.png"))
+knitr::include_graphics("www/img/qn1.png")
 ```
 
 We will explain more later about what the values on the right indicate.
@@ -496,13 +492,13 @@ You can create a project by going to the File menu of RStudio like so:
 
 
 ```{r, echo = FALSE, out.width="60%"}
-knitr::include_graphics(here::here("img", "New_project.png"))
+knitr::include_graphics("www/img/New_project.png")
 ```
 
 You can also do so by clicking the project button:
 
 ```{r, echo = FALSE, out.width="60%"}
-knitr::include_graphics(here::here("img", "project_button.png"))
+knitr::include_graphics("www/img/project_button.png")
 ```
 
 See [here](https://support.rstudio.com/hc/en-us/articles/200526207-Using-Projects){target="_blank"} to learn more about using RStudio projects. 
@@ -681,14 +677,14 @@ Recall from the codebook for this year's dataset that `Age` isn't listed in the 
 
 ```{r, echo = FALSE, fig.align ="center", out.width = "600 px"}
 
-knitr::include_graphics(here::here("img", "qn1.png"))
+knitr::include_graphics("www/img/qn1.png")
 ```
 
 The same is true for `Grade`:
 
 ```{r, echo = FALSE, fig.align ="center", out.width = "600 px"}
 
-knitr::include_graphics(here::here("img", "grade.png"))
+knitr::include_graphics("www/img/grade.png")
 ```
 
 **This is why it is so important to always check the codebook!!**
@@ -869,6 +865,93 @@ Variable   | Details
 **CHTP** | student reported they used heated tobacco products during the past 30 days  
 </details>
 
+### **Exercise**
+***
+
+``` {r DEW_Quiz, echo = FALSE}
+quiz(caption = "",
+  question("Suppose that we want to change value \"a\" in a column(variable) of a dataset to value \"b\" , which one of the following functions of the `dplyr` package should be used?",
+    answer("`rename()`", message = "`rename()` renames a column, not a value in that column."),
+    answer("`recode()`", correct = TRUE),
+    allow_retry = TRUE,
+    random_answer_order = TRUE
+  ),
+  question("Which of the following can the `mutate()` function in the `dplyr` package do? (check all that apply)",
+    answer("Select certain variables(columns) of the data.", message = "Selecting certain variables(columns) of the data is the function of the `select()` function."),
+    answer("Rename a variable.", message = "Renaming a variable is the function of the `rename()` function."),
+    answer("Create a new variable.", correct = TRUE),
+    answer("Modify an existing variable.", correct = TRUE),
+    allow_retry = TRUE,
+    random_answer_order = TRUE
+  )
+)
+```
+
+Suppose there is a list of datasets called `norm_data`. The first dataset in `norm_data` contains observations from a normal distribution with mean 0. The second contains observations from a normal distribution with mean 5. For both of them, the observations in the first column `var1` are from a distribution with variance 1. The observations in the second column `var2` are from a distribution with variance 4.
+
+Write a function called `rename_sd` that renames the first column as "SD = 1", and the second column as "SD = 2". Then, apply this function to the list `norm_data`.
+
+```{r DEW_Exercise-setup}
+set.seed(100)
+var1 <- rnorm(5, 0, 1)
+var2 <- rnorm(5, 0, 2)
+mean0 <- data.frame(var1, var2)
+var1 <- rnorm(5, 5, 1)
+var2 <- rnorm(5, 5, 2)
+mean5 <- data.frame(var1, var2)
+
+norm_data <- list(mean0, mean5)
+names(norm_data) <- c("norm with mean = 0", "norm with mean = 5")
+```
+
+```{r DEW_Exercise, exercise = TRUE}
+# write the function
+rename_sd <- function(){
+  
+}
+
+# apply the function
+norm_data <- 
+  
+# view results
+norm_data
+```
+
+```{r DEW_Exercise-hint-1}
+# What input argument should the function take?
+# What should the function do with the input argument?
+```
+
+```{r DEW_Exercise-hint-2}
+# What input argument should the function take?
+# What should the function do with the input argument?
+
+# What function can be used to apply a function to each element in our list?
+```
+
+```{r DEW_Exercise-hint-3}
+# write the function
+rename_sd <- function(dataset) {
+  dataset %>%
+    rename("SD = 1" = var1, "SD = 2" = var2)
+}
+```
+
+```{r DEW_Exercise-solution}
+# write the function
+rename_sd <- function(dataset) {
+  dataset %>%
+    rename("SD = 1" = var1, "SD = 2" = var2)
+}
+
+# apply the function
+norm_data <- norm_data %>%
+  map(., rename_sd)
+
+# view results
+norm_data
+```
+
 ## **Data Visualization**
 *** 
 
@@ -931,7 +1014,8 @@ We will then use the `case_when()` function of the `dplyr` package to convert th
 
 ```{r, echo = FALSE}
 #in case you are starting at this section- need to load the data:
-load(here::here("data", "wrangled_data.rda"))
+#load(here::here("data", "wrangled_data.rda"))
+load("www/data/wrangled_data.rda")
 ```
 
 ```{r}
@@ -1135,7 +1219,8 @@ save(nyts_data, file = here::here("data", "wrangled_data_with_var_for_plots.rda"
 
 ```{r, echo = FALSE}
 # If instructors want to start here, we need to load the data:
-load(here::here("data", "wrangled_data_with_var_for_plots.rda"))
+# load(here::here("data", "wrangled_data_with_var_for_plots.rda"))
+load("www/data/wrangled_data_with_var_for_plots.rda")
 ```
 
 Recall that we are interested in investigating how vaping product use has compared with other tobacco use over time. To answer this, we first want to get a sense of how tobacco use has changed in general since 2015. 
@@ -1481,7 +1566,7 @@ plot2
 
 It looks like the rates are fairly similar between the sexes, however the rate for males appears to be consistently higher across time.
 
-```{r, echo=FALSE, include=FALSE}
+```{r, echo=FALSE, eval=FALSE}
 ggsave(here::here("img", "plot2.png"))
 ```
 
@@ -1530,7 +1615,7 @@ plot3
 Juul appears to be the most widely used brand. This is in agreement with a recent [article](https://tobaccocontrol.bmj.com/content/tobaccocontrol/28/2/146.full.pdf), whose most recent data was from 2017:
 
 ```{r, echo=FALSE, fig.cap="Huang J, Duan Z, Kwok J, et al. Tob Control 2019;28:146–151.", out.width = '100%'}
-knitr::include_graphics(here::here("img", "HuangJ_DuanZ_KwokJ_et_al_TobaccoControl_Figure1.png"))
+knitr::include_graphics("www/img/HuangJ_DuanZ_KwokJ_et_al_TobaccoControl_Figure1.png")
 ```
 
 We are also interested in how the usage of different flavors has changed over time. 
@@ -1845,7 +1930,8 @@ figure_uw
 ***
 ```{r, echo = FALSE}
 #If instructors start here, we need to load the data:
-load(here::here("data", "wrangled_data_with_var_for_plots.rda"))
+# load(here::here("data", "wrangled_data_with_var_for_plots.rda"))
+load("www/data/wrangled_data_with_var_for_plots.rda")
 ```
   
 It turns out that our analysis thus far has been brushing an important statistical concept under the rug, related to how our data were collected. Our data come from responses to a survey, which may have a particular sampling scheme to capture data about the population we are interested in. For example, the survey may be designed to capture a set of individuals who reflect the characteristics of the population that we are interested in drawing conclusions about. However, only a fraction of the individuals who were contacted about taking the survey may have completed it, and this fraction of individuals may no longer be representative of the population. Or the survey may be designed to over-sample a particular group of interest so that individuals from that group show up more often as survey respondents than are present in the population overall. In order to account for the fact that the survey respondents may not reflect the composition of the population we want to generalize to, we can employ a technique called [survey weighting](http://www.applied-survey-methods.com/weight.html){target="_blank"}.
@@ -2355,7 +2441,8 @@ figure_w_8
 
 ```{r, echo = FALSE}
 #If instructors start here, we need to load the data:
-load(here::here("data", "wrangled_data_with_var_for_plots.rda"))
+#load(here::here("data", "wrangled_data_with_var_for_plots.rda"))
+load("www/data/wrangled_data_with_var_for_plots.rda")
 ```
 
 As an extension, we will include some material here on [logistic regression](https://en.wikipedia.org/wiki/Logistic_regression){target="_blank"} and survey-weighted logistic regression that would be appropriate for answering Question 2 ("How does e-cigarette use compare between males and females?") for a single year using statistical inference, rather than just data visualizations.
@@ -2363,7 +2450,7 @@ As an extension, we will include some material here on [logistic regression](htt
 We can look at the final figure in the section on Question 2 and see that among both current and ever users of e-cigarettes, a higher percentage of males than females use or have used e-cigarettes.'
 
 ```{r, echo = FALSE, out.width = "800 px"}
-knitr::include_graphics(here::here("img", "plot2.png"))
+knitr::include_graphics("www/img/plot2.png")
 ```
 
 But what if we wanted to quantify this effect and assess whether this difference can be considered statistically significant? This is where the tool of logistic regression can come in handy.
@@ -2436,7 +2523,7 @@ In this case:
 We would interpret these values by saying that the odds of being a current e-cigarette user for women are around 0.65 times the odds of being a current e-cigarette user for men, or 35% lower for women. This matches what we can see in our data visualizations for Question 2.
 
 ```{r, echo = FALSE, out.width = "800 px"}
-knitr::include_graphics(here::here("img", "plot2.png"))
+knitr::include_graphics("www/img/plot2.png")
 ```
 
 We could also answer this question using logistic regression:
@@ -2661,7 +2748,7 @@ final_plot <- plot_grid(title_final,
 final_plot
 ```
 
-```{r, echo=FALSE, include=FALSE}
+```{r, echo=FALSE, eval=FALSE}
 ggsave(here::here("img", "final_plot.png"))
 ```
 
