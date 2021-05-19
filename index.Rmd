@@ -105,9 +105,19 @@ Please help us by filling out our survey.
 
 In the United States, there have been significant and historical declines in cigarette smoking. In the 1970s, 75% of high school seniors were smoking, that number is below 10% now. This progress is largely due to the tobacco control movement and their focus on initiatives like ending advertising to children (like Joe Camel), passing indoor smoking laws, health communication, etc. 
 
-According to a recent [report](https://www.cdc.gov/mmwr/volumes/68/wr/mm6806e1.htm?s_cid=mm6806e1_w){target="_blank"}, overall tobacco use **increased** in youths (middle school and high school students) in the United States in 2017 and 2018, despite previous years of declining use.
+According to a recent [report](https://www.cdc.gov/mmwr/volumes/68/wr/mm6806e1.htm?s_cid=mm6806e1_w){target="_blank"}, overall tobacco/nicotine use **increased** in youths (middle school and high school students) in the United States in 2017 and 2018, despite previous years of declining use.
 
 This major increase is attributed to an increase in the use of electronic cigarette (e-cigarette) products.
+
+Forms of tobacco/nicotine include these categories:
+
+1) Cigarette and other combustible tobacco (pipes, cigars, cigarillo, etc.)
+2) E-cigarettes and vaporized tobacco/nicotine (hookah, Juul, etc.)
+3) Other non-combustible, non-vapor tobacco/nicotine products (snus, chewing tobacco, etc.)
+
+Youths are more likely to use e-cigarettes vs. combustible cigarettes these days, which is concerning because e-cigarettes are really efficient nicotine delivery devices that are reinforcing and easy to initiate. By contrast, it takes quite a while to become accustomed to cigarettes (eg. because of coughing) and become dependent. It is also harder for parents to detect e-cigarette use and intervene (eg. the smell is not as strong). This means that youths may be becoming physically dependent on nicotine more quickly than in past years, and that cessation services designed for youths will be needed.
+
+Whereas in previous decades the focus was on advertising, the current era requires attention to the marketing broadly. Juul caught on through Instagram influencers. New policies that regulate these innovative marketing strategies will be critical. 
 
 E-cigarettes are referred to by many different names, including but not limited to:
 
@@ -131,13 +141,15 @@ See this [CDC guide](https://www.cdc.gov/tobacco/basic_information/e-cigarettes/
 
 The report found that:
 
-> During 2017–2018, current use of any tobacco product **increased 38.3%** (from 19.6% to 27.1%) among high school students and **28.6%** (from 5.6% to 7.2%) among middle school students; e-cigarette use **increased 77.8%** (from 11.7% to 20.8%) among high school students and **48.5%** (from 3.3% to 4.9%) among middle school students.
+> During 2017–2018, current use of any tobacco[/nicotine]$^*$ product **increased 38.3%** (from 19.6% to 27.1%) among high school students and **28.6%** (from 5.6% to 7.2%) among middle school students; e-cigarette use **increased 77.8%** (from 11.7% to 20.8%) among high school students and **48.5%** (from 3.3% to 4.9%) among middle school students.
 
+$^*$ *Note: we added "[/nicotine]" to this quote from the report because e-cigarettes deliver nicotine, but are not actually tobacco.*
 
 In 2018, the [Federal Drug Administration (FDA) in the United States](https://acsjournals.onlinelibrary.wiley.com/doi/full/10.1002/cncr.31868){target="_blank"} stated that e-cigarette usage use among youth reached:  
 
 > “nothing short of an **epidemic proportion of growth**”
 
+Additionally, you may learn more about e-cigarette or vaping use-associated lung injury (EVALI) from [CDC's Morbidity and Mortality Weekly Report (MMWR)](https://www.cdc.gov/mmwr/ecigarette_lung_injury.html){target="_blank"}.
 
 In this case study, we will be investigating the same data used in the report that generated the above findings. This data comes from the [The National Youth Tobacco Survey (NYTS)](https://www.cdc.gov/tobacco/data_statistics/surveys/nyts/index.htm){target="_blank"}.
 
@@ -365,7 +377,7 @@ excel_files
 
 All the files were read using `read_excel()` of the `readxl` package. Using the `map()` function of the `purrr` package this was done efficiently for all of the excel files in the vector using one command. The `.` is used to indicate that we want to apply the `read_excel()` function to each element of the data that we just piped into the `map()` function.
 
-Here we also used the `%>%` pipe which can be used to pass the input from one function to another for later sequential steps. 
+Here we also used the `%>%` pipe which can be used to pass the input from one function to another for later sequential steps. You can use pipes if you load the `dplyr` package or the `magrittr` package.
 
 This created a single list of tibbles (one for each file). 
 ```{r, eval = FALSE}
@@ -1203,8 +1215,8 @@ We will use the `pivot_longer` function from the `tidyr` package to take all col
 
 nyts_data %>%
   dplyr::group_by(year) %>%
-  dplyr::summarize(Ever = (mean(tobacco_ever, na.rm = TRUE) * 100),
-                   Current = (mean(tobacco_current, na.rm = TRUE) * 100)) %>%
+  dplyr::summarize("Ever \n (any lifetime use)" = (mean(tobacco_ever, na.rm = TRUE) * 100),
+                   "Current \n (any past-30-day use)" = (mean(tobacco_current, na.rm = TRUE) * 100)) %>%
   tidyr::pivot_longer(cols = -year,
                       names_to = "User",
                       values_to = "Percentage of students")
@@ -1219,14 +1231,16 @@ The first thing we do to create a plot is specify what data we are using for our
 
 plot1 <- nyts_data %>%
     dplyr::group_by(year) %>%
-    dplyr::summarize(Ever = (mean(tobacco_ever, na.rm = TRUE) * 100),
-                     Current = (mean(tobacco_current, na.rm = TRUE) * 100)) %>%
+    dplyr::summarize("Ever \n (any lifetime use)" = (mean(tobacco_ever, na.rm = TRUE) * 100),
+                     "Current \n (any past-30-day use)" = (mean(tobacco_current, na.rm = TRUE) * 100)) %>%
   pivot_longer(cols = -year, names_to = "User", values_to = "Percentage of students") %>%
   ggplot(aes(x = year, y = `Percentage of students`)) +
   geom_line(aes(linetype = User)) +
   geom_point(show.legend = FALSE, size = 2) +
   # this allows us to choose what type of line we want for each line
-  scale_linetype_manual(values = c(2, 1)) +
+  scale_linetype_manual(values = c(1, 2), 
+                        breaks = c("Ever \n (any lifetime use)", 
+                                   "Current \n (any past-30-day use)")) +
   # this allows us to specify how the y-axis should appear
   scale_y_continuous(breaks = seq(0, 70, by = 10),
                      labels = seq(0, 70, by = 10),
@@ -1239,7 +1253,7 @@ plot1 <- nyts_data %>%
     labs(title = "How has tobacco use varied over the years?",
          y = "% of students")
 
-plot1
+plot1 + theme(text = element_text(size = 15))
 ```
 
 Nice! Now we can see how overall tobacco usage has changed since 2017. It appears that usage first decreased from 2015 to 2017 and then increased a bit since 2017, surpassing the levels in 2015.
@@ -1249,14 +1263,16 @@ What about e-cigarette use? How has the usage of e-cigarettes changed over time?
 ```{r}
 plot1a <- nyts_data %>%
     dplyr::group_by(year) %>%
-    dplyr::summarize(Ever = (mean(ecig_ever, na.rm = TRUE) * 100),
-                     Current = (mean(ecig_current, na.rm = TRUE) * 100)) %>%
+    dplyr::summarize("Ever \n (any lifetime use)" = (mean(ecig_ever, na.rm = TRUE) * 100),
+                     "Current \n (any past-30-day use)" = (mean(ecig_current, na.rm = TRUE) * 100)) %>%
   pivot_longer(cols = -year, names_to = "User", values_to = "Percentage of students") %>%
   ggplot(aes(x = year, y = `Percentage of students`)) +
   geom_line(aes(linetype = User)) +
   geom_point(show.legend = FALSE, size = 2) +
   # this allows us to choose what type of line we want for each line
-  scale_linetype_manual(values = c(2, 1)) +
+  scale_linetype_manual(values = c(1, 2), 
+                        breaks = c("Ever \n (any lifetime use)", 
+                                   "Current \n (any past-30-day use)")) +
   # this allows us to specify how the y-axis should appear
   scale_y_continuous(breaks = seq(0, 60, by = 10),
                      labels = seq(0, 60, by = 10),
@@ -1269,7 +1285,7 @@ plot1a <- nyts_data %>%
     labs(title = "How has e-cigarette use varied over the years?",
          y = "% of students")
 
-plot1a
+plot1a + theme(text = element_text(size = 15))
 ```
 It looks like the shape of the plot is very similar to tobacco usage overall. We see a downward trend until 2017 when the rate of both current and ever users increased. Recall that this is in agreement with the articles that we referenced earlier. We can see that the slope looks steeper for e-cigarette usage as compared to all tobacco products (including e-cigarettes).
 
@@ -1299,13 +1315,13 @@ We will calculate the mean ever and current usage percentages for students who u
 ```{r}
 nyts_data %>%
     dplyr::group_by(year) %>%
-    dplyr::summarize("Ever_Any Tobacco Product \n (including e-cigarettes)" = 
+    dplyr::summarize("Ever \n (any lifetime use)_Any Tobacco Product \n (including e-cigarettes)" = 
                        (mean(tobacco_ever, na.rm = TRUE) * 100),
-                     "Current_Any Tobacco Product \n (including e-cigarettes)" =   
+                     "Current \n (any past-30-day use)_Any Tobacco Product \n (including e-cigarettes)" =   
                        (mean(tobacco_current, na.rm = TRUE) * 100),
-                     "Ever_E-cigarettes" = 
+                     "Ever \n (any lifetime use)_E-cigarettes" = 
                        (mean(ecig_ever, na.rm = TRUE) * 100),
-                     "Current_E-cigarettes" = 
+                     "Current \n (any past-30-day use)_E-cigarettes" = 
                        (mean(ecig_current, na.rm = TRUE) * 100)) %>%
   pivot_longer(cols = -year, 
            names_to = "User", 
@@ -1316,13 +1332,13 @@ nyts_data %>%
 
 plot1t <- nyts_data %>%
     group_by(year) %>%
-    summarize("Ever_Any Tobacco Product \n (including e-cigarettes)" = 
+    summarize("Ever \n (any lifetime use)_Any Tobacco Product \n (including e-cigarettes)" = 
                 (mean(tobacco_ever, na.rm = TRUE) * 100),
-              "Current_Any Tobacco Product \n (including e-cigarettes)" = 
+              "Current \n (any past-30-day use)_Any Tobacco Product \n (including e-cigarettes)" = 
                 (mean(tobacco_current, na.rm = TRUE) * 100),
-              "Ever_E-cigarettes" = 
+              "Ever \n (any lifetime use)_E-cigarettes" = 
                 (mean(ecig_ever, na.rm = TRUE) * 100),
-               "Current_E-cigarettes" = 
+              "Current \n (any past-30-day use)_E-cigarettes" = 
                 (mean(ecig_current, na.rm = TRUE) * 100)) %>%
   pivot_longer(cols = -year, 
            names_to = "User", 
@@ -1336,7 +1352,9 @@ plot1t <- nyts_data %>%
     geom_line(aes(linetype = User)) +
   geom_point(show.legend = FALSE, size = 2) +
   # this allows us to choose what type of line we want for each line
-  scale_linetype_manual(values = c(2, 1)) +
+  scale_linetype_manual(values = c(1, 2), 
+                        breaks = c("Ever \n (any lifetime use)", 
+                                   "Current \n (any past-30-day use)")) +
   # we want purple associated with e-cigarettes to be consistent with later plots
   scale_color_manual(values = rev(v_colors)) +
   # this allows us to specify how the y-axis should appear
@@ -1351,7 +1369,7 @@ plot1t <- nyts_data %>%
     labs(title = "How has tobacco use varied over the years?",
          y = "% of students")
 
-plot1t
+plot1t + theme(text = element_text(size = 15))
 ```
 
 We see an increase in all categories starting in 2017, but the rate of increase is higher for students using only e-cigarettes (current or ever users), as shown by the higher slope of the e-cigarette lines.
@@ -1364,13 +1382,13 @@ We will calculate the mean ever and current usage percentages for students in th
 
 nyts_data %>%
     dplyr::group_by(year) %>%
-    dplyr::summarize("Ever_E-cigarette" = 
+    dplyr::summarize("Ever \n (any lifetime use)_E-cigarette" = 
                        (mean(ecig_only_ever, na.rm = TRUE) * 100),
-                     "Current_E-cigarette" = 
+                     "Current \n (any past-30-day use)_E-cigarette" = 
                        (mean(ecig_only_current, na.rm = TRUE) * 100),
-                     "Ever_Non-e-cigarette" = 
+                     "Ever \n (any lifetime use)_Non-e-cigarette" = 
                        (mean(non_ecig_only_ever, na.rm = TRUE) * 100),
-                     "Current_Non-e-cigarette" = 
+                     "Current \n (any past-30-day use)_Non-e-cigarette" = 
                        (mean(non_ecig_only_current, na.rm = TRUE) * 100)) %>%
   pivot_longer(cols = -year, 
            names_to = "User", 
@@ -1380,13 +1398,13 @@ nyts_data %>%
 
 plot1c <- nyts_data %>%
     dplyr::group_by(year) %>%
-    dplyr::summarize("Ever_E-cigarette" = 
+    dplyr::summarize("Ever \n (any lifetime use)_E-cigarette" = 
                        (mean(ecig_only_ever, na.rm = TRUE) * 100),
-                     "Current_E-cigarette" = 
+                     "Current \n (any past-30-day use)_E-cigarette" = 
                        (mean(ecig_only_current, na.rm = TRUE) * 100),
-                     "Ever_Non-e-cigarette" = 
+                     "Ever \n (any lifetime use)_Non-e-cigarette" = 
                        (mean(non_ecig_only_ever, na.rm = TRUE) * 100),
-                     "Current_Non-e-cigarette" = 
+                     "Current \n (any past-30-day use)_Non-e-cigarette" = 
                        (mean(non_ecig_only_current, na.rm = TRUE) * 100)) %>%
   pivot_longer(cols = -year, 
            names_to = "User", 
@@ -1396,7 +1414,9 @@ plot1c <- nyts_data %>%
     geom_line(aes(linetype = User)) +
   geom_point(show.legend = FALSE, size = 2) +
   # this allows us to choose what type of line we want for each line
-  scale_linetype_manual(values = c(2, 1)) +
+  scale_linetype_manual(values = c(1, 2), 
+                        breaks = c("Ever \n (any lifetime use)", 
+                                   "Current \n (any past-30-day use)")) +
   # this allows us to specify how the y-axis should appear
   scale_y_continuous(breaks = seq(0, 30, by = 10),
                      labels = seq(0, 30, by = 10),
@@ -1411,7 +1431,7 @@ plot1c <- nyts_data %>%
 only tobacco products besides e-cigarettes varied over time?",
          y = "% of students")
 
-plot1c
+plot1c + theme(text = element_text(size = 15))
 ```
 
 Very interesting! We can see from this plot that the percentage of students who had currently used (or ever tried) only e-cigarettes greatly increased starting in 2017, while in contrast the percentage of students who had ever tried only non-e-cigarette tobacco products actually diminished over time. In fact, we can see that in 2019 the percentage of students who were current e-cigarette users surpassed the percentage that had tried a non-e-cigarette product even just once. 
@@ -1444,9 +1464,12 @@ nyts_data %>%
   ggplot(aes(x = year, y = `Percentage of students`, color = Group)) +
   geom_point(size = 2) +
   geom_line() +
-  scale_color_manual(values = v_colors) +
+  scale_color_manual(breaks = c("Neither", "Combination of products",
+                                "Only e-cigarettes", "Only other products"),
+                     values = v_colors) +
   theme_linedraw() +
-  labs(x = "Year")
+  labs(x = "Year") +
+  theme(text = element_text(size = 15))
 ```
 
 We can see that the majority of students did not report using any tobacco products. Of the students that did report using tobacco products, the majority of the students used both e-cigarettes and some other tobacco product. Again, a much larger percentage reported using only e-cigarettes rather than only other tobacco products in 2019.
@@ -1465,15 +1488,15 @@ We will calculate the percent ever and current e-cigarette users for each year a
 As discussed above, we acknowledge that while [gender](https://www.genderspectrum.org/quick-links/understanding-gender/){target="_blank"} and [sex](https://www.who.int/genomics/gender/en/index1.html){target="_blank"} are not actually binary, the data used in this analysis only contain information for groups of individuals who answered the survey questions as male or female. For individuals that have NA values, it is unclear if the question was not answered or if the individual identifies as non-binary. Because of this uncertainty, we will filter these individuals out. 
 
 ```{r}
-
-v_colors =  viridis(6)[c(1, 4)]
+# use different colors here for males and females to differentiate from the previous plots
+v_colors =  viridis(6)[c(3, 5)]
 
 nyts_data %>%
      filter(!is.na(Sex)) %>%
      group_by(year, Sex) %>%
-     summarize(Ever = (mean(EELCIGT, na.rm = TRUE) * 100),
-               Current = (mean(CELCIGT, na.rm = TRUE) * 100)) %>%
-     pivot_longer(cols = Ever:Current,
+     summarize("Ever \n (any lifetime use)" = (mean(EELCIGT, na.rm = TRUE) * 100),
+               "Current \n (any past-30-day use)" = (mean(CELCIGT, na.rm = TRUE) * 100)) %>%
+     pivot_longer(cols = "Ever \n (any lifetime use)":"Current \n (any past-30-day use)",
                   names_to = "User",
                   values_to = "Percentage of students") %>%
      head()
@@ -1481,9 +1504,9 @@ nyts_data %>%
 plot2 <- nyts_data %>%
      filter(!is.na(Sex)) %>%
      group_by(year, Sex) %>%
-     summarize(Ever = (mean(EELCIGT, na.rm = TRUE) * 100),
-               Current = (mean(CELCIGT, na.rm = TRUE) * 100)) %>%
-     pivot_longer(cols = Ever:Current,
+     summarize("Ever \n (any lifetime use)" = (mean(EELCIGT, na.rm = TRUE) * 100),
+               "Current \n (any past-30-day use)" = (mean(CELCIGT, na.rm = TRUE) * 100)) %>%
+     pivot_longer(cols = "Ever \n (any lifetime use)":"Current \n (any past-30-day use)",
                   names_to = "User",
                   values_to = "Percentage of students") %>%
     ggplot(aes(x = year, y = `Percentage of students`, color = Sex)) +
@@ -1498,7 +1521,7 @@ plot2 <- nyts_data %>%
          subtitle = "Current and ever users by sex",
          y = "% of students")
 
-plot2
+plot2 + theme(text = element_text(size = 15))
 ```
 
 It looks like the rates are fairly similar between the sexes, however the rate for males appears to be consistently higher across time.
@@ -1539,14 +1562,13 @@ plot3 <- nyts_data %>%
   theme_linedraw() +
   theme(
     legend.position = "none",
-    axis.text.x = element_text(size = 10),
     axis.title.x = element_blank()
   ) +
   labs(title = "What vaping brands appear to be used the most frequently?",
        subtitle = "Brand of e-cigarette most frequently used in the last 30 days (2019)",
        y = "% of e-cigarette users responding")
 
-plot3
+plot3 + theme(text = element_text(size = 15))
 ```
 
 Juul appears to be the most widely used brand. This is in agreement with a recent [article](https://tobaccocontrol.bmj.com/content/tobaccocontrol/28/2/146.full.pdf), whose most recent data was from 2017:
@@ -1610,7 +1632,7 @@ plot4 <- nyts_data %>%
   labs(title = "What flavors appear to be used the most frequently?",
        subtitle = "Flavors of tobacco products used in the past 30 days")
 
-plot4
+plot4 + theme(text = element_text(size = 15))
 ```
 
 From this plot, we can see that fruit flavors are the most widely used products, followed by menthol or mint flavored products. We can also see that there was a general increase in the usage of flavored products over time.
@@ -1663,7 +1685,7 @@ plot5 <- nyts_data %>%
         strip.text.x = element_text(size = 10, face = "bold")) +
   labs(title = "Among different product users, what flavors are most frequently used?")
 
-plot5
+plot5 + theme(text = element_text(size = 15))
 ```
 
 
@@ -1683,10 +1705,10 @@ v_colors =  viridis(6)[c(1, 4)]
 
 nyts_data %>%
     group_by(year) %>%
-    summarize("Cigarettes, Ever" = (mean(ECIGT, na.rm = TRUE) * 100),
-            "E-cigarettes, Ever" = (mean(EELCIGT, na.rm = TRUE) * 100),
-           "Cigarettes, Current" = (mean(CCIGT, na.rm = TRUE) * 100),
-         "E-cigarettes, Current" = (mean(CELCIGT, na.rm = TRUE) * 100)) %>%
+    summarize("Cigarettes, Ever \n (any lifetime use)" = (mean(ECIGT, na.rm = TRUE) * 100),
+            "E-cigarettes, Ever \n (any lifetime use)" = (mean(EELCIGT, na.rm = TRUE) * 100),
+           "Cigarettes, Current \n (any past-30-day use)" = (mean(CCIGT, na.rm = TRUE) * 100),
+         "E-cigarettes, Current \n (any past-30-day use)" = (mean(CELCIGT, na.rm = TRUE) * 100)) %>%
     pivot_longer(cols = - year, 
              names_to = "Category", 
             values_to = "Percentage of students") %>%
@@ -1697,10 +1719,10 @@ nyts_data %>%
 plot6 <- nyts_data %>%
   group_by(year) %>%
   summarize(
-    "Cigarettes, Ever" = (mean(ECIGT, na.rm = TRUE) * 100),
-    "E-cigarettes, Ever" = (mean(EELCIGT, na.rm = TRUE) * 100),
-    "Cigarettes, Current" = (mean(CCIGT, na.rm = TRUE) * 100),
-    "E-cigarettes, Current" = (mean(CELCIGT, na.rm = TRUE) * 100)
+    "Cigarettes, Ever \n (any lifetime use)" = (mean(ECIGT, na.rm = TRUE) * 100),
+    "E-cigarettes, Ever \n (any lifetime use)" = (mean(EELCIGT, na.rm = TRUE) * 100),
+    "Cigarettes, Current \n (any past-30-day use)" = (mean(CCIGT, na.rm = TRUE) * 100),
+    "E-cigarettes, Current \n (any past-30-day use)" = (mean(CELCIGT, na.rm = TRUE) * 100)
   ) %>%
   pivot_longer(cols = -year,
                names_to = "Category",
@@ -1723,7 +1745,7 @@ plot6 <- nyts_data %>%
        subtitle = "Current and ever users of e-cigarettes and cigarettes",
        y = "% of students")
 
-plot6
+plot6 + theme(text = element_text(size = 15))
 ```
 
 Interesting! we can see that in 2019 the percentage of students that reported currently using e-cigarettes had surpassed those that ever tried (even just once) a cigarette. Overall cigarette usage appears to be declining over time. This is not the case for e-cigarettes.
@@ -1760,7 +1782,7 @@ plot7 <- nyts_data %>%
 compare to ever trying other products over time?",
 y = "% of students")
 
-plot7
+plot7 + theme(text = element_text(size = 15))
 ```
 
 
@@ -1793,13 +1815,13 @@ plot8 <- nyts_data %>%
 compare to currently using other products over time?",
        y = "% of students")
 
-plot8
+plot8 + theme(text = element_text(size = 15))
 ```
 
 ### **Putting plots together**
 ***
 
-Now we will put these plots together using the `plot_grid()` function of the `cowplot` package.  We will also modify the labels using the `ggdraw()` function, which is also part of the `cowplot` package.
+Now we will put these plots together using the `plot_grid()` function of the `cowplot` package.  We will also modify the labels using the `ggdraw()` function, which is also part of the `cowplot` package. To learn more about the `cowplot` package, refer to this [case study](https://www.opencasestudies.org/ocs-bp-RTC-analysis/#Data_Visualization){target="_blank"}.
 
 ```{r, fig.height=10}
 plotA_uw <- plot1 +
@@ -2014,7 +2036,7 @@ plotA_w <- nyts_data %>%
           axis.title.x = element_blank()) +
     labs(title = "Tobacco product users more prevalent after 2017",
          y = "% of students")
-plotA_w
+plotA_w + theme(text = element_text(size = 15))
 ```
 
 Now we can see that we have confidence interval ranges plotted for each value. 
@@ -2080,7 +2102,7 @@ plotB_w <- nyts_data %>%
 % Ever trying other products decreases",
        y = "% of students")
 
-plotB_w
+plotB_w + theme(text = element_text(size = 15))
 ```
 
 
@@ -2133,7 +2155,7 @@ plotC_w <- nyts_data %>%
   labs(title = "% Currently using e-cigarettes increases &
 % Currently using other products decreases",
         y = "% of students")
-plotC_w
+plotC_w + theme(text = element_text(size = 15))
 ```
 
 ```{r, echo = FALSE}
@@ -2141,13 +2163,13 @@ plotC_w
 
 plot1c <- nyts_data %>%
     dplyr::group_by(year) %>%
-    dplyr::summarize("Ever_E-cigarette" = 
+    dplyr::summarize("Ever \n (any lifetime use)_E-cigarette" = 
                        (mean(ecig_only_ever, na.rm = TRUE) * 100),
-                     "Current_E-cigarette" = 
+                     "Current \n (any past-30-day use)_E-cigarette" = 
                        (mean(ecig_only_current, na.rm = TRUE) * 100),
-                     "Ever_Non-e-cigarette" = 
+                     "Ever \n (any lifetime use)_Non-e-cigarette" = 
                        (mean(non_ecig_only_ever, na.rm = TRUE) * 100),
-                     "Current_Non-e-cigarette" = 
+                     "Current \n (any past-30-day use)_Non-e-cigarette" = 
                        (mean(non_ecig_only_current, na.rm = TRUE) * 100)) %>%
   pivot_longer(cols = - year,
                names_to = "User",
@@ -2490,7 +2512,7 @@ We can interpret this output as follows:
 * The odds of being a current e-cigarette user for females is 0.65 times the odds for males.
 * The odds of being a current e-cigarette user for females is 35% lower than the odds for males.
 
-We can also look at the other columns of the model output to assess whether our data indicate that $\beta_1$ is statistically significantly different from 0. The p-value for the `Sex` variable in our model is `r format(currEcigSexTidy %>% filter(term == "Sexfemale") %>% pull(p.value), digits = 3)`. Since this value is < 0.05, we would reject the null hypothesis that $\beta_1 = 0$ based on our model output.
+We can also look at the other columns of the model output to assess whether our data indicate that $\beta_1$ is statistically significantly different from 0. The p-value for the `Sex` variable in our model is `r format(currEcigSexTidy %>% filter(term == "Sexfemale") %>% pull(p.value), digits = 3)`. Since this value is < 0.05, we would reject the null hypothesis that $\beta_1 = 0$ based on our model output. See this [case study](https://www.opencasestudies.org/ocs-bp-rural-and-urban-obesity/#Alpha){target="_blank"} for more information about alpha and p-values.
 
 Simple logistic regression can be extended to include additional variables in the model, for example to adjust for potential confounding variables such as `Age` or `Grade`. For example, suppose we want to estimate the effect of `Sex` on current e-cigarette use, holding `Age` constant. We could fit the model:
 
