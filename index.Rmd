@@ -2064,10 +2064,32 @@ figure_uw
 
 ### **Survey Weighting**
 ***
-```{r, echo = FALSE}
-#If instructors start here, we need to load the data:
-load(here::here("data", "wrangled_data_with_var_for_plots.rda"))
+
+***
+<details> <summary> Click here if you skipped the previous sections and want to start here. </summary>
+
+First you need to install the `OCSdata` package:
+
+```{r, eval=FALSE}
+# install.packages("devtools")
+devtools::install_github("opencasestudies/OCSdata")
 ```
+
+Then, you may load the wrangled data for plots using the following function:
+
+```{r, eval=FALSE}
+load_wrangled_data_with_var_for_plots("ocs-bp-vaping-case-study", outpath = getwd())
+```
+
+If the package does not work for you, alternatively, an RDA file (stands for R data) of the data can be found in our [GitHub repository](https://github.com//opencasestudies/ocs-bp-vaping-case-study/tree/master/data/wrangled) or slightly more directly [here](https://raw.githubusercontent.com/opencasestudies/ocs-bp-vaping-case-study/master/data/wrangled/wrangled_data_with_var_for_plots.rda). Download this file and then place it in your current working directory within a subdirectory called "wrangled" within a subdirectory called "data" to copy and paste our code. We used an RStudio project and the [`here` package](https://github.com/jennybc/here_here) to navigate to the file more easily. 
+
+```{r}
+load(here::here("data", "wrangled", "wrangled_data_with_var_for_plots.rda"))
+```
+
+</details>
+
+***
   
 It turns out that our analysis thus far has been brushing an important statistical concept under the rug, related to how our data were collected. Our data come from responses to a survey, which may have a particular sampling scheme to capture data about the population we are interested in. For example, the survey may be designed to capture a set of individuals who reflect the characteristics of the population that we are interested in drawing conclusions about. However, only a fraction of the individuals who were contacted about taking the survey may have completed it, and this fraction of individuals may no longer be representative of the population. Or the survey may be designed to over-sample a particular group of interest so that individuals from that group show up more often as survey respondents than are present in the population overall. In order to account for the fact that the survey respondents may not reflect the composition of the population we want to generalize to, we can employ a technique called [survey weighting](http://www.applied-survey-methods.com/weight.html){target="_blank"}.
 
