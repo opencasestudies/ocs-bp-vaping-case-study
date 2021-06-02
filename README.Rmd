@@ -6,7 +6,10 @@ output: md_document
 
 # OpenCaseStudies
 
-[![Build Status](https://travis-ci.org/opencasestudies/ocs-bloomberg-vaping-case-study.svg?branch=master)](https://travis-ci.org/opencasestudies/ocs-bloomberg-vaping-case-study)
+<!-- badges: start -->
+[![render-README](https://github.com/opencasestudies/ocs-bp-vaping-case-study/workflows/render-README/badge.svg)](https://github.com/opencasestudies/ocs-bp-vaping-case-study/actions)
+[![render-index](https://github.com/opencasestudies/ocs-bp-vaping-case-study/workflows/render-index/badge.svg)](https://github.com/opencasestudies/ocs-bp-vaping-case-study/actions)
+<!-- badges: end -->
 
 ### Important links 
 
