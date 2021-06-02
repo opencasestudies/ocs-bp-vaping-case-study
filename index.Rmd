@@ -28,6 +28,8 @@ output:
 }
 </style>
 
+<!-- Open all links in new tab-->  
+<base target="_blank"/> 
  
 <div id="google_translate_element"></div>
 
@@ -90,7 +92,14 @@ Wright, Carrie and Ontiveros, Michael and Jager, Leah and Taub, Margaret and Hic
 
 ####
 
-To access the GitHub Repository for this case study see here: https://github.com/opencasestudies/ocs-bp-vaping-case-study
+To access the GitHub Repository with the data for this case study see here: https://github.com/opencasestudies/ocs-bp-vaping-case-study
+
+You may also access and download the data using our `OCSdata` package. To learn more about this package including examples, see this [link](https://github.com/opencasestudies/OCSdata). Here is how you would install this package:
+
+```{r, eval=FALSE}
+# install.packages("devtools")
+devtools::install_github("opencasestudies/OCSdata")
+```
 
 This case study is part of a series of public health case studies for the [Bloomberg American Health  Initiative](https://americanhealth.jhu.edu/open-case-studies).
 
@@ -358,7 +367,16 @@ The data in this survey are pooled cross-sectional data. In this study design, d
 
 Since these excel files are so large (each has roughly 20,000 rows), it takes a bit of time for the data to load. To make the process faster, we previously imported these files, selected only the columns relevant to our questions of interest, and saved these data subsets as comma-separated (.csv) files. 
 
-If you have trouble accessing the GitHub Repository, these CSV files can be downloaded from [here](https://github.com/opencasestudies/ocs-bp-vaping-case-study/tree/master/data/data_reduced){target="_blank"}.
+You may download these files using the `OCSdata` package:
+
+```{r, eval=FALSE}
+# install.packages("devtools")
+# devtools::install_github("opencasestudies/OCSdata")
+
+load_reduced("ocs-bp-vaping-case-study", outpath = getwd())
+```
+
+You may also obtain these files from the GitHub Repository. If you have trouble accessing the GitHub Repository, these CSV files can be downloaded from [here](https://github.com/opencasestudies/ocs-bp-vaping-case-study/tree/master/data/data_reduced){target="_blank"}.
 
 ***
 
@@ -501,15 +519,15 @@ tbl_files[["nyts2019"]] <- tbl_files[["nyts2019"]] %>%
                   )
 ```
 
-A directory called `data_reduced` was created for the new .csv files using the base `dir.create()` function. 
+A directory called `reduced` was created for the new .csv files using the base `dir.create()` function. 
 A csv file was created for each of the tibbles in the list using the `write_csv()` function of the `readr` package.
 This was done all at once using the `map()` function.
 
 ```{r, eval = FALSE}
-dir.create("data/data_reduced")
+dir.create("data/reduced")
 
 names(tbl_files) %>% map(~ write_csv(tbl_files[[.]], 
-                                     path = paste0("data/data_reduced/", ., ".csv")))
+                                     path = paste0("data/reduced/", ., ".csv")))
 ```
 
 </details>
@@ -545,7 +563,7 @@ See [here](https://support.rstudio.com/hc/en-us/articles/200526207-Using-Project
 
 ***
 
-The `list.files()` function looked for all files with .csv within the sub-directories.
+The `list.files()` function looked for all files with .csv within the `data/reduced` sub-directories.
 
 All the files were read using `read_csv()` of the `readr` package. Using the `map()` function of the `purrr` package this was done efficiently for all of the CSV files in the vector using one command. The `.` is used to indicate that we want to apply the `read_csv()` function to each element of the data that we just piped into the `map()` function. For more information about the `map()` function, see [here](https://purrr.tidyverse.org/reference/map.html){target="_blank"}.
 
@@ -554,19 +572,89 @@ Here we also used the `%>%` pipe which can be used to pass the input from one fu
 ```{r}
 nyts_data <- list.files(here::here(), recursive = TRUE,
                         pattern = "*.csv") %>%
+  stringr::str_subset(., "wrangled", negate = TRUE) %>%
   map(~ read_csv(.))
 
 
 nyts_data_names <- list.files(recursive = TRUE,
                               pattern = "*.csv") %>%
+  stringr::str_subset(., "wrangled", negate = TRUE) %>%
   str_extract("nyts201[5-9]")
 
 names(nyts_data) <- nyts_data_names
 ```
 
+We can save our imported data as an rda file (stands for R data file) using the `save()` function. 
+
+```{r}
+save(nyts_data, file = here::here("data", "imported", "imported_data.rda"))
+```
+
 
 ## **Data Exploration and Wrangling**
 *** 
+
+If you have been following along but stopped, we could load our imported data using the `OCSdata` package like so:
+
+```{r, eval=FALSE}
+# install.packages("devtools")
+# devtools::install_github("opencasestudies/OCSdata")
+
+load_imported_data("ocs-bp-vaping-case-study", outpath = getwd())
+```
+
+If you prefer loading the imported data from the "data" directory, you may do it like so:
+
+```{r}
+load(here::here("data", "imported", "imported_data.rda"))
+```
+
+***
+<details> <summary> If you skipped the data import section click here. </summary>
+
+First you need to install the `OCSdata` package:
+
+```{r, eval=FALSE}
+# install.packages("devtools")
+devtools::install_github("opencasestudies/OCSdata")
+```
+
+Then, you may load the imported data using the following function:
+
+```{r, eval=FALSE}
+load_imported_data("ocs-bp-vaping-case-study", outpath = getwd())
+```
+
+If the package does not work for you, alternatively, an RDA file (stands for R data) of the data can be found in our [GitHub repository](https://github.com//opencasestudies/ocs-bp-vaping-case-study/tree/master/data/imported) or slightly more directly [here](https://raw.githubusercontent.com/opencasestudies/ocs-bp-vaping-case-study/master/data/imported/imported_data.rda). Download this file and then place it in your current working directory within a subdirectory called "imported" within a subdirectory called "data" to copy and paste our code. We used an RStudio project and the [`here` package](https://github.com/jennybc/here_here) to navigate to the file more easily. 
+
+```{r}
+load(here::here("data", "imported", "imported_data.rda"))
+```
+
+***
+<details> <summary> Click here to see more about creating new projects in RStudio. </summary>
+
+You can create a project by going to the File menu of RStudio like so:
+
+
+```{r, echo = FALSE, out.width="60%"}
+knitr::include_graphics(here::here("img", "New_project.png"))
+```
+
+You can also do so by clicking the project button:
+
+```{r, echo = FALSE, out.width="60%"}
+knitr::include_graphics(here::here("img", "project_button.png"))
+```
+
+See [here](https://support.rstudio.com/hc/en-us/articles/200526207-Using-Projects) to learn more about using RStudio projects and [here](https://github.com/jennybc/here_here) to learn more about the `here` package.
+
+</details>
+***
+</details>
+
+***
+
 
 Our goal in this section is to adjust or "wrangle" the data from each year into a common format so that we can combine the datasets across years for our analysis, and so that we have values in our variables that are correct and easy to interpret. We will need to understand what is the same and what is different across the data from different years, rename and recode the variables (e.g., by replacing the numbers 1 and 2 with the values "Male" and "Female" for the `Sex` variable), and combine the data. We will walk through these steps below. 
 
@@ -849,8 +937,12 @@ glimpse(nyts_data)
 
 Note that there are several variables where there are similar names, but with a `C` compared to an `E` in the variable name. Those starting with `C` are related to questions about current usage (last 30 days), while those with an `E` are related to usage across the student respondent's whole life ("ever" usage). We will discuss these groups further below.
 
-```{r, echo = FALSE, eval = FALSE}
-save(nyts_data, file = here::here("data", "wrangled_data.rda"))
+Now we will save our wrangled data. We will save it as an rda file for ourselves and as csv files, as this is often a good option for collaborators. We will save this file in a directory called "wrangled" within our "data" directory of our project.
+
+```{r}
+save(nyts_data, file = here::here("data", "wrangled", "wrangled_data.rda"))
+
+write_csv(nyts_data, path = here::here("data", "wrangled", "nyts_data.csv"))
 ```
 
 
@@ -903,8 +995,72 @@ Variable   | Details
 **CHTP** | student reported they used heated tobacco products during the past 30 days  
 </details>
 
+
+
 ## **Data Visualization**
 *** 
+
+If you have been following along but stopped, we could load the wrangled data using the `OCSdata` package like so:
+
+```{r, eval=FALSE}
+# install.packages("devtools")
+# devtools::install_github("opencasestudies/OCSdata")
+
+load_wrangled_data("ocs-bp-vaping-case-study", outpath = getwd())
+```
+
+If you prefer loading the wrangled data from the "data" directory, you may do it like so:
+
+```{r}
+load(here::here("data", "wrangled", "wrangled_data.rda"))
+```
+
+***
+<details> <summary> If you skipped the data exploration and wrangling section click here. </summary>
+
+First you need to install the `OCSdata` package:
+
+```{r, eval=FALSE}
+# install.packages("devtools")
+devtools::install_github("opencasestudies/OCSdata")
+```
+
+Then, you may load the wrangled data using the following function:
+
+```{r, eval=FALSE}
+load_wrangled_data("ocs-bp-vaping-case-study", outpath = getwd())
+```
+
+If the package does not work for you, alternatively, an RDA file (stands for R data) of the data can be found in our [GitHub repository](https://github.com//opencasestudies/ocs-bp-vaping-case-study/tree/master/data/wrangled) or slightly more directly [here](https://raw.githubusercontent.com/opencasestudies/ocs-bp-vaping-case-study/master/data/wrangled/wrangled_data.rda). Download this file and then place it in your current working directory within a subdirectory called "wrangled" within a subdirectory called "data" to copy and paste our code. We used an RStudio project and the [`here` package](https://github.com/jennybc/here_here) to navigate to the file more easily. 
+
+```{r}
+load(here::here("data", "wrangled", "wrangled_data.rda"))
+```
+
+***
+<details> <summary> Click here to see more about creating new projects in RStudio. </summary>
+
+You can create a project by going to the File menu of RStudio like so:
+
+
+```{r, echo = FALSE, out.width="60%"}
+knitr::include_graphics(here::here("img", "New_project.png"))
+```
+
+You can also do so by clicking the project button:
+
+```{r, echo = FALSE, out.width="60%"}
+knitr::include_graphics(here::here("img", "project_button.png"))
+```
+
+See [here](https://support.rstudio.com/hc/en-us/articles/200526207-Using-Projects) to learn more about using RStudio projects and [here](https://github.com/jennybc/here_here) to learn more about the `here` package.
+
+</details>
+***
+</details>
+
+***
+
 
 Recall that our main questions were:
 
@@ -963,10 +1119,6 @@ We will sum across the variables that relate to ever or current tobacco usage qu
 
 We will then use the `case_when()` function of the `dplyr` package to convert the sum values to `TRUE` or `FALSE` based on the threshold of zero. If the sum is greater than zero, then we know the student answered yes to at least one question. 
 
-```{r, echo = FALSE}
-#in case you are starting at this section- need to load the data:
-load(here::here("data", "wrangled_data.rda"))
-```
 
 ```{r}
 nyts_data %<>%
@@ -1160,17 +1312,42 @@ nyts_data %<>% dplyr::add_count(year)
 glimpse(nyts_data)
 ```
 
-```{r, echo = FALSE, eval = FALSE}
-save(nyts_data, file = here::here("data", "wrangled_data_with_var_for_plots.rda"))
+Now let's save our wrangled data for future use. We will save it as an r compatible file (a .rda file), as well as csv files, as these are useful to give to collaborators. We will use the `write_csv()` function of the `readr` package to do this.
+
+```{r}
+save(nyts_data, file = here::here("data", "wrangled", "wrangled_data_with_var_for_plots.rda"))
+readr::write_csv(nyts_data, 
+                 path = here::here("data", "wrangled", "nyts_data_for_plots.csv"))
 ```
 
 ### **Question 1**
 ***
 
-```{r, echo = FALSE}
-# If instructors want to start here, we need to load the data:
-load(here::here("data", "wrangled_data_with_var_for_plots.rda"))
+***
+<details> <summary> Click here if you skipped the previous sections and want to start here. </summary>
+
+First you need to install the `OCSdata` package:
+
+```{r, eval=FALSE}
+# install.packages("devtools")
+devtools::install_github("opencasestudies/OCSdata")
 ```
+
+Then, you may load the wrangled data for plots using the following function:
+
+```{r, eval=FALSE}
+load_wrangled_data_with_var_for_plots("ocs-bp-vaping-case-study", outpath = getwd())
+```
+
+If the package does not work for you, alternatively, an RDA file (stands for R data) of the data can be found in our [GitHub repository](https://github.com//opencasestudies/ocs-bp-vaping-case-study/tree/master/data/wrangled) or slightly more directly [here](https://raw.githubusercontent.com/opencasestudies/ocs-bp-vaping-case-study/master/data/wrangled/wrangled_data_with_var_for_plots.rda). Download this file and then place it in your current working directory within a subdirectory called "wrangled" within a subdirectory called "data" to copy and paste our code. We used an RStudio project and the [`here` package](https://github.com/jennybc/here_here) to navigate to the file more easily. 
+
+```{r}
+load(here::here("data", "wrangled", "wrangled_data_with_var_for_plots.rda"))
+```
+
+</details>
+
+***
 
 Recall that we are interested in investigating how vaping product use has compared with other tobacco use over time. To answer this, we first want to get a sense of how tobacco use has changed in general since 2015. 
 
@@ -2397,10 +2574,66 @@ figure_w_8
 ## **Data Analysis**
 *** 
 
-```{r, echo = FALSE}
-#If instructors start here, we need to load the data:
-load(here::here("data", "wrangled_data_with_var_for_plots.rda"))
+If you have been following along but stopped, we could load the wrangled data for plots using the `OCSdata` package like so:
+
+```{r, eval=FALSE}
+# install.packages("devtools")
+# devtools::install_github("opencasestudies/OCSdata")
+
+load_wrangled_data_with_var_for_plots("ocs-bp-vaping-case-study", outpath = getwd())
 ```
+
+If you prefer loading the wrangled data from the "data" directory, you may do it like so:
+
+```{r}
+load(here::here("data", "wrangled", "wrangled_data_with_var_for_plots.rda"))
+```
+
+***
+<details> <summary> If you skipped the previous sections click here. </summary>
+
+First you need to install the `OCSdata` package:
+
+```{r, eval=FALSE}
+# install.packages("devtools")
+devtools::install_github("opencasestudies/OCSdata")
+```
+
+Then, you may load the wrangled data for plots using the following function:
+
+```{r, eval=FALSE}
+load_wrangled_data_with_var_for_plots("ocs-bp-vaping-case-study", outpath = getwd())
+```
+
+If the package does not work for you, alternatively, an RDA file (stands for R data) of the data can be found in our [GitHub repository](https://github.com//opencasestudies/ocs-bp-vaping-case-study/tree/master/data/wrangled) or slightly more directly [here](https://raw.githubusercontent.com/opencasestudies/ocs-bp-vaping-case-study/master/data/wrangled/wrangled_data_with_var_for_plots.rda). Download this file and then place it in your current working directory within a subdirectory called "wrangled" within a subdirectory called "data" to copy and paste our code. We used an RStudio project and the [`here` package](https://github.com/jennybc/here_here) to navigate to the file more easily. 
+
+```{r}
+load(here::here("data", "wrangled", "wrangled_data_with_var_for_plots.rda"))
+```
+
+***
+<details> <summary> Click here to see more about creating new projects in RStudio. </summary>
+
+You can create a project by going to the File menu of RStudio like so:
+
+
+```{r, echo = FALSE, out.width="60%"}
+knitr::include_graphics(here::here("img", "New_project.png"))
+```
+
+You can also do so by clicking the project button:
+
+```{r, echo = FALSE, out.width="60%"}
+knitr::include_graphics(here::here("img", "project_button.png"))
+```
+
+See [here](https://support.rstudio.com/hc/en-us/articles/200526207-Using-Projects) to learn more about using RStudio projects and [here](https://github.com/jennybc/here_here) to learn more about the `here` package.
+
+</details>
+***
+</details>
+
+***
 
 As an extension, we will include some material here on [logistic regression](https://en.wikipedia.org/wiki/Logistic_regression){target="_blank"} and survey-weighted logistic regression that would be appropriate for answering Question 2 ("How does e-cigarette use compare between males and females?") for a single year using statistical inference, rather than just data visualizations.
 
