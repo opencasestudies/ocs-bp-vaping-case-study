@@ -1,12 +1,14 @@
-Description: This is a Description.
+Description: Open Case Studies: Vaping Behaviors in American Youth
 License: CC BY-NC 3.0
-Authors@R: person(given = "Just",
-           family = "Placeholder",
-           email = "blah@gmail.com")
-Package: ocs.bloomberg.vaping.case.study
+Authors@R: c(
+    person(c("Stephanie", "C."), "Hicks", role = c("aut", "cre"),
+    email = "shicks19@jhu.edu",
+    comment = c(ORCID = "0000-0002-7858-0231")),
+    person("Carrie", "Wright", role = "aut"))
+Package: ocsbpvapingcasestudy
 Type: package
-Title: Open Case Studies
-Version: 0.0.1
+Title: Vaping Behaviors in American Youth
+Version: 0.99.0
 Depends: R (>= 4.0)
 Imports:
     here,
