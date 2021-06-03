@@ -1,12 +1,12 @@
 ---
 title: |
-  ![](https://opencasestudies.github.io/img/icon-bahi.png){width=140px align=left}   
+  ![](https://opencasestudies.github.io/img/icon-bahi.png){width=120px align=left style="padding-right: 20px"}
   Vaping Behaviors in American Youth
 css: www/style.css
 output:
   html_document:
     includes:
-      in_header: GA_Script.Rhtml
+       in_header: www/GA_Script.Rhtml
     self_contained: yes
     code_download: yes
     highlight: tango
@@ -25,7 +25,7 @@ runtime: shiny_prerendered
 <!-- Open all links in new tab-->  
 <base target="_blank"/> 
  
-<div id="google_translate_element"></div>
+<div align="left" id="google_translate_element",></div>
 
 <script type="text/javascript" src='//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit'></script>
 
@@ -49,16 +49,18 @@ knitr::opts_chunk$set(include = TRUE, comment = NA, echo = TRUE,
                       message = FALSE, warning = FALSE, cache = FALSE,
                       fig.align = "center", out.width = '90%')
 library(knitr)
-library(learnr)
 library(here)
+
+library(learnr)
+library(gradethis)
+gradethis::gradethis_setup()
 ```
 
-<p>&nbsp;</p>
 
 #### {.outline }
 
 ```{r, echo = FALSE, out.width = "800 px"}
-knitr::include_graphics("www/img/final_plot.png")
+knitr::include_graphics(here::here("www", "img", "final_plot.png"))
 ```
 
 ####
@@ -271,7 +273,7 @@ According to the cited [Morbidity and Mortality Weekly Report](https://www.cdc.g
 
 ```{r, echo = FALSE, fig.align ="center", out.width = "800 px"}
 
-knitr::include_graphics("www/img/context.png")
+knitr::include_graphics(here::here("www", "img", "context.png"))
 ```
 
 #### [[source](https://www.cdc.gov/mmwr/volumes/68/wr/mm6806e1.htm?s_cid=mm6806e1_w)]{target="_blank"} 
@@ -280,7 +282,7 @@ knitr::include_graphics("www/img/context.png")
 Importantly, the vapors used in e-cigarettes contain harmful chemicals:
 
 ```{r, echo = FALSE, fig.align ="center"}
-include_graphics("www/img/e-cigarette-aerosol-can-contain-harmful-ingredients.jpg")
+include_graphics(here::here("www", "img", "e-cigarette-aerosol-can-contain-harmful-ingredients.jpg"))
 ```
 
 #### [[source](https://www.cdc.gov/tobacco/basic_information/e-cigarettes/images/e-cigarette-aerosol-can-contain-harmful-ingredients-desktop-700.jpg)]{target="_blank"} 
@@ -289,7 +291,7 @@ E-cigarette usage has also been associated with [lung injury]((https://www.front
 
 ```{r, echo = FALSE, fig.align ="center", out.width = "800 px"}
 
-knitr::include_graphics("www/img/lung.png")
+knitr::include_graphics(here::here("www", "img", "lung.png"))
 ```
 
 #### [[source](https://www.frontiersin.org/articles/10.3389/fphar.2019.01619/full)]{target="_blank"} 
@@ -321,8 +323,9 @@ Each year includes documentation, such as a [codebook](https://www.lib.ncsu.edu/
 
 ```{r, echo = FALSE, fig.align ="center", out.width = "600 px"}
 
-knitr::include_graphics("www/img/data.png")
+knitr::include_graphics(here::here("www", "img", "data.png"))
 ```
+
 Therefore, since we are using data from **2015-2019**, the data we are interested in are located in 5 different excel files, one for each year, each with its own [codebook](./docs/2019-nyts-dataset-and-codebook-microsoft-excel/2019-nyts-codebook-p.pdf){target="_blank"} (this is the one for 2019).
 
 The [codebook](https://www.icpsr.umich.edu/icpsrweb/content/shared/ICPSR/faqs/what-is-a-codebook.html){target="_blank"} contains information describing the data within the excel file. 
@@ -331,20 +334,20 @@ As you can see the excel file contains very short variable names and numeric val
 
 ```{r, echo = FALSE, fig.align ="center", out.width = "600 px"}
 
-knitr::include_graphics("www/img/excel.png")
+knitr::include_graphics(here::here("www", "img", "excel.png"))
 ```
 
 The codebook explains what the variables (the columns) are:
 ```{r, echo = FALSE, fig.align ="center", out.width = "600 px"}
 
-knitr::include_graphics("www/img/variables.png")
+knitr::include_graphics(here::here("www", "img", "variables.png"))
 ```
 
 And the codebook explains what the values for each variable are:
 
 ```{r, echo = FALSE, fig.align ="center", out.width = "600 px"}
 
-knitr::include_graphics("www/img/qn1.png")
+knitr::include_graphics(here::here("www", "img", "qn1.png"))
 ```
 
 We will explain more later about what the values on the right indicate.
@@ -543,13 +546,13 @@ You can create a project by going to the File menu of RStudio like so:
 
 
 ```{r, echo = FALSE, out.width="60%"}
-knitr::include_graphics("www/img/New_project.png")
+knitr::include_graphics(here::here("www", "img", "New_project.png"))
 ```
 
 You can also do so by clicking the project button:
 
 ```{r, echo = FALSE, out.width="60%"}
-knitr::include_graphics("www/img/project_button.png")
+knitr::include_graphics(here::here("www", "img", "project_button.png"))
 ```
 
 See [here](https://support.rstudio.com/hc/en-us/articles/200526207-Using-Projects){target="_blank"} to learn more about using RStudio projects. 
@@ -581,8 +584,12 @@ names(nyts_data) <- nyts_data_names
 
 We can save our imported data as an rda file (stands for R data file) using the `save()` function. 
 
-```{r}
+```{r, eval=FALSE}
 save(nyts_data, file = here::here("data", "imported", "imported_data.rda"))
+```
+
+```{r, echo=FALSE}
+save(nyts_data, file = here::here("www", "data", "imported", "imported_data.rda"))
 ```
 
 
@@ -600,8 +607,12 @@ load_imported_data("ocs-bp-vaping-case-study", outpath = getwd())
 
 If you prefer loading the imported data from the "data" directory, you may do it like so:
 
-```{r}
+```{r, eval=FALSE}
 load(here::here("data", "imported", "imported_data.rda"))
+```
+
+```{r, echo=FALSE}
+load(here::here("www", "data", "imported", "imported_data.rda"))
 ```
 
 ***
@@ -622,8 +633,12 @@ load_imported_data("ocs-bp-vaping-case-study", outpath = getwd())
 
 If the package does not work for you, alternatively, an RDA file (stands for R data) of the data can be found in our [GitHub repository](https://github.com//opencasestudies/ocs-bp-vaping-case-study/tree/master/data/imported) or slightly more directly [here](https://raw.githubusercontent.com/opencasestudies/ocs-bp-vaping-case-study/master/data/imported/imported_data.rda). Download this file and then place it in your current working directory within a subdirectory called "imported" within a subdirectory called "data" to copy and paste our code. We used an RStudio project and the [`here` package](https://github.com/jennybc/here_here) to navigate to the file more easily. 
 
-```{r}
+```{r, eval=FALSE}
 load(here::here("data", "imported", "imported_data.rda"))
+```
+
+```{r, echo=FALSE}
+load(here::here("www", "data", "imported", "imported_data.rda"))
 ```
 
 ***
@@ -633,13 +648,13 @@ You can create a project by going to the File menu of RStudio like so:
 
 
 ```{r, echo = FALSE, out.width="60%"}
-knitr::include_graphics(here::here("img", "New_project.png"))
+knitr::include_graphics(here::here("www", "img", "New_project.png"))
 ```
 
 You can also do so by clicking the project button:
 
 ```{r, echo = FALSE, out.width="60%"}
-knitr::include_graphics(here::here("img", "project_button.png"))
+knitr::include_graphics(here::here("www", "img", "project_button.png"))
 ```
 
 See [here](https://support.rstudio.com/hc/en-us/articles/200526207-Using-Projects) to learn more about using RStudio projects and [here](https://github.com/jennybc/here_here) to learn more about the `here` package.
@@ -798,14 +813,14 @@ Recall from the codebook for this year's dataset that `Age` isn't listed in the 
 
 ```{r, echo = FALSE, fig.align ="center", out.width = "600 px"}
 
-knitr::include_graphics("www/img/qn1.png")
+knitr::include_graphics(here::here("www", "img", "qn1.png"))
 ```
 
 The same is true for `Grade`:
 
 ```{r, echo = FALSE, fig.align ="center", out.width = "600 px"}
 
-knitr::include_graphics("www/img/grade.png")
+knitr::include_graphics(here::here("www", "img", "grade.png"))
 ```
 
 **This is why it is so important to always check the codebook!!**
@@ -934,10 +949,16 @@ Note that there are several variables where there are similar names, but with a 
 
 Now we will save our wrangled data. We will save it as an rda file for ourselves and as csv files, as this is often a good option for collaborators. We will save this file in a directory called "wrangled" within our "data" directory of our project.
 
-```{r}
+```{r, eval=FALSE}
 save(nyts_data, file = here::here("data", "wrangled", "wrangled_data.rda"))
 
 write_csv(nyts_data, path = here::here("data", "wrangled", "nyts_data.csv"))
+```
+
+```{r, echo=FALSE}
+save(nyts_data, file = here::here("www", "data", "wrangled", "wrangled_data.rda"))
+
+write_csv(nyts_data, path = here::here("www", "data", "wrangled", "nyts_data.csv"))
 ```
 
 
@@ -994,7 +1015,7 @@ Variable   | Details
 ### **Exercise**
 ***
 
-``` {r DEW_Quiz, echo = FALSE}
+``` {r dew_quiz, echo = FALSE}
 quiz(caption = "",
   question("Suppose that we want to change value \"a\" in a column(variable) of a dataset to value \"b\" , which one of the following functions of the `dplyr` package should be used?",
     answer("`rename()`", message = "`rename()` renames a column, not a value in that column."),
@@ -1017,7 +1038,7 @@ Suppose there is a list of datasets called `norm_data`. The first dataset in `no
 
 Write a function called `rename_sd` that renames the first column as "SD = 1", and the second column as "SD = 2". Then, apply this function to the list `norm_data`.
 
-```{r DEW_Exercise-setup}
+```{r dew_exercise-setup}
 set.seed(100)
 var1 <- rnorm(5, 0, 1)
 var2 <- rnorm(5, 0, 2)
@@ -1030,7 +1051,7 @@ norm_data <- list(mean0, mean5)
 names(norm_data) <- c("norm with mean = 0", "norm with mean = 5")
 ```
 
-```{r DEW_Exercise, exercise = TRUE}
+```{r dew_exercise, exercise = TRUE}
 # write the function
 rename_sd <- function(){
   
@@ -1043,19 +1064,19 @@ norm_data <-
 norm_data
 ```
 
-```{r DEW_Exercise-hint-1}
+```{r dew_exercise-hint-1}
 # What input argument should the function take?
 # What should the function do with the input argument?
 ```
 
-```{r DEW_Exercise-hint-2}
+```{r dew_exercise-hint-2}
 # What input argument should the function take?
 # What should the function do with the input argument?
 
 # What function can be used to apply a function to each element in our list?
 ```
 
-```{r DEW_Exercise-hint-3}
+```{r dew_exercise-hint-3}
 # write the function
 rename_sd <- function(dataset) {
   dataset %>%
@@ -1063,7 +1084,7 @@ rename_sd <- function(dataset) {
 }
 ```
 
-```{r DEW_Exercise-solution}
+```{r dew_exercise-solution}
 # write the function
 rename_sd <- function(dataset) {
   dataset %>%
@@ -1093,8 +1114,12 @@ load_wrangled_data("ocs-bp-vaping-case-study", outpath = getwd())
 
 If you prefer loading the wrangled data from the "data" directory, you may do it like so:
 
-```{r}
+```{r, eval=FALSE}
 load(here::here("data", "wrangled", "wrangled_data.rda"))
+```
+
+```{r, echo=FALSE}
+load(here::here("www", "data", "wrangled", "wrangled_data.rda"))
 ```
 
 ***
@@ -1115,8 +1140,12 @@ load_wrangled_data("ocs-bp-vaping-case-study", outpath = getwd())
 
 If the package does not work for you, alternatively, an RDA file (stands for R data) of the data can be found in our [GitHub repository](https://github.com//opencasestudies/ocs-bp-vaping-case-study/tree/master/data/wrangled) or slightly more directly [here](https://raw.githubusercontent.com/opencasestudies/ocs-bp-vaping-case-study/master/data/wrangled/wrangled_data.rda). Download this file and then place it in your current working directory within a subdirectory called "wrangled" within a subdirectory called "data" to copy and paste our code. We used an RStudio project and the [`here` package](https://github.com/jennybc/here_here) to navigate to the file more easily. 
 
-```{r}
+```{r, eval=FALSE}
 load(here::here("data", "wrangled", "wrangled_data.rda"))
+```
+
+```{r, echo=FALSE}
+load(here::here("www", "data", "wrangled", "wrangled_data.rda"))
 ```
 
 ***
@@ -1126,13 +1155,13 @@ You can create a project by going to the File menu of RStudio like so:
 
 
 ```{r, echo = FALSE, out.width="60%"}
-knitr::include_graphics(here::here("img", "New_project.png"))
+knitr::include_graphics(here::here("www", "img", "New_project.png"))
 ```
 
 You can also do so by clicking the project button:
 
 ```{r, echo = FALSE, out.width="60%"}
-knitr::include_graphics(here::here("img", "project_button.png"))
+knitr::include_graphics(here::here("www", "img", "project_button.png"))
 ```
 
 See [here](https://support.rstudio.com/hc/en-us/articles/200526207-Using-Projects) to learn more about using RStudio projects and [here](https://github.com/jennybc/here_here) to learn more about the `here` package.
@@ -1396,10 +1425,16 @@ glimpse(nyts_data)
 
 Now let's save our wrangled data for future use. We will save it as an r compatible file (a .rda file), as well as csv files, as these are useful to give to collaborators. We will use the `write_csv()` function of the `readr` package to do this.
 
-```{r}
+```{r, eval=FALSE}
 save(nyts_data, file = here::here("data", "wrangled", "wrangled_data_with_var_for_plots.rda"))
 readr::write_csv(nyts_data, 
                  path = here::here("data", "wrangled", "nyts_data_for_plots.csv"))
+```
+
+```{r, echo=FALSE}
+save(nyts_data, file = here::here("www", "data", "wrangled", "wrangled_data_with_var_for_plots.rda"))
+readr::write_csv(nyts_data, 
+                 path = here::here("www", "data", "wrangled", "nyts_data_for_plots.csv"))
 ```
 
 ### **Question 1**
@@ -1423,8 +1458,12 @@ load_wrangled_data_with_var_for_plots("ocs-bp-vaping-case-study", outpath = getw
 
 If the package does not work for you, alternatively, an RDA file (stands for R data) of the data can be found in our [GitHub repository](https://github.com//opencasestudies/ocs-bp-vaping-case-study/tree/master/data/wrangled) or slightly more directly [here](https://raw.githubusercontent.com/opencasestudies/ocs-bp-vaping-case-study/master/data/wrangled/wrangled_data_with_var_for_plots.rda). Download this file and then place it in your current working directory within a subdirectory called "wrangled" within a subdirectory called "data" to copy and paste our code. We used an RStudio project and the [`here` package](https://github.com/jennybc/here_here) to navigate to the file more easily. 
 
-```{r}
+```{r, eval=FALSE}
 load(here::here("data", "wrangled", "wrangled_data_with_var_for_plots.rda"))
+```
+
+```{r, echo=FALSE}
+load(here::here("www", "data", "wrangled", "wrangled_data_with_var_for_plots.rda"))
 ```
 
 </details>
@@ -1785,8 +1824,8 @@ plot2 + theme(text = element_text(size = 15))
 
 It looks like the rates are fairly similar between the sexes, however the rate for males appears to be consistently higher across time.
 
-```{r, echo=FALSE, eval=FALSE}
-ggsave(here::here("img", "plot2.png"))
+```{r, echo=FALSE, include=FALSE}
+ggsave(here::here("www", "img", "plot2.png"))
 ```
 
 ### **Question 3**
@@ -1833,7 +1872,7 @@ plot3 + theme(text = element_text(size = 15))
 Juul appears to be the most widely used brand. This is in agreement with a recent [article](https://tobaccocontrol.bmj.com/content/tobaccocontrol/28/2/146.full.pdf), whose most recent data was from 2017:
 
 ```{r, echo=FALSE, fig.cap="Huang J, Duan Z, Kwok J, et al. Tob Control 2019;28:146–151.", out.width = '100%'}
-knitr::include_graphics("www/img/HuangJ_DuanZ_KwokJ_et_al_TobaccoControl_Figure1.png")
+knitr::include_graphics(here::here("www", "img", "HuangJ_DuanZ_KwokJ_et_al_TobaccoControl_Figure1.png"))
 ```
 
 We are also interested in how the usage of different flavors has changed over time. 
@@ -2165,8 +2204,12 @@ load_wrangled_data_with_var_for_plots("ocs-bp-vaping-case-study", outpath = getw
 
 If the package does not work for you, alternatively, an RDA file (stands for R data) of the data can be found in our [GitHub repository](https://github.com//opencasestudies/ocs-bp-vaping-case-study/tree/master/data/wrangled) or slightly more directly [here](https://raw.githubusercontent.com/opencasestudies/ocs-bp-vaping-case-study/master/data/wrangled/wrangled_data_with_var_for_plots.rda). Download this file and then place it in your current working directory within a subdirectory called "wrangled" within a subdirectory called "data" to copy and paste our code. We used an RStudio project and the [`here` package](https://github.com/jennybc/here_here) to navigate to the file more easily. 
 
-```{r}
+```{r, eval=FALSE}
 load(here::here("data", "wrangled", "wrangled_data_with_var_for_plots.rda"))
+```
+
+```{r, echo=FALSE}
+load(here::here("www", "data", "wrangled", "wrangled_data_with_var_for_plots.rda"))
 ```
 
 </details>
@@ -2690,8 +2733,12 @@ origin/master
 
 If you prefer loading the wrangled data from the "data" directory, you may do it like so:
 
-```{r}
+```{r, eval=FALSE}
 load(here::here("data", "wrangled", "wrangled_data_with_var_for_plots.rda"))
+```
+
+```{r, echo=FALSE}
+load(here::here("www", "data", "wrangled", "wrangled_data_with_var_for_plots.rda"))
 ```
 
 ***
@@ -2712,8 +2759,12 @@ load_wrangled_data_with_var_for_plots("ocs-bp-vaping-case-study", outpath = getw
 
 If the package does not work for you, alternatively, an RDA file (stands for R data) of the data can be found in our [GitHub repository](https://github.com//opencasestudies/ocs-bp-vaping-case-study/tree/master/data/wrangled) or slightly more directly [here](https://raw.githubusercontent.com/opencasestudies/ocs-bp-vaping-case-study/master/data/wrangled/wrangled_data_with_var_for_plots.rda). Download this file and then place it in your current working directory within a subdirectory called "wrangled" within a subdirectory called "data" to copy and paste our code. We used an RStudio project and the [`here` package](https://github.com/jennybc/here_here) to navigate to the file more easily. 
 
-```{r}
+```{r, eval=FALSE}
 load(here::here("data", "wrangled", "wrangled_data_with_var_for_plots.rda"))
+```
+
+```{r, echo=FALSE}
+load(here::here("www", "data", "wrangled", "wrangled_data_with_var_for_plots.rda"))
 ```
 
 ***
@@ -2723,13 +2774,13 @@ You can create a project by going to the File menu of RStudio like so:
 
 
 ```{r, echo = FALSE, out.width="60%"}
-knitr::include_graphics(here::here("img", "New_project.png"))
+knitr::include_graphics(here::here("www", "img", "New_project.png"))
 ```
 
 You can also do so by clicking the project button:
 
 ```{r, echo = FALSE, out.width="60%"}
-knitr::include_graphics(here::here("img", "project_button.png"))
+knitr::include_graphics(here::here("www", "img", "project_button.png"))
 ```
 
 See [here](https://support.rstudio.com/hc/en-us/articles/200526207-Using-Projects) to learn more about using RStudio projects and [here](https://github.com/jennybc/here_here) to learn more about the `here` package.
@@ -2745,7 +2796,7 @@ As an extension, we will include some material here on [logistic regression](htt
 We can look at the final figure in the section on Question 2 and see that among both current and ever users of e-cigarettes, a higher percentage of males than females use or have used e-cigarettes.'
 
 ```{r, echo = FALSE, out.width = "800 px"}
-knitr::include_graphics("www/img/plot2.png")
+knitr::include_graphics(here::here("www", "img", "plot2.png"))
 ```
 
 But what if we wanted to quantify this effect and assess whether this difference can be considered statistically significant? This is where the tool of logistic regression can come in handy.
@@ -2818,7 +2869,7 @@ In this case:
 We would interpret these values by saying that the odds of being a current e-cigarette user for women are around 0.65 times the odds of being a current e-cigarette user for men, or 35% lower for women. This matches what we can see in our data visualizations for Question 2.
 
 ```{r, echo = FALSE, out.width = "800 px"}
-knitr::include_graphics("www/img/plot2.png")
+knitr::include_graphics(here::here("www", "img", "plot2.png"))
 ```
 
 We could also answer this question using logistic regression:
@@ -3043,8 +3094,8 @@ final_plot <- plot_grid(title_final,
 final_plot
 ```
 
-```{r, echo=FALSE, eval=FALSE}
-ggsave(here::here("img", "final_plot.png"))
+```{r, echo=FALSE, include=FALSE}
+ggsave(here::here("www", "img", "final_plot.png"))
 ```
 
 ### **Synopsis**
