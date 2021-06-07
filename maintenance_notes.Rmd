@@ -15,6 +15,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Date Visualization
 
+* `dv_quiz1`
+* `dv_quiz2`
+* `dv_quiz3`
+* `dv_exercise2`
+
 ## Data Analysis
+
+* `da_quiz`
 
 # Other Notes

@@ -1015,7 +1015,7 @@ Variable   | Details
 ### **Exercise**
 ***
 
-``` {r dew_quiz, echo = FALSE}
+```{r dew_quiz, echo = FALSE}
 quiz(caption = "",
   question("Suppose that we want to change value \"a\" in a column(variable) of a dataset to value \"b\" , which one of the following functions of the `dplyr` package should be used?",
     answer("`rename()`", message = "`rename()` renames a column, not a value in that column."),
@@ -1039,6 +1039,8 @@ Suppose there is a list of datasets called `norm_data`. The first dataset in `no
 Write a function called `rename_sd` that renames the first column as "SD = 1", and the second column as "SD = 2". Then, apply this function to the list `norm_data`.
 
 ```{r dew_exercise-setup}
+library(tidyverse)
+
 set.seed(100)
 var1 <- rnorm(5, 0, 1)
 var2 <- rnorm(5, 0, 2)
@@ -2716,7 +2718,135 @@ figure_w_8 <- plot_grid(title_w_8,
 figure_w_8
 ```
 
+### **Exercise**
+***
 
+```{r dv_quiz1, echo=FALSE}
+question("Which of the following is the long format of the data?",
+    answer("A", message = "This is the wide format."),
+    answer("B", correct = TRUE),
+    allow_retry = TRUE,
+    random_answer_order = TRUE
+  )
+```
+
+**A**
+
+```{r, echo=FALSE}
+exercise_dv1 <- data.frame(ID = c(1, 2), Year = c(2015, 2018), Length = c(20, 21.5))
+exercise_dv1
+```
+
+**B**
+
+```{r, echo=FALSE}
+exercise_dv1 %>%
+  pivot_longer(cols = -ID, names_to = "Variable", values_to = "Value")
+```
+
+```{r dv_quiz2, echo=FALSE}
+question("Which one of the following terms in the `ggplot()` function is used to define the shape, transparency, color, fill, and line types of the plot?",
+    answer("geom", message = "Geoms define geometric objects."),
+    answer("scale", message = "Scales define how your data will be plotted. For example, continuous, discrete, etc."),
+    answer("labs", message = "`labs()` function defines title, caption, and the axis labels."),
+    answer("aes", correct = TRUE),
+    allow_retry = TRUE,
+    random_answer_order = TRUE
+  )
+```
+
+```{r dv_quiz3, echo=FALSE}
+question("Suppose a survey was conducted in Maryland where patients with type 2 diabetes were sampled. The researchers first sampled counties in the state, and then hospitals in each county. In addition, individuals were grouped based on gender during sampling. Which of the following is the PSU (primary sampling unit) in this survey design?",
+    answer("Hospitals in each county", message = "This is not the **primary** sampling unit."),
+    answer("Gender", message = "This is the stratum."),
+    answer("Counties in the state", correct = TRUE),
+    allow_retry = TRUE,
+    random_answer_order = TRUE
+  )
+```
+
+Use the R built-in dataset `mtcars` to complete the following exercise.
+
+```{r}
+head(mtcars)
+```
+
+Write some code that will:
+
+1. Only keep the `cyl` and `vs` variables of the data.
+2. Create a new variable called `vshaped`, whose value is `TRUE` when `vs` = 0 and `FALSE` otherwise.
+3. Break the cars (observations) into groups based on their `cyl` number and find out the proportion of cars that have v-shaped engine in each group.
+
+*Note: replace the underscores("\_") with your code with one character per "\_". Click "Submit Answer" to check your answer. *
+
+```{r dv_exercise1-setup}
+library(tidyverse)
+```
+
+```{r dv_exercise1, exercise=TRUE, eval=FALSE}
+# Note there might be other ways to do this that give us the same results 
+# For practice purposes try to fill in the blanks
+
+mtcars %>%
+  # step 1
+  dplyr::______(cyl, vs) %>%
+  # step 2
+  dplyr::mutate(vshaped = _________(vs == 0 ~ TRUE, ____ ~ FALSE)) %>%
+  # step 3
+  dplyr::________(cyl) %>%
+  _________(Proportion = (mean(_______) * 100))
+```
+
+
+```{r dv_exercise1-solution}
+mtcars %>%
+  dplyr::select(cyl, vs) %>%
+  dplyr::mutate(vshaped = case_when(vs == 0 ~ TRUE, TRUE ~ FALSE)) %>%
+  dplyr::group_by(cyl) %>%
+  summarize(Proportion = (mean(vshaped) * 100))
+
+# you need to write your own code for submission 
+# If you copy and paste the solution here and submit it, there may be an error where R does not recognize the pipe operator
+```
+
+```{r dv_exercise1-check, eval=FALSE}
+grade_code()
+```
+
+Suppose that we have a dataset called `exercise.weight`. In this dataset, the `group` variable indicates treatment and control groups; the `time` variable indicates measurement time (in days); and the `avg.weight` variable indicates the average weight in the group. Write some code to plot weight change by time with different line-types representing different groups.\
+We want the plot to:
+
+* have title as "Group Average Weight Change"
+* have $x$ axis name as "Time (day)" and $y$ axis name be "Group Average Weight (lb)"
+* have both points and lines
+* use solid line for the control group and dashed line for treatment group
+* have legend at the bottom of the plot explaining line types
+
+```{r, dv_exercise2-setup}
+library(tidyverse)
+
+exercise.weight <- data.frame("group" = c("control", "control", "control", "treatment", "treatment", "treatment"),
+                     "time" = c(0, 15, 30, 0, 15, 30),
+                     "avg.weight" = c(170, 167, 165, 172, 165, 155))
+```
+
+```{r dv_exercise2, exercise=TRUE, exercise.eval=TRUE, exercise.lines = 5}
+exercise.weight
+```
+
+```{r dv_exercise2-solution}
+exercise.weight %>%
+  ggplot(aes(x = time, y = avg.weight)) +
+  geom_point() +
+  geom_line(aes(linetype = group)) +
+  labs(title = "Group Average Weight Change",
+       x = "Time (day)",
+       y = "Group Average Weight (lb)") +
+  # the scale_linetype_manual function is not necessary in this case, but may be needed in other cases
+  scale_linetype_manual(values = c(1, 2), 
+                        breaks = c("control", "treatment")) +
+  theme(legend.position = "bottom")
+```
 
 ## **Data Analysis**
 *** 
@@ -2960,6 +3090,23 @@ tidy(currEcigSexAge_svy)
 
 In this case, we can see that our estimated difference in log odds for females compared to males, -0.380, is not much different whether we are holding `Age` constant or not.
 
+### **Exercise**
+***
+
+Suppose we fitted a logistic regression model:
+
+$$logit(\text{probability of current e-cigarette use}) = \beta_0 + \beta_1 \cdot Female + \beta_2 \cdot Age$$
+where $Female = 1$ indicates female, $Female = 0$ indicates male, and $Age$ is a continuous variable.
+
+```{r da_quiz, echo=FALSE}
+question("From the fitted model, which of the following options estimates the odds ratio of current e-cigarette use, comparing a 15-year-old female to a 15-year-old male?",
+    answer("$\\hat \\beta_1$", message = "This is log odds ratio, not odds ratio."),
+    answer("$exp(\\hat \\beta_1)$", correct = TRUE),
+    answer("$exp(\\hat \\beta_1 + 15 \\hat \\beta_2)$", message = "Coefficient of age got canceled out during calculation."),
+    allow_retry = TRUE,
+    random_answer_order = TRUE
+  )
+```
 
 ## **Summary**
 *** 
