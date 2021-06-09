@@ -373,7 +373,7 @@ You may download these files using the `OCSdata` package:
 # install.packages("devtools")
 # devtools::install_github("opencasestudies/OCSdata")
 
-load_reduced("ocs-bp-vaping-case-study", outpath = getwd())
+OCSdata::load_simpler_import("ocs-bp-vaping-case-study", outpath = getwd())
 ```
 
 You may also obtain these files from the GitHub Repository. If you have trouble accessing the GitHub Repository, these CSV files can be downloaded from [here](https://github.com/opencasestudies/ocs-bp-vaping-case-study/tree/master/data/data_reduced){target="_blank"}.
