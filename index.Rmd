@@ -274,6 +274,7 @@ library(srvyr)
 library(cowplot)
 library(broom)
 library(survey)
+library(OCSdata)
 ```
 
 <u>**Packages used in this case study:**</u>
@@ -297,6 +298,7 @@ library(survey)
 [cowplot](https://cran.r-project.org/web/packages/cowplot/vignettes/introduction.html){target="_blank"} | to allow plots to be combined 
 [broom](https://cran.r-project.org/web/packages/broom/vignettes/broom.html){target="_blank"} | to create nicely formatted model output
 [survey](http://r-survey.r-forge.r-project.org/survey/index.html){target="_blank"} | to fit survey-weighted logistic regression
+[OCSdata](https://github.com/opencasestudies/OCSdata){target="_blank"} | to access and download OCS data files
 
 
 The first time we use a function, we will use the `::` to indicate which package we are using. Unless we have overlapping function names, this is not necessary, but we will include it here to be informative about where the functions we will use come from.
