@@ -56,8 +56,11 @@ knitr::opts_chunk$set(include = TRUE, comment = NA, echo = TRUE,
                       fig.align = "center", out.width = '90%')
 library(here)
 library(knitr)
-library(wordcountaddin)
 library(magrittr)
+remotes::install_github("benmarwick/wordcountaddin", type = "source", dependencies = TRUE)
+remotes::install_github("alistaire47/read.so")
+library(wordcountaddin)
+library(read.so)
 
 rmarkdown:::perf_timer_reset_all()
 rmarkdown:::perf_timer_start("render")
@@ -93,7 +96,7 @@ This work is licensed under the Creative Commons Attribution-NonCommercial 3.0 [
 
 To cite this case study please use:
 
-Wright, Carrie and Ontiveros, Michael and Jager, Leah and Taub, Margaret and Hicks, Stephanie. (2020). https://github.com/opencasestudies/ocs-bp-vaping-case-study. Vaping Behaviors in American Youth (Version v1.0.0).
+Wright, Carrie and Ontiveros, Michael and Meng, Qier and Jager, Leah and Taub, Margaret and Hicks, Stephanie. (2020). https://github.com/opencasestudies/ocs-bp-vaping-case-study. Vaping Behaviors in American Youth (Version v1.0.0).
 
 ####
 
@@ -3095,6 +3098,8 @@ cat("About", round(pts$time[1]/1000 + 10), "seconds")
 ***
 
 We would like to acknowledge [Renee Johnson](https://www.jhsph.edu/faculty/directory/profile/2848/renee-m-johnson) for assisting in framing the major direction of the case study and for reviewing the case study for subject matter content.
+
+We would like to acknowledge [Michael Breshock](https://mbreshock.github.io/) for his contributions to this case study and developing the `OCSdata` package. 
 
 We would also like to acknowledge the [Bloomberg American Health Initiative](https://americanhealth.jhu.edu/) for funding this work. 
 
