@@ -194,7 +194,8 @@ Apply survey weights to one of the figures produced in this case study in which 
 Reproduce `final_plot` above for a different cohort of your choice. 
 Focusing on a single year of data, explore demographic factors that contribute to tobacco use of some kind. Compare results of unweighted and weighted analysis (for example, using the `svyglm` function to calculate survey-weighted logistic regression estimates).
 
-#### RMarkdown Compilation Time
+#### Estimate of RMarkdown Compilation Time:
 
-~ 110 seconds
+~ About 107 - 117 seconds
 
+This compilation time was measured on a PC machine operating on Windows 10. This range should only be used as an estimate as compilation time will vary with different machines and operating systems. 
