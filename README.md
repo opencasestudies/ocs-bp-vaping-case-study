@@ -41,8 +41,8 @@ United States License.
 
 To cite this case study:
 
-Wright, Carrie and Ontiveros, Michael and Jager, Leah and Taub, Margaret
-and Hicks, Stephanie. (2020).
+Wright, Carrie and Ontiveros, Michael and Meng, Qier and Jager, Leah and
+Taub, Margaret and Hicks, Stephanie. (2020).
 <a href="https://github.com/opencasestudies/ocs-bp-vaping-case-study" class="uri">https://github.com/opencasestudies/ocs-bp-vaping-case-study</a>.
 Vaping Behaviors in American Youth (Version v1.0.0).
 
@@ -53,8 +53,20 @@ Johnson](https://www.jhsph.edu/faculty/directory/profile/2848/renee-m-johnson)
 for assisting in framing the major direction of the case study and for
 reviewing the case study for subject matter content.
 
+We would like to acknowledge [Michael
+Breshock](https://mbreshock.github.io/) for his contributions to this
+case study and developing the `OCSdata` package.
+
 We would also like to acknowledge the [Bloomberg American Health
 Initiative](https://americanhealth.jhu.edu/) for funding this work.
+
+### Reading Metrics
+
+The total reading time for this case study was calculated with
+[koRpus](https://github.com/unDocUMeantIt/koRpus): **About 75 minutes**
+
+The Flesch-Kincaid Readability Index was also calculated with
+[koRpus](https://github.com/unDocUMeantIt/koRpus): **Grade 10, Age 15**
 
 ### Title
 
@@ -330,3 +342,11 @@ Focusing on a single year of data, explore demographic factors that
 contribute to tobacco use of some kind. Compare results of unweighted
 and weighted analysis (for example, using the `svyglm` function to
 calculate survey-weighted logistic regression estimates).
+
+#### Estimate of RMarkdown Compilation Time:
+
+~ About 107 - 117 seconds
+
+This compilation time was measured on a PC machine operating on Windows
+10. This range should only be used as an estimate as compilation time
+will vary with different machines and operating systems.
