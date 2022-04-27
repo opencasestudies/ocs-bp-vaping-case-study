@@ -56,6 +56,14 @@ knitr::opts_chunk$set(include = TRUE, comment = NA, echo = TRUE,
                       fig.align = "center", out.width = '90%')
 library(here)
 library(knitr)
+library(magrittr)
+remotes::install_github("benmarwick/wordcountaddin", type = "source", dependencies = TRUE)
+remotes::install_github("alistaire47/read.so")
+library(wordcountaddin)
+library(read.so)
+
+rmarkdown:::perf_timer_reset_all()
+rmarkdown:::perf_timer_start("render")
 ```
 
 
@@ -88,7 +96,7 @@ This work is licensed under the Creative Commons Attribution-NonCommercial 3.0 [
 
 To cite this case study please use:
 
-Wright, Carrie and Ontiveros, Michael and Jager, Leah and Taub, Margaret and Hicks, Stephanie. (2020). https://github.com/opencasestudies/ocs-bp-vaping-case-study. Vaping Behaviors in American Youth (Version v1.0.0).
+Wright, Carrie and Ontiveros, Michael and Meng, Qier and Jager, Leah and Taub, Margaret and Hicks, Stephanie. (2020). https://github.com/opencasestudies/ocs-bp-vaping-case-study. Vaping Behaviors in American Youth (Version v1.0.0).
 
 ####
 
@@ -97,11 +105,40 @@ To access the GitHub Repository with the data for this case study see here: http
 You may also access and download the data using our `OCSdata` package. To learn more about this package including examples, see this [link](https://github.com/opencasestudies/OCSdata). Here is how you would install this package:
 
 ```{r, eval=FALSE}
-# install.packages("devtools")
-devtools::install_github("opencasestudies/OCSdata")
+install.packages("OCSdata")
 ```
 
 This case study is part of a series of public health case studies for the [Bloomberg American Health  Initiative](https://americanhealth.jhu.edu/open-case-studies).
+
+***
+
+The total reading time for this case study is calculated via [koRpus](https://github.com/unDocUMeantIt/koRpus) and shown below: 
+
+```{r, echo=FALSE}
+readtable = text_stats("index.Rmd") # producing reading time markdown table
+readtime = read.so::read.md(readtable) %>% dplyr::select(Method, koRpus) %>% # reading table into dataframe, selecting relevant factors
+  dplyr::filter(Method == "Reading time") %>% # dropping unnecessary rows
+  dplyr::mutate(koRpus = paste(round(as.numeric(stringr::str_split(koRpus, " ")[[1]][1])), "minutes")) %>% # rounding reading time estimate
+  dplyr::mutate(Method = "koRpus") %>% dplyr::relocate(koRpus, .before = Method) %>% dplyr::rename(`Reading Time` = koRpus) # reorganizing table
+knitr::kable(readtime, format="markdown")
+```
+
+***
+
+**Readability Score: **
+
+A readability index estimates the reading difficulty level of a particular text. Flesch-Kincaid, FORCAST, and SMOG are three common readability indices that were calculated for this case study via [koRpus](https://github.com/unDocUMeantIt/koRpus). These indices provide an estimation of the minimum reading level required to comprehend this case study by grade and age. 
+
+```{r, echo=FALSE}
+rt = wordcountaddin::readability("index.Rmd", quiet=TRUE) # producing readability markdown table
+df = read.so::read.md(rt) %>% dplyr::select(index, grade, age) %>%  # reading table into dataframe, selecting relevant factors
+  tidyr::drop_na() %>% dplyr::mutate(grade = round(as.numeric(grade)), # dropping rows with missing values, rounding age and grade columns
+                                     age = round(as.numeric(age))
+                                     )
+knitr::kable(df, format="markdown")
+```
+
+***
 
 Please help us by filling out our survey.
 
@@ -240,6 +277,7 @@ library(srvyr)
 library(cowplot)
 library(broom)
 library(survey)
+library(OCSdata)
 ```
 
 <u>**Packages used in this case study:**</u>
@@ -263,6 +301,7 @@ library(survey)
 [cowplot](https://cran.r-project.org/web/packages/cowplot/vignettes/introduction.html){target="_blank"} | to allow plots to be combined 
 [broom](https://cran.r-project.org/web/packages/broom/vignettes/broom.html){target="_blank"} | to create nicely formatted model output
 [survey](http://r-survey.r-forge.r-project.org/survey/index.html){target="_blank"} | to fit survey-weighted logistic regression
+[OCSdata](https://github.com/opencasestudies/OCSdata){target="_blank"} | to access and download OCS data files
 
 
 The first time we use a function, we will use the `::` to indicate which package we are using. Unless we have overlapping function names, this is not necessary, but we will include it here to be informative about where the functions we will use come from.
@@ -370,10 +409,10 @@ Since these excel files are so large (each has roughly 20,000 rows), it takes a 
 You may download these files using the `OCSdata` package:
 
 ```{r, eval=FALSE}
-# install.packages("devtools")
-# devtools::install_github("opencasestudies/OCSdata")
+# install.packages("OCSdata")
 
-OCSdata::load_simpler_import("ocs-bp-vaping-case-study", outpath = getwd())
+library(OCSdata)
+simpler_import_data("ocs-bp-vaping-case-study", outpath = getwd())
 ```
 
 You may also obtain these files from the GitHub Repository. If you have trouble accessing the GitHub Repository, these CSV files can be downloaded from [here](https://github.com/opencasestudies/ocs-bp-vaping-case-study/tree/master/data/data_reduced){target="_blank"}.
@@ -594,16 +633,7 @@ save(nyts_data, file = here::here("data", "imported", "imported_data.rda"))
 ## **Data Exploration and Wrangling**
 *** 
 
-If you have been following along but stopped, we could load our imported data using the `OCSdata` package like so:
-
-```{r, eval=FALSE}
-# install.packages("devtools")
-# devtools::install_github("opencasestudies/OCSdata")
-
-load_imported_data("ocs-bp-vaping-case-study", outpath = getwd())
-```
-
-If you prefer loading the imported data from the "data" directory, you may do it like so:
+If you have been following along but stopped, we could load our imported data from the "data" directory like so:
 
 ```{r}
 load(here::here("data", "imported", "imported_data.rda"))
@@ -612,17 +642,18 @@ load(here::here("data", "imported", "imported_data.rda"))
 ***
 <details> <summary> If you skipped the data import section click here. </summary>
 
-First you need to install the `OCSdata` package:
+First you need to install and load the `OCSdata` package:
 
 ```{r, eval=FALSE}
-# install.packages("devtools")
-devtools::install_github("opencasestudies/OCSdata")
+install.packages("OCSdata")
+library(OCSdata)
 ```
 
-Then, you may load the imported data using the following function:
+Then, you may load the imported data using the following code:
 
 ```{r, eval=FALSE}
-load_imported_data("ocs-bp-vaping-case-study", outpath = getwd())
+imported_data("ocs-bp-vaping-case-study", outpath = getwd())
+load(here::here("OCSdata", "data", "imported", "imported_data.rda"))
 ```
 
 If the package does not work for you, alternatively, an RDA file (stands for R data) of the data can be found in our [GitHub repository](https://github.com//opencasestudies/ocs-bp-vaping-case-study/tree/master/data/imported) or slightly more directly [here](https://raw.githubusercontent.com/opencasestudies/ocs-bp-vaping-case-study/master/data/imported/imported_data.rda). Download this file and then place it in your current working directory within a subdirectory called "imported" within a subdirectory called "data" to copy and paste our code. We used an RStudio project and the [`here` package](https://github.com/jennybc/here_here) to navigate to the file more easily. 
@@ -1000,16 +1031,7 @@ Variable   | Details
 ## **Data Visualization**
 *** 
 
-If you have been following along but stopped, we could load the wrangled data using the `OCSdata` package like so:
-
-```{r, eval=FALSE}
-# install.packages("devtools")
-# devtools::install_github("opencasestudies/OCSdata")
-
-load_wrangled_data("ocs-bp-vaping-case-study", outpath = getwd())
-```
-
-If you prefer loading the wrangled data from the "data" directory, you may do it like so:
+If you have been following along but stopped, we could load the wrangled data from the "data" directory like so:
 
 ```{r}
 load(here::here("data", "wrangled", "wrangled_data.rda"))
@@ -1018,17 +1040,18 @@ load(here::here("data", "wrangled", "wrangled_data.rda"))
 ***
 <details> <summary> If you skipped the data exploration and wrangling section click here. </summary>
 
-First you need to install the `OCSdata` package:
+First you need to install and load the `OCSdata` package:
 
 ```{r, eval=FALSE}
-# install.packages("devtools")
-devtools::install_github("opencasestudies/OCSdata")
+install.packages("OCSdata")
+library(OCSdata)
 ```
 
-Then, you may load the wrangled data using the following function:
+Then, you may load the wrangled data using the following code:
 
 ```{r, eval=FALSE}
-load_wrangled_data("ocs-bp-vaping-case-study", outpath = getwd())
+wrangled_rda("ocs-bp-vaping-case-study", outpath = getwd())
+load(here::here("OCSdata", "data", "wrangled", "wrangled_data.rda"))
 ```
 
 If the package does not work for you, alternatively, an RDA file (stands for R data) of the data can be found in our [GitHub repository](https://github.com//opencasestudies/ocs-bp-vaping-case-study/tree/master/data/wrangled) or slightly more directly [here](https://raw.githubusercontent.com/opencasestudies/ocs-bp-vaping-case-study/master/data/wrangled/wrangled_data.rda). Download this file and then place it in your current working directory within a subdirectory called "wrangled" within a subdirectory called "data" to copy and paste our code. We used an RStudio project and the [`here` package](https://github.com/jennybc/here_here) to navigate to the file more easily. 
@@ -1326,17 +1349,18 @@ readr::write_csv(nyts_data,
 ***
 <details> <summary> Click here if you skipped the previous sections and want to start here. </summary>
 
-First you need to install the `OCSdata` package:
+First you need to install and load the `OCSdata` package:
 
 ```{r, eval=FALSE}
-# install.packages("devtools")
-devtools::install_github("opencasestudies/OCSdata")
+install.packages("OCSdata")
+library(OCSdata)
 ```
 
-Then, you may load the wrangled data for plots using the following function:
+Then, you may load the wrangled data for plots using the following code:
 
 ```{r, eval=FALSE}
-load_wrangled_data_with_var_for_plots("ocs-bp-vaping-case-study", outpath = getwd())
+wrangled_rda("ocs-bp-vaping-case-study", outpath = getwd())
+load(here::here("OCSdata", "data", "wrangled", "wrangled_data_with_var_for_plots.rda"))
 ```
 
 If the package does not work for you, alternatively, an RDA file (stands for R data) of the data can be found in our [GitHub repository](https://github.com//opencasestudies/ocs-bp-vaping-case-study/tree/master/data/wrangled) or slightly more directly [here](https://raw.githubusercontent.com/opencasestudies/ocs-bp-vaping-case-study/master/data/wrangled/wrangled_data_with_var_for_plots.rda). Download this file and then place it in your current working directory within a subdirectory called "wrangled" within a subdirectory called "data" to copy and paste our code. We used an RStudio project and the [`here` package](https://github.com/jennybc/here_here) to navigate to the file more easily. 
@@ -2068,17 +2092,18 @@ figure_uw
 ***
 <details> <summary> Click here if you skipped the previous sections and want to start here. </summary>
 
-First you need to install the `OCSdata` package:
+First you need to install and load the `OCSdata` package:
 
 ```{r, eval=FALSE}
-# install.packages("devtools")
-devtools::install_github("opencasestudies/OCSdata")
+install.packages("OCSdata")
+library(OCSdata)
 ```
 
-Then, you may load the wrangled data for plots using the following function:
+Then, you may load the wrangled data for plots using the following code:
 
 ```{r, eval=FALSE}
-load_wrangled_data_with_var_for_plots("ocs-bp-vaping-case-study", outpath = getwd())
+wrangled_rda("ocs-bp-vaping-case-study", outpath = getwd())
+load(here::here("OCSdata", "data", "wrangled", "wrangled_data_with_var_for_plots.rda"))
 ```
 
 If the package does not work for you, alternatively, an RDA file (stands for R data) of the data can be found in our [GitHub repository](https://github.com//opencasestudies/ocs-bp-vaping-case-study/tree/master/data/wrangled) or slightly more directly [here](https://raw.githubusercontent.com/opencasestudies/ocs-bp-vaping-case-study/master/data/wrangled/wrangled_data_with_var_for_plots.rda). Download this file and then place it in your current working directory within a subdirectory called "wrangled" within a subdirectory called "data" to copy and paste our code. We used an RStudio project and the [`here` package](https://github.com/jennybc/here_here) to navigate to the file more easily. 
@@ -2596,16 +2621,7 @@ figure_w_8
 ## **Data Analysis**
 *** 
 
-If you have been following along but stopped, we could load the wrangled data for plots using the `OCSdata` package like so:
-
-```{r, eval=FALSE}
-# install.packages("devtools")
-# devtools::install_github("opencasestudies/OCSdata")
-
-load_wrangled_data_with_var_for_plots("ocs-bp-vaping-case-study", outpath = getwd())
-```
-
-If you prefer loading the wrangled data from the "data" directory, you may do it like so:
+If you have been following along but stopped, we could load the wrangled data from the "data" directory like so:
 
 ```{r}
 load(here::here("data", "wrangled", "wrangled_data_with_var_for_plots.rda"))
@@ -2614,17 +2630,18 @@ load(here::here("data", "wrangled", "wrangled_data_with_var_for_plots.rda"))
 ***
 <details> <summary> If you skipped the previous sections click here. </summary>
 
-First you need to install the `OCSdata` package:
+First you need to install and load the `OCSdata` package:
 
 ```{r, eval=FALSE}
-# install.packages("devtools")
-devtools::install_github("opencasestudies/OCSdata")
+install.packages("OCSdata")
+library(OCSdata)
 ```
 
-Then, you may load the wrangled data for plots using the following function:
+Then, you may load the wrangled data for plots using the following code:
 
 ```{r, eval=FALSE}
-load_wrangled_data_with_var_for_plots("ocs-bp-vaping-case-study", outpath = getwd())
+wrangled_rda("ocs-bp-vaping-case-study", outpath = getwd())
+load(here::here("OCSdata", "data", "wrangled", "wrangled_data_with_var_for_plots.rda"))
 ```
 
 If the package does not work for you, alternatively, an RDA file (stands for R data) of the data can be found in our [GitHub repository](https://github.com//opencasestudies/ocs-bp-vaping-case-study/tree/master/data/wrangled) or slightly more directly [here](https://raw.githubusercontent.com/opencasestudies/ocs-bp-vaping-case-study/master/data/wrangled/wrangled_data_with_var_for_plots.rda). Download this file and then place it in your current working directory within a subdirectory called "wrangled" within a subdirectory called "data" to copy and paste our code. We used an RStudio project and the [`here` package](https://github.com/jennybc/here_here) to navigate to the file more easily. 
@@ -3069,10 +3086,22 @@ Package   | Use in this case study
 sessionInfo()
 ```
 
+**Estimate of RMarkdown Compilation Time: **
+
+```{r, echo=FALSE}
+rmarkdown:::perf_timer_stop("render")
+pts = rmarkdown:::perf_timer_summary()
+cat("About", round(pts$time[1]/1000 + 5), "-", round(pts$time[1]/1000 + 15),"seconds")
+```
+
+This compilation time was measured on a PC machine operating on Windows 10. This range should only be used as an estimate as compilation time will vary with different machines and operating systems. 
+
 ### **Acknowledgments**
 ***
 
 We would like to acknowledge [Renee Johnson](https://www.jhsph.edu/faculty/directory/profile/2848/renee-m-johnson) for assisting in framing the major direction of the case study and for reviewing the case study for subject matter content.
+
+We would like to acknowledge [Michael Breshock](https://mbreshock.github.io/) for his contributions to this case study and developing the `OCSdata` package. 
 
 We would also like to acknowledge the [Bloomberg American Health Initiative](https://americanhealth.jhu.edu/) for funding this work. 
 
