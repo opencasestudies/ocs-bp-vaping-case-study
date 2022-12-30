@@ -2853,7 +2853,7 @@ In this case, we can see that our estimated difference in log odds for females c
 ### **Summary Plot**
 ***
 
-Finally we will put our plots together to create a plot that describes the relationship between e-cigarette usage and overall tobacco use, combining both our first set of unweighted results, and those calculated using the `srvyr` package.
+Finally we will put our plots together to create a plot that describes the relationship between e-cigarette usage and overall tobacco use, combining both our first set of unweighted results, and those calculated using the `srvyr` package. We will also make the background of the plot white.
 
 ```{r}
 title_final <- ggdraw() +
@@ -2974,7 +2974,8 @@ final_plot <- plot_grid(title_final,
                           0.2,
                           0.1,
                           1,
-                          0.1))
+                          0.1)) +
+  theme(plot.background = element_rect(fill = "white"))
 
 final_plot
 ```
