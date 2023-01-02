@@ -63,6 +63,7 @@ library(wordcountaddin)
 library(read.so)
 remotes::install_github("opencasestudies/OCSdata")
 library(OCSdata)
+remotes::install_github("https://github.com/wch/extrafont")
 library(extrafont)
 extrafont::font_import()
 
