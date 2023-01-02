@@ -63,6 +63,8 @@ library(wordcountaddin)
 library(read.so)
 remotes::install_github("opencasestudies/OCSdata")
 library(OCSdata)
+library(extrafont)
+extrafont::font_import()
 
 rmarkdown:::perf_timer_reset_all()
 rmarkdown:::perf_timer_start("render")
