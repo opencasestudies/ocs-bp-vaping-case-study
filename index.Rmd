@@ -2969,7 +2969,7 @@ final_plot <- plot_grid(title_final,
           ncol = 1,
           rel_heights = c(0.2,
                           0.2,
-                          0.1,
+                          0.15,
                           1,
                           0.2,
                           0.1,
@@ -2977,7 +2977,7 @@ final_plot <- plot_grid(title_final,
                           0.2,
                           0.1,
                           1,
-                          0.1)) +
+                          0.2)) +
   theme(plot.background = element_rect(fill = "white"))
 
 final_plot
