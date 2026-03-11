@@ -439,7 +439,7 @@ excel_files
 
 All the files were read using `read_excel()` of the `readxl` package. Using the `map()` function of the `purrr` package this was done efficiently for all of the excel files in the vector using one command. The `.` is used to indicate that we want to apply the `read_excel()` function to each element of the data that we just piped into the `map()` function.
 
-Here we also used the `%>%` pipe which can be used to pass the input from one function to another for later sequential steps. You can use pipes if you load the `dplyr` package or the `magrittr` package.
+Here we also used the `%>%` pipe which can be used to pass the input from one function to another for later sequential steps. You can use pipes if you load the `dplyr` package package.
 
 This created a single list of tibbles (one for each file). 
 ```{r, eval = FALSE}
@@ -1149,7 +1149,7 @@ We will then use the `case_when()` function of the `dplyr` package to convert th
 
 
 ```{r}
-nyts_data %<>%
+nyts_data <- nyts_data %>%
   mutate(tobacco_sum_ever = rowSums(select(., starts_with("E", 
                                     ignore.case = FALSE)), na.rm = TRUE),
       tobacco_sum_current = rowSums(select(., starts_with("C", 
@@ -1292,7 +1292,7 @@ glimpse(test)
 OK, now that we have seen how this works with our toy dataset, we will apply our code to our `nyts_data`.
 
 ```{r}
-nyts_data %<>%
+nyts_data <- nyts_data %>%
              mutate(ecig_only_ever = case_when(ecig_ever == TRUE &
                                            non_ecig_ever == FALSE &
                                             ecig_current == FALSE &
@@ -1332,7 +1332,7 @@ nyts_data %<>%
 Lastly, it can be very helpful to have the total number of students surveyed each year. We can easily add a variable for this by using the `add_count()` function of the `dplyr` package. This will create a variable called `n` which will show the total number of survey responses for that year.
 
 ```{r}
-nyts_data %<>% dplyr::add_count(year)
+nyts_data <- nyts_data %>% dplyr::add_count(year)
 ```
 
 #### {.scrollable}
@@ -1388,7 +1388,7 @@ To create a visualization of how tobacco usage has changed over time, we will fi
 ```{r}
 # the test data has 3 TRUE values and 7 FALSE values
 test <- tibble("var1" = c("TRUE", "TRUE", "TRUE", rep("FALSE", 7)))
-test %<>% mutate(var1 = as.logical(var1))
+test <- test %>% mutate(var1 = as.logical(var1))
 test
 
 test %>% summarize(Percentage = mean(var1) * 100)
@@ -1396,7 +1396,7 @@ test %>% summarize(Percentage = mean(var1) * 100)
 
 # the test data has 3 TRUE values, 3 FALSE values, and 4 NA value
 test <- tibble("var1" = c("TRUE", "TRUE", "TRUE", rep("FALSE", 3), rep("NA", 4)))
-test %<>% mutate(var1 = as.logical(var1))
+test <- test %>% mutate(var1 = as.logical(var1))
 test
 
 test %>% summarize(Percentage = mean(var1, na.rm = TRUE) * 100)
