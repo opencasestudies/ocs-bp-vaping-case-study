@@ -3026,6 +3026,11 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 
 </div>
 
+# **More Case Studies**
+***
+
+Interested in exploring more open case studies? Visit **[opencasestudies.org](https://opencasestudies.org)** to access additional studies and open educational resources.
+
 
 ## **Additional Information**
 *** 
