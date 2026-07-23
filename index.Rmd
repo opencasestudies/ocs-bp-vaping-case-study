@@ -950,15 +950,15 @@ Note that there are several variables where there are similar names, but with a 
 Now we will save our wrangled data. We will save it as an rda file for ourselves and as csv files, as this is often a good option for collaborators. We will save this file in a directory called "wrangled" within our "data" directory of our project.
 
 ```{r, eval=FALSE}
-save(nyts_data, file = here::here("data", "wrangled", "wrangled_data.rda"))
+save(nyts_data, file = here::here("www", "data", "wrangled", "wrangled_data.rda"))
 
-write_csv(nyts_data, path = here::here("data", "wrangled", "nyts_data.csv"))
+write_csv(nyts_data, file = here::here("www", "data", "wrangled", "nyts_data.csv"))
 ```
 
 ```{r, echo=FALSE}
 save(nyts_data, file = here::here("www", "data", "wrangled", "wrangled_data.rda"))
 
-write_csv(nyts_data, path = here::here("www", "data", "wrangled", "nyts_data.csv"))
+write_csv(nyts_data, file = here::here("www", "data", "wrangled", "nyts_data.csv"))
 ```
 
 
@@ -1101,6 +1101,9 @@ norm_data <- norm_data %>%
 norm_data
 ```
 
+```{r dew_exercise-check}
+grade_this_code()
+```
 
 ## **Data Visualization**
 *** 
@@ -1428,15 +1431,16 @@ glimpse(nyts_data)
 Now let's save our wrangled data for future use. We will save it as an r compatible file (a .rda file), as well as csv files, as these are useful to give to collaborators. We will use the `write_csv()` function of the `readr` package to do this.
 
 ```{r, eval=FALSE}
-save(nyts_data, file = here::here("data", "wrangled", "wrangled_data_with_var_for_plots.rda"))
+save(nyts_data, file = here::here("www", "data", "wrangled", "wrangled_data_with_var_for_plots.rda"))
+
 readr::write_csv(nyts_data, 
-                 path = here::here("data", "wrangled", "nyts_data_for_plots.csv"))
+                 file = here::here("www", "data", "wrangled", "nyts_data_for_plots.csv"))
 ```
 
 ```{r, echo=FALSE}
 save(nyts_data, file = here::here("www", "data", "wrangled", "wrangled_data_with_var_for_plots.rda"))
 readr::write_csv(nyts_data, 
-                 path = here::here("www", "data", "wrangled", "nyts_data_for_plots.csv"))
+                 file = here::here("www", "data", "wrangled", "nyts_data_for_plots.csv"))
 ```
 
 ### **Question 1**
@@ -2846,6 +2850,10 @@ exercise.weight %>%
   scale_linetype_manual(values = c(1, 2), 
                         breaks = c("control", "treatment")) +
   theme(legend.position = "bottom")
+```
+
+```{r dv_exercise2-check}
+grade_this_code()
 ```
 
 ## **Data Analysis**
